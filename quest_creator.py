@@ -424,37 +424,50 @@ def Objectives(tab, data):
     NumEntry(mainTargetFrame, limit=0xFF, variable=main['objective_num']).grid(column=1, row=1, pady=(0,10))
     mainTargetFrame.pack(expand=True)
 
-    ttk.Button(mainTab, text='Item Rewards', command=CreateMainRewards).pack(expand=True)
+    ttk.Button(mainTab, text='Item Rewards', command=lambda:CreateRewards(data, 0)).pack(expand=True)
 
     # SUBQUEST 1
+    sub1 = data['objective_details']['subquest_1']
 
     sub1DescriptionFrame = ttk.Frame(sub1Tab, padding=2)
     ttk.Label(sub1DescriptionFrame, text="Subquest 1 Description:").pack()
-    ttk.Entry(sub1DescriptionFrame, width=60).pack()
+    ttk.Entry(sub1DescriptionFrame, width=60, textvariable=sub1['description']).pack()
     sub1DescriptionFrame.pack(expand=True)
 
     sub1MonetaryFrame = ttk.Frame(sub1Tab, padding=2)
     ttk.Label(sub1MonetaryFrame, text="Zenny Reward:").grid(column=0, row=0, sticky='w')
-    Entry(sub1MonetaryFrame).grid(column=0, row=1)
+    NumEntry(sub1MonetaryFrame, limit=0xFFFF, variable=sub1['zenny_reward']).grid(column=0, row=1)
     ttk.Label(sub1MonetaryFrame, text="Hunter Rank Points:").grid(column=1, row=0, sticky='w')
-    Entry(sub1MonetaryFrame).grid(column=1, row=1)
+    NumEntry(sub1MonetaryFrame, limit=0xFFFF, variable=sub1['hrp_reward']).grid(column=1, row=1)
     sub1MonetaryFrame.pack(expand=True)
 
     sub1FlagsFrame = ttk.Frame(sub1Tab, padding=2, width=100)
     ttk.Label(sub1FlagsFrame, text="Subquest 1 Flags:").grid(column=1,row=0)
 
     sub1FlagsFrame1 = ttk.Frame(sub1FlagsFrame, padding=2)
-    varSub111 = BooleanVar()
-    varSub112 = BooleanVar()
-    varSub113 = BooleanVar()
-    varSub114 = BooleanVar()
-    varSub115 = BooleanVar()
-    varSub116 = BooleanVar()
-    varSub117 = BooleanVar()
-    varSub118 = BooleanVar()
-    ttk.Checkbutton(sub1FlagsFrame1, text="Monster", variable=varSub111).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Item", variable=varSub112).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Target", variable=varSub113).pack(side='top', anchor=N+W)
+    varSub111 = sub1['type'][0][0]
+    varSub112 = sub1['type'][0][1]
+    varSub113 = sub1['type'][0][2]
+    varSub114 = sub1['type'][0][3]
+    varSub115 = sub1['type'][0][4]
+    varSub116 = sub1['type'][0][5]
+    varSub117 = sub1['type'][0][6]
+    varSub118 = sub1['type'][0][7]
+
+    sub1TargetFrame = ttk.Frame(sub1Tab, padding=2)
+    sub1Dropdown = AutocompleteDropdown(sub1TargetFrame, Monster, variable=sub1['objective_type'])
+
+    def update_sub1_dropdown():
+        if varSub111.get() or varSub113.get():
+            sub1Dropdown.update_dropdown(Monster)
+        elif varSub112.get():
+            sub1Dropdown.update_dropdown(ItemsType)
+        else:
+            sub1Dropdown.update_dropdown(list(range(0x100)))
+
+    ttk.Checkbutton(sub1FlagsFrame1, text="Monster", variable=varSub111, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Item", variable=varSub112, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Target", variable=varSub113, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame1, text="Unknown4", variable=varSub114).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame1, text="Unknown5", variable=varSub115).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame1, text="Unknown6", variable=varSub116).pack(side='top', anchor=N+W)
@@ -463,14 +476,14 @@ def Objectives(tab, data):
     sub1FlagsFrame1.grid(column=0, row=1, sticky='w')
 
     sub1FlagsFrame2 = ttk.Frame(sub1FlagsFrame, padding=2)
-    varSub121 = BooleanVar()
-    varSub122 = BooleanVar()
-    varSub123 = BooleanVar()
-    varSub124 = BooleanVar()
-    varSub125 = BooleanVar()
-    varSub126 = BooleanVar()
-    varSub127 = BooleanVar()
-    varSub128 = BooleanVar()
+    varSub121 = sub1['type'][1][0]
+    varSub122 = sub1['type'][1][1]
+    varSub123 = sub1['type'][1][2]
+    varSub124 = sub1['type'][1][3]
+    varSub125 = sub1['type'][1][4]
+    varSub126 = sub1['type'][1][5]
+    varSub127 = sub1['type'][1][6]
+    varSub128 = sub1['type'][1][7]
     ttk.Checkbutton(sub1FlagsFrame2, text="Unknown1", variable=varSub121).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame2, text="Enemy Part", variable=varSub122).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame2, text="Hit Points", variable=varSub123).pack(side='top', anchor=N+W)
@@ -482,14 +495,14 @@ def Objectives(tab, data):
     sub1FlagsFrame2.grid(column=1, row=1, sticky='w')
 
     sub1FlagsFrame3 = ttk.Frame(sub1FlagsFrame, padding=2)
-    varSub131 = BooleanVar()
-    varSub132 = BooleanVar()
-    varSub133 = BooleanVar()
-    varSub134 = BooleanVar()
-    varSub135 = BooleanVar()
-    varSub136 = BooleanVar()
-    varSub137 = BooleanVar()
-    varSub138 = BooleanVar()
+    varSub131 = sub1['type'][2][0]
+    varSub132 = sub1['type'][2][1]
+    varSub133 = sub1['type'][2][2]
+    varSub134 = sub1['type'][2][3]
+    varSub135 = sub1['type'][2][4]
+    varSub136 = sub1['type'][2][5]
+    varSub137 = sub1['type'][2][6]
+    varSub138 = sub1['type'][2][7]
     ttk.Checkbutton(sub1FlagsFrame3, text="Unknown1", variable=varSub131).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame3, text="Unknown2", variable=varSub132).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame3, text="Unknown3", variable=varSub133).pack(side='top', anchor=N+W)
@@ -502,44 +515,56 @@ def Objectives(tab, data):
 
     sub1FlagsFrame.pack(expand=True)
 
-    sub1TargetFrame = ttk.Frame(sub1Tab, padding=2)
     ttk.Label(sub1TargetFrame, text="Target:").grid(column=0, row=0, sticky='w')
-    Entry(sub1TargetFrame).grid(column=0, row=1, pady=(0,10))
+    sub1Dropdown.grid(column=0, row=1, pady=(0,10))
     ttk.Label(sub1TargetFrame, text="Value:").grid(column=1, row=0, sticky='w')
-    Entry(sub1TargetFrame).grid(column=1, row=1, pady=(0,10))
+    NumEntry(sub1TargetFrame, limit=0xFF, variable=sub1['objective_num']).grid(column=1, row=1, pady=(0,10))
     sub1TargetFrame.pack(expand=True)
 
-    ttk.Button(sub1Tab, text='Item Rewards').pack(expand=True)
+    ttk.Button(sub1Tab, text='Item Rewards', command=lambda:CreateRewards(data, 1)).pack(expand=True)
 
     # SUBQUEST 2
+    sub2 = data['objective_details']['subquest_2']
 
     sub2DescriptionFrame = ttk.Frame(sub2Tab, padding=2)
     ttk.Label(sub2DescriptionFrame, text="Subquest 2 Description:").pack()
-    ttk.Entry(sub2DescriptionFrame, width=60).pack()
+    ttk.Entry(sub2DescriptionFrame, width=60, textvariable=sub2['description']).pack()
     sub2DescriptionFrame.pack(expand=True)
 
     sub2MonetaryFrame = ttk.Frame(sub2Tab, padding=2)
     ttk.Label(sub2MonetaryFrame, text="Zenny Reward:").grid(column=0, row=0, sticky='w')
-    Entry(sub2MonetaryFrame).grid(column=0, row=1)
+    NumEntry(sub2MonetaryFrame, limit=0xFFFF, variable=sub2['zenny_reward']).grid(column=0, row=1)
     ttk.Label(sub2MonetaryFrame, text="Hunter Rank Points:").grid(column=1, row=0, sticky='w')
-    Entry(sub2MonetaryFrame).grid(column=1, row=1)
+    NumEntry(sub2MonetaryFrame, limit=0xFFFF, variable=sub2['hrp_reward']).grid(column=1, row=1)
     sub2MonetaryFrame.pack(expand=True)
 
     sub2FlagsFrame = ttk.Frame(sub2Tab, padding=2, width=100)
     ttk.Label(sub2FlagsFrame, text="Subquest 2 Flags:").grid(column=1,row=0)
 
     sub2FlagsFrame1 = ttk.Frame(sub2FlagsFrame, padding=2)
-    varSub211 = BooleanVar()
-    varSub212 = BooleanVar()
-    varSub213 = BooleanVar()
-    varSub214 = BooleanVar()
-    varSub215 = BooleanVar()
-    varSub216 = BooleanVar()
-    varSub217 = BooleanVar()
-    varSub218 = BooleanVar()
-    ttk.Checkbutton(sub2FlagsFrame1, text="Monster", variable=varSub211).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Item", variable=varSub212).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Target", variable=varSub213).pack(side='top', anchor=N+W)
+    varSub211 = sub2['type'][0][0]
+    varSub212 = sub2['type'][0][1]
+    varSub213 = sub2['type'][0][2]
+    varSub214 = sub2['type'][0][3]
+    varSub215 = sub2['type'][0][4]
+    varSub216 = sub2['type'][0][5]
+    varSub217 = sub2['type'][0][6]
+    varSub218 = sub2['type'][0][7]
+
+    sub2TargetFrame = ttk.Frame(sub2Tab, padding=2)
+    sub2Dropdown = AutocompleteDropdown(sub2TargetFrame, Monster, variable=sub2['objective_type'])
+
+    def update_sub2_dropdown():
+        if varSub211.get() or varSub213.get():
+            sub2Dropdown.update_dropdown(Monster)
+        elif varSub212.get():
+            sub2Dropdown.update_dropdown(ItemsType)
+        else:
+            sub2Dropdown.update_dropdown(list(range(0x100)))
+
+    ttk.Checkbutton(sub2FlagsFrame1, text="Monster", variable=varSub211, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Item", variable=varSub212, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Target", variable=varSub213, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame1, text="Unknown4", variable=varSub214).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame1, text="Unknown5", variable=varSub215).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame1, text="Unknown6", variable=varSub216).pack(side='top', anchor=N+W)
@@ -548,14 +573,14 @@ def Objectives(tab, data):
     sub2FlagsFrame1.grid(column=0, row=1, sticky='w')
 
     sub2FlagsFrame2 = ttk.Frame(sub2FlagsFrame, padding=2)
-    varSub221 = BooleanVar()
-    varSub222 = BooleanVar()
-    varSub223 = BooleanVar()
-    varSub224 = BooleanVar()
-    varSub225 = BooleanVar()
-    varSub226 = BooleanVar()
-    varSub227 = BooleanVar()
-    varSub228 = BooleanVar()
+    varSub221 = sub2['type'][1][0]
+    varSub222 = sub2['type'][1][1]
+    varSub223 = sub2['type'][1][2]
+    varSub224 = sub2['type'][1][3]
+    varSub225 = sub2['type'][1][4]
+    varSub226 = sub2['type'][1][5]
+    varSub227 = sub2['type'][1][6]
+    varSub228 = sub2['type'][1][7]
     ttk.Checkbutton(sub2FlagsFrame2, text="Unknown1", variable=varSub221).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame2, text="Enemy Part", variable=varSub222).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame2, text="Hit Points", variable=varSub223).pack(side='top', anchor=N+W)
@@ -567,14 +592,14 @@ def Objectives(tab, data):
     sub2FlagsFrame2.grid(column=1, row=1, sticky='w')
 
     sub2FlagsFrame3 = ttk.Frame(sub2FlagsFrame, padding=2)
-    varSub231 = BooleanVar()
-    varSub232 = BooleanVar()
-    varSub233 = BooleanVar()
-    varSub234 = BooleanVar()
-    varSub235 = BooleanVar()
-    varSub236 = BooleanVar()
-    varSub237 = BooleanVar()
-    varSub238 = BooleanVar()
+    varSub231 = sub2['type'][2][0]
+    varSub232 = sub2['type'][2][1]
+    varSub233 = sub2['type'][2][2]
+    varSub234 = sub2['type'][2][3]
+    varSub235 = sub2['type'][2][4]
+    varSub236 = sub2['type'][2][5]
+    varSub237 = sub2['type'][2][6]
+    varSub238 = sub2['type'][2][7]
     ttk.Checkbutton(sub2FlagsFrame3, text="Unknown1", variable=varSub231).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame3, text="Unknown2", variable=varSub232).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame3, text="Unknown3", variable=varSub233).pack(side='top', anchor=N+W)
@@ -587,14 +612,13 @@ def Objectives(tab, data):
 
     sub2FlagsFrame.pack(expand=True)
 
-    sub2TargetFrame = ttk.Frame(sub2Tab, padding=2)
     ttk.Label(sub2TargetFrame, text="Target:").grid(column=0, row=0, sticky='w')
-    Entry(sub2TargetFrame).grid(column=0, row=1, pady=(0,10))
+    sub2Dropdown.grid(column=0, row=1, pady=(0,10))
     ttk.Label(sub2TargetFrame, text="Value:").grid(column=1, row=0, sticky='w')
-    Entry(sub2TargetFrame).grid(column=1, row=1, pady=(0,10))
+    NumEntry(sub2TargetFrame, limit=0xFF, variable=sub2['objective_num']).grid(column=1, row=1, pady=(0,10))
     sub2TargetFrame.pack(expand=True)
 
-    ttk.Button(sub2Tab, text='Item Rewards').pack(expand=True)
+    ttk.Button(sub2Tab, text='Item Rewards', command=lambda:CreateRewards(data, 2)).pack(expand=True)
 
 class ScrolledCanvas():
     def __init__(self, root, color='brown'):
@@ -702,10 +726,24 @@ def Unknowns(tab, data):
     Entry(tab, width=100).pack()
 
 
-def CreateMainRewards():
+def CreateRewards(data, objective=0):
     t = Toplevel(win)
-    t.wm_title("Main Quest Rewards")
-    t.geometry('580x340')
+    if objective == 0:
+        rewards1 = data['objective_details']['main_quest']['rewards_row_1']
+        rewards2 = data['objective_details']['main_quest']['rewards_row_2']
+        t.wm_title("Main Quest Rewards")
+        t.geometry('580x300')
+    elif objective == 1:
+        rewards1 = data['objective_details']['subquest_1']['rewards_row_1']
+        rewards2 = None
+        t.wm_title("Subquest 1 Rewards")
+        t.geometry('290x300')
+    else:
+        rewards1 = data['objective_details']['subquest_1']['rewards_row_1']
+        rewards2 = None
+        t.wm_title("Subquest 2 Rewards")
+        t.geometry('290x300')
+
     t.resizable(False, False)
     tstyle = ttk.Style(t)
     tstyle.theme_use('clam')
@@ -716,92 +754,58 @@ def CreateMainRewards():
     rewardsFrame = ttk.Frame(t)
 
     mainRewardsFrame = ttk.Frame(rewardsFrame, padding=2)
-    #mainRewardsFrame.grid_rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12), weight=1)
-    #mainRewardsFrame.grid_columnconfigure(0, weight=5)
-    #mainRewardsFrame.grid_columnconfigure(1, weight=1)
-    #mainRewardsFrame.grid_columnconfigure(2, weight=1)
-    Label(mainRewardsFrame, text="Main Rewards").grid(column=0,row=0,columnspan=2, sticky=W)
-    Label(mainRewardsFrame, text="Item:").grid(column=0,row=1, sticky=W)
-    Label(mainRewardsFrame, text="Amount:").grid(column=1,row=1, sticky=W)
-    Label(mainRewardsFrame, text="Percent:").grid(column=2,row=1, sticky=W)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=2)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=2)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=2)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=3)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=3)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=3)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=4)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=4)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=4)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=5)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=5)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=5)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=6)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=6)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=6)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=7)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=7)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=7)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=8)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=8)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=8)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=9)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=9)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=9)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=10)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=10)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=10)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=11)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=11)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=11)
-    Entry(mainRewardsFrame,width=item_width).grid(column=0,row=12)
-    Entry(mainRewardsFrame,width=other_width).grid(column=1,row=12)
-    Entry(mainRewardsFrame,width=other_width).grid(column=2,row=12)
-    Label(mainRewardsFrame, text="Total Percent:").grid(column=0, row=13, columnspan=2, sticky=E)
-    Label(mainRewardsFrame, text="").grid(column=2, row=13, sticky=W)
+    Label(mainRewardsFrame, text="Primary Rewards").grid(column=0,row=0,columnspan=2, sticky=W)
+    ttk.Label(mainRewardsFrame, text="Item:").grid(column=0,row=1, sticky=W)
+    ttk.Label(mainRewardsFrame, text="Amount:").grid(column=1,row=1, sticky=W)
+    ttk.Label(mainRewardsFrame, text="Percent:").grid(column=2,row=1, sticky=W)
+    
+    def add_reward_row(frame, rewards, idx, totalBox):
+        AutocompleteDropdown(frame,ItemsType,variable=rewards[idx][0],width=item_width).grid(column=0,row=2+idx)
+        NumEntry(frame,limit=0xFF,variable=rewards[idx][1],width=other_width).grid(column=1,row=2+idx)
+        percent = NumEntry(frame,limit=100,variable=rewards[idx][2],width=other_width)
+        percent.grid(column=2,row=2+idx)
+        percent.bind('<KeyRelease>', lambda x:totalBox.config(text=str(sum([rewards[i][2].get() for i in range(11)]))))
+
+    totalPercent1 = ttk.Label(mainRewardsFrame, text=str(sum([rewards1[i][2].get() for i in range(11)])))
+    add_reward_row(mainRewardsFrame, rewards1, 0, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 1, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 2, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 3, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 4, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 5, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 6, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 7, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 8, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 9, totalPercent1)
+    add_reward_row(mainRewardsFrame, rewards1, 10, totalPercent1)
+
+    ttk.Label(mainRewardsFrame, text="Total Percent:").grid(column=0, row=13, columnspan=2, sticky=E)
+    totalPercent1.grid(column=2, row=13, sticky=W)
     mainRewardsFrame.grid(column=0, row=0, padx=(0,20))
 
-    additionalRewardsFrame = ttk.Frame(rewardsFrame, padding=2)
-    Label(additionalRewardsFrame, text="Additional Rewards").grid(column=0,row=0,columnspan=2, sticky=W)
-    Label(additionalRewardsFrame, text="Item:").grid(column=0,row=1, sticky=W)
-    Label(additionalRewardsFrame, text="Amount:").grid(column=1,row=1, sticky=W)
-    Label(additionalRewardsFrame, text="Percent:").grid(column=2,row=1, sticky=W)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=2)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=2)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=2)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=3)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=3)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=3)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=4)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=4)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=4)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=5)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=5)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=5)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=6)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=6)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=6)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=7)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=7)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=7)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=8)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=8)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=8)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=9)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=9)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=9)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=10)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=10)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=10)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=11)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=11)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=11)
-    Entry(additionalRewardsFrame,width=item_width).grid(column=0,row=12)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=1,row=12)
-    Entry(additionalRewardsFrame,width=other_width).grid(column=2,row=12)
-    Label(additionalRewardsFrame, text="Total Percent:").grid(column=0, row=13, columnspan=2, sticky=E)
-    Label(additionalRewardsFrame, text="").grid(column=2, row=13, sticky=W)
-    additionalRewardsFrame.grid(column=1,row=0, padx=(20,0))
+    if rewards2 is not None:
+        additionalRewardsFrame = ttk.Frame(rewardsFrame, padding=2)
+        Label(additionalRewardsFrame, text="Additional Rewards").grid(column=0,row=0,columnspan=2, sticky=W)
+        ttk.Label(additionalRewardsFrame, text="Item:").grid(column=0,row=1, sticky=W)
+        ttk.Label(additionalRewardsFrame, text="Amount:").grid(column=1,row=1, sticky=W)
+        ttk.Label(additionalRewardsFrame, text="Percent:").grid(column=2,row=1, sticky=W)
+
+        totalPercent2 = ttk.Label(additionalRewardsFrame, text=str(sum([rewards2[i][2].get() for i in range(11)])))
+        add_reward_row(additionalRewardsFrame, rewards2, 0, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 1, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 2, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 3, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 4, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 5, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 6, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 7, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 8, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 9, totalPercent2)
+        add_reward_row(additionalRewardsFrame, rewards2, 10, totalPercent2)
+
+        ttk.Label(additionalRewardsFrame, text="Total Percent:").grid(column=0, row=13, columnspan=2, sticky=E)
+        totalPercent2.grid(column=2, row=13, sticky=W)
+        additionalRewardsFrame.grid(column=1,row=0, padx=(20,0))
     rewardsFrame.pack()
 
 
@@ -1426,41 +1430,75 @@ def InitializeDataDict():
                 (IntVar(value=ItemsType.screamer), IntVar(value=1), IntVar(value=20)),
                 (IntVar(value=ItemsType.kings_frill), IntVar(value=1), IntVar(value=12)),
                 (IntVar(value=ItemsType.bone_husk_s), IntVar(value=8), IntVar(value=18)),
-                (IntVar(value=ItemsType.great_jagi_head), IntVar(value=1), IntVar(value=25))
+                (IntVar(value=ItemsType.great_jagi_head), IntVar(value=1), IntVar(value=25)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
             ],
             'rewards_row_2': [
                 (IntVar(value=ItemsType.mystery_charm), IntVar(value=1), IntVar(value=1)),
                 (IntVar(value=ItemsType.aquaglow_jewel), IntVar(value=1), IntVar(value=1)),
                 (IntVar(value=ItemsType.shining_charm), IntVar(value=1), IntVar(value=1)),
                 (IntVar(value=ItemsType.armor_sphere), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.armor_sphere_plus), IntVar(value=1), IntVar(value=1))
+                (IntVar(value=ItemsType.armor_sphere_plus), IntVar(value=1), IntVar(value=1)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
             ],
         },
         'subquest_1': {
-            'description': "Hunt 2 Great Jaggi",
-            'type': 0x00000001,
-            'objective_type': Monster.great_jaggi,
-            'objective_num': 0x02,
-            'zenny_reward': 4000,
-            'hrp_reward': 440,
+            'description': StringVar(value="Hunt 2 Great Jaggi"),
+            'type': (
+                (BooleanVar(value=1),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
+            ),
+            'objective_type': IntVar(value=Monster.great_jaggi),
+            'objective_num': IntVar(value=0x02),
+            'zenny_reward': IntVar(value=4000),
+            'hrp_reward': IntVar(value=440),
             'rewards_row_1': [
-                (ItemsType.great_jagi_claw, 1, 1),
-                (ItemsType.great_jagi_hide, 1, 1),
-                (ItemsType.jagi_scale, 1, 1),
-                (ItemsType.screamer, 1, 1),
-                (ItemsType.kings_frill, 1, 1),
-                (ItemsType.bone_husk_s, 8, 1),
-                (ItemsType.great_jagi_head, 1, 1)
+                (IntVar(value=ItemsType.great_jagi_claw), IntVar(value=1), IntVar(value=1)),
+                (IntVar(value=ItemsType.great_jagi_hide), IntVar(value=1), IntVar(value=1)),
+                (IntVar(value=ItemsType.jagi_scale), IntVar(value=1), IntVar(value=1)),
+                (IntVar(value=ItemsType.screamer), IntVar(value=1), IntVar(value=1)),
+                (IntVar(value=ItemsType.kings_frill), IntVar(value=1), IntVar(value=1)),
+                (IntVar(value=ItemsType.bone_husk_s), IntVar(value=8), IntVar(value=1)),
+                (IntVar(value=ItemsType.great_jagi_head), IntVar(value=1), IntVar(value=1)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
             ],
         },
         'subquest_2': {
-            'description': "None",
-            'type': 0,
-            'objective_type': Monster.none,
-            'objective_num': 0,
-            'zenny_reward': 0,
-            'hrp_reward': 0,
-            'rewards_row_1': [],
+            'description': StringVar(value="None"),
+            'type': (
+                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
+            ),
+            'objective_type': IntVar(value=Monster.none),
+            'objective_num': IntVar(value=0),
+            'zenny_reward': IntVar(value=0),
+            'hrp_reward': IntVar(value=0),
+            'rewards_row_1': [
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
+            ],
         }
     },
     'unknown': {
