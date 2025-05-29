@@ -61,7 +61,7 @@ def PopulateDataDict(data):
                     'rot_x': IntVar(value=data['small_monsters'][j][k]['rot_x']),'rot_y': IntVar(value=data['small_monsters'][j][k]['rot_y']),'rot_z': IntVar(value=data['small_monsters'][j][k]['rot_z']),
                 } for k in range(len(data['small_monsters'][j]))
             ] for j in range(len(data['small_monsters']))
-        ],
+        ] if 'small_monsters' in data else [[] for _ in range(LOCATION_SIZE[data['quest_info']['location']])],
         'quest_info': {
             'quest_id': IntVar(value=data['quest_info']['quest_id']),
             'name': StringVar(value=data['quest_info']['name']),

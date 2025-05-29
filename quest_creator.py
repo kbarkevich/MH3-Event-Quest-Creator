@@ -797,6 +797,11 @@ def CreateRewards(data, objective=0):
         additionalRewardsFrame.grid(column=1,row=0, padx=(20,0))
     rewardsFrame.pack()
 
+    t.wait_visibility()
+    x = win.winfo_x() + win.winfo_width()//2 - t.winfo_width()//2
+    y = win.winfo_y() + win.winfo_height()//2 - t.winfo_height()//2
+    t.geometry(f"+{x}+{y}")
+
 
 def RebuildTabs(data, tab1, tab2, tab3, tab4, tab5, tab6):
     for widget in tab1.winfo_children():
