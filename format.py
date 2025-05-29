@@ -1,8 +1,17 @@
 from tkinter import *
 from ids import *
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 import json
 import math
+
+
+def SaveQuestFile(data):
+    ff = asksaveasfilename(title="Save Quest Json", filetypes=[("Allowed Types", "*.json",)])
+    if ff:
+        with open(ff, "w") as outfile:
+            json.dump(DepopulateDataDict(data), outfile, indent=4)
+            return True
+    return False
 
 
 def LoadQuestFile():
@@ -14,10 +23,161 @@ def LoadQuestFile():
     return None
 
 
+def DepopulateDataDict(data):
+    def unsplit_multiline_string(strings):
+        all = strings[0].get()
+        pent = 1
+        for string in strings[1:]:
+            if len(string.get()) > 0:
+                all = all + "\n"*pent + string.get()
+                pent = 1
+            else:
+                pent += 1
+        return all
+
+    def unformat_flags(flags):
+        first = [int(g.get()) for g in flags[0]]
+        second = [int(g.get()) for g in flags[1]]
+        third = [int(g.get()) for g in flags[2]]
+        fourth = [int(g.get()) for g in flags[3]]
+        return [
+            first,
+            second,
+            third,
+            fourth
+        ]
+
+    def unget_bytes(flags):
+        first = flags[0][0].get()*1 + flags[0][1].get()*2 + flags[0][2].get()*4 + flags[0][3].get()*8 + flags[0][4].get()*16 + flags[0][5].get()*32 + flags[0][6].get()*64 + flags[0][7].get()*128
+        second = flags[1][0].get()*1 + flags[1][1].get()*2 + flags[1][2].get()*4 + flags[1][3].get()*8 + flags[1][4].get()*16 + flags[1][5].get()*32 + flags[1][6].get()*64 + flags[1][7].get()*128
+        third = flags[2][0].get()*1 + flags[2][1].get()*2 + flags[2][2].get()*4 + flags[2][3].get()*8 + flags[2][4].get()*16 + flags[2][5].get()*32 + flags[2][6].get()*64 + flags[2][7].get()*128
+        try:
+            fourth = flags[3][0].get()*1 + flags[3][1].get()*2 + flags[3][2].get()*4 + flags[3][3].get()*8 + flags[3][4].get()*16 + flags[3][5].get()*32 + flags[3][6].get()*64 + flags[3][7].get()*128
+        except IndexError:
+            fourth = 0
+        return fourth * 0x1000000 + third * 0x10000 + second * 0x100 + first
+
+    def unget_rewards(rew):
+        return [
+            [g[0].get(), g[1].get(), g[2].get()] for g in rew if g[0].get() != 0
+        ]
+
+    return {
+        'small_monsters': [
+            [
+                {
+                    'type': data['small_monsters'][j][k]['type'].get(),'unk1': data['small_monsters'][j][k]['unk1'].get(),'unk2': data['small_monsters'][j][k]['unk2'].get(),
+                    'variant': data['small_monsters'][j][k]['variant'].get(),'room': data['small_monsters'][j][k]['room'].get(),'quantity': data['small_monsters'][j][k]['quantity'].get(),
+                    'pos_x': data['small_monsters'][j][k]['pos_x'].get(),'pos_y': data['small_monsters'][j][k]['pos_y'].get(),'pos_z': data['small_monsters'][j][k]['pos_z'].get(),
+                    'rot_x': data['small_monsters'][j][k]['rot_x'].get(),'rot_y': data['small_monsters'][j][k]['rot_y'].get(),'rot_z': data['small_monsters'][j][k]['rot_z'].get(),
+                } for k in range(len(data['small_monsters'][j])) if data['small_monsters'][j][k]['type'].get() != 0
+            ] for j in range(len(data['small_monsters']))
+        ] if 'small_monsters' in data else [[] for _ in range(LOCATION_SIZE[data['quest_info']['location'].get()])],
+        'quest_info': {
+            'quest_id': data['quest_info']['quest_id'].get(),
+            'name': data['quest_info']['name'].get(),
+            'client': data['quest_info']['client'].get(),
+            'description': unsplit_multiline_string(data['quest_info']['description']),
+            'details': unsplit_multiline_string(data['quest_info']['details']),
+            'success_message': unsplit_multiline_string(data['quest_info']['success_message']),
+            'flags': unformat_flags(data['quest_info']['flags']),
+            'penalty_per_cart': data['quest_info']['penalty_per_cart'].get(),
+            'quest_fee': data['quest_info']['quest_fee'].get(),
+            'time_limit': data['quest_info']['time_limit'].get(),
+            'main_monster_1': data['quest_info']['main_monster_1'].get(),
+            'main_monster_2': data['quest_info']['main_monster_2'].get(),
+            'location': data['quest_info']['location'].get(),
+            'quest_rank': data['quest_info']['quest_rank'].get(),
+            'hrp_restriction': data['quest_info']['hrp_restriction'].get(),
+            'resources': data['quest_info']['resources'].get(),
+            'supply_set_number': data['quest_info']['supply_set_number'].get(),
+            'starting_position': data['quest_info']['starting_position'].get(),
+            'general_enemy_level': data['quest_info']['general_enemy_level'].get(),
+            'summon':  data['quest_info']['summon'][0].get() * 0x1000000 + data['quest_info']['summon'][1].get() * 0x10000 + data['quest_info']['summon'][2].get() * 0x100 + data['quest_info']['summon'][3].get(),
+            'wave_1_transition_type': data['quest_info']['wave_1_transition_type'].get(),
+            'wave_1_transition_target': data['quest_info']['wave_1_transition_target'].get(),
+            'wave_1_transition_quantity': data['quest_info']['wave_1_transition_quantity'].get(),
+            'wave_2_transition_type': data['quest_info']['wave_2_transition_type'].get(),
+            'wave_2_transition_target': data['quest_info']['wave_2_transition_target'].get(),
+            'wave_2_transition_quantity': data['quest_info']['wave_2_transition_quantity'].get(),
+        },
+        'large_monsters': {
+            'monster_1': {
+                'type': data['large_monsters']['monster_1']['type'].get(),
+                'starting_area': data['large_monsters']['monster_1']['starting_area'].get(),
+                'boss_id': data['large_monsters']['monster_1']['boss_id'].get(),
+                'spawn_count': data['large_monsters']['monster_1']['spawn_count'].get(),
+                'level': data['large_monsters']['monster_1']['level'].get(),
+                'size': data['large_monsters']['monster_1']['size'].get(),
+                'hp_spread': data['large_monsters']['monster_1']['hp_spread'].get(),
+                'size_spread': data['large_monsters']['monster_1']['size_spread'].get()
+            },
+            'monster_2': {
+                'type': data['large_monsters']['monster_2']['type'].get(),
+                'starting_area': data['large_monsters']['monster_2']['starting_area'].get(),
+                'boss_id': data['large_monsters']['monster_2']['boss_id'].get(),
+                'spawn_count': data['large_monsters']['monster_2']['spawn_count'].get(),
+                'level': data['large_monsters']['monster_2']['level'].get(),
+                'size': data['large_monsters']['monster_2']['size'].get(),
+                'hp_spread': data['large_monsters']['monster_2']['hp_spread'].get(),
+                'size_spread': data['large_monsters']['monster_2']['size_spread'].get()
+            },
+            'monster_3': {
+                'type': data['large_monsters']['monster_3']['type'].get(),
+                'starting_area': data['large_monsters']['monster_3']['starting_area'].get(),
+                'boss_id': data['large_monsters']['monster_3']['boss_id'].get(),
+                'spawn_count': data['large_monsters']['monster_3']['spawn_count'].get(),
+                'level': data['large_monsters']['monster_3']['level'].get(),
+                'size': data['large_monsters']['monster_3']['size'].get(),
+                'hp_spread': data['large_monsters']['monster_3']['hp_spread'].get(),
+                'size_spread': data['large_monsters']['monster_3']['size_spread'].get()
+            }
+        },
+        'objective_details': {
+            'main_quest': {
+                #'type': 0x00000001,
+                'type': unget_bytes(data['objective_details']['main_quest']['type']),
+                'objective_type': data['objective_details']['main_quest']['objective_type'].get(),
+                'objective_num': data['objective_details']['main_quest']['objective_num'].get(),
+                'zenny_reward': data['objective_details']['main_quest']['zenny_reward'].get(),
+                'hrp_reward': data['objective_details']['main_quest']['hrp_reward'].get(),
+                'rewards_row_1': unget_rewards(data['objective_details']['main_quest']['rewards_row_1']),
+                'rewards_row_2': unget_rewards(data['objective_details']['main_quest']['rewards_row_2']),
+            },
+            'subquest_1': {
+                'description': data['objective_details']['subquest_1']['description'].get(),
+                'type': unget_bytes(data['objective_details']['subquest_1']['type']),
+                'objective_type': data['objective_details']['subquest_1']['objective_type'].get(),
+                'objective_num': data['objective_details']['subquest_1']['objective_num'].get(),
+                'zenny_reward': data['objective_details']['subquest_1']['zenny_reward'].get(),
+                'hrp_reward': data['objective_details']['subquest_1']['hrp_reward'].get(),
+                'rewards_row_1': unget_rewards(data['objective_details']['subquest_1']['rewards_row_1']),
+            },
+            'subquest_2': {
+                'description': data['objective_details']['subquest_2']['description'].get(),
+                'type': unget_bytes(data['objective_details']['subquest_2']['type']),
+                'objective_type': data['objective_details']['subquest_2']['objective_type'].get(),
+                'objective_num': data['objective_details']['subquest_2']['objective_num'].get(),
+                'zenny_reward': data['objective_details']['subquest_2']['zenny_reward'].get(),
+                'hrp_reward': data['objective_details']['subquest_2']['hrp_reward'].get(),
+                'rewards_row_1': unget_rewards(data['objective_details']['subquest_2']['rewards_row_1']),
+            }
+        },
+        'unknown': {
+            # (1 for hunter killer, 2 for large mon quest, 3 for small/delivery, 5 for jhen/ala)
+            'unk_12': data['unknown']['unk_12'].get(),
+            'unk_4': data['unknown']['unk_4'].get(),
+            'unk_5': data['unknown']['unk_5'].get(),
+            'unk_6': data['unknown']['unk_6'].get(),
+            'unk_7': data['unknown']['unk_7'].get(),
+        }
+    }
+
+
 def PopulateDataDict(data):
     def split_multiline_str(inp, lines):
         cur = [StringVar(value=x) for x in inp.split('\n')]
-        return cur + ["" for g in range(lines-len(cur))]
+        return cur + [StringVar(value="") for g in range(lines-len(cur))]
 
     def format_flags(flags):
         first = [BooleanVar(value=g) for g in flags[0]]
@@ -177,50 +337,49 @@ def InitializeDataDict():
             [
                 # Area 1
                 {
-                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
-                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
-                    'pos_x': DoubleVar(value=2039.26),'pos_y': DoubleVar(value=12.70),'pos_z': DoubleVar(value=210.05),
-                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=17),'rot_z': IntVar(value=0),
-                    
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 1,'quantity': 1,
+                    'pos_x': 2039.26,'pos_y': 12.70,'pos_z': 210.05,
+                    'rot_x': 0,'rot_y': 17,'rot_z': 0,
                 },
                 {
-                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
-                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
-                    'pos_x': DoubleVar(value=857.89),'pos_y': DoubleVar(value=-41.97),'pos_z': DoubleVar(value=814.06),
-                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=170),'rot_z': IntVar(value=0),
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 1,'quantity': 1,
+                    'pos_x': 857.89,'pos_y': -41.97,'pos_z': 814.06,
+                    'rot_x': 0,'rot_y': 170,'rot_z': 0,
                 },
                 {
-                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
-                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
-                    'pos_x': DoubleVar(value=97.58),'pos_y': DoubleVar(value=-75.54),'pos_z': DoubleVar(value=135.22),
-                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=-45),'rot_z': IntVar(value=0),
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 1,'quantity': 1,
+                    'pos_x': 97.58,'pos_y': -75.54,'pos_z': 135.22,
+                    'rot_x': 0,'rot_y': -45,'rot_z': 0,
                 },
                 {
-                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
-                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
-                    'pos_x': DoubleVar(value=-393.52),'pos_y': DoubleVar(value=-163.94),'pos_z': DoubleVar(value=-667.01),
-                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=-199),'rot_z': IntVar(value=0),
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 1,'quantity': 1,
+                    'pos_x': -393.52,'pos_y': -163.94,'pos_z': -667.01,
+                    'rot_x': 0,'rot_y': -199,'rot_z': 0,
                 },
             ],
             [
                 # Area 2
                 {
-                    'type': IntVar(value=Monster.kelbi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
-                    'variant': IntVar(value=0),'room': IntVar(value=2),'quantity': IntVar(value=1),
-                    'pos_x': DoubleVar(value=-853.86),'pos_y': DoubleVar(value=19.45),'pos_z': DoubleVar(value=1381.66),
-                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=-113),'rot_z': IntVar(value=0),
+                    'type': Monster.kelbi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 2,'quantity': 1,
+                    'pos_x': -853.86,'pos_y': 19.45,'pos_z': 1381.66,
+                    'rot_x': 0,'rot_y': -113,'rot_z': 0,
                 },
                 {
-                    'type': IntVar(value=Monster.kelbi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
-                    'variant': IntVar(value=1),'room': IntVar(value=2),'quantity': IntVar(value=2),
-                    'pos_x': DoubleVar(value=-553.59),'pos_y': DoubleVar(value=-2.57),'pos_z': DoubleVar(value=-369.71),
-                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=193),'rot_z': IntVar(value=0),
+                    'type': Monster.kelbi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 1,'room': 2,'quantity': 2,
+                    'pos_x': -553.59,'pos_y': -2.57,'pos_z': -369.71,
+                    'rot_x': 0,'rot_y': 193,'rot_z': 0,
                 },
                 {
-                    'type': IntVar(value=Monster.kelbi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
-                    'variant': IntVar(value=0),'room': IntVar(value=2),'quantity': IntVar(value=3),
-                    'pos_x': DoubleVar(value=-1698.75),'pos_y': DoubleVar(value=5.74),'pos_z': DoubleVar(value=-530.30),
-                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=398),'rot_z': IntVar(value=0),
+                    'type': Monster.kelbi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 2,'quantity': 3,
+                    'pos_x': -1698.75,'pos_y': 5.74,'pos_z': -530.30,
+                    'rot_x': 0,'rot_y': 398,'rot_z': 0,
                 },
             ],
             [

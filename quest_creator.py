@@ -9,7 +9,7 @@ import webbrowser
 def QuestInfo(tab, data):
     questNameFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questNameFrame, text="Quest Name:").pack()
-    ttk.Entry(questNameFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 12), textvariable=data['quest_info']['name']).pack()
+    ttk.Entry(questNameFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 24), textvariable=data['quest_info']['name']).pack()
     questNameFrame.pack(side='top', expand=True)
 
     questSuccessFrame = ttk.Frame(tab, padding=2, width=40, height=40)
@@ -831,50 +831,60 @@ def LoadQuest(tab1, tab2, tab3, tab4, tab5, tab6):
         return data
     return None
 
+def SaveQuest(data):
+    SaveQuestFile(data)
 
-win = Tk(screenName="MH3 Event Quest Creator")
-win.title("SpyRo's Monster Hunter Tri [NA/EU] Event Quest Creator <Alpha 0.0.1>")
-win.geometry('540x540')
-win.resizable(False, False)
-style = ttk.Style(win)
-style.theme_use('clam')
 
-data = InitializeDataDict()
+if __name__ == '__main__':
+    win = Tk(screenName="MH3 Event Quest Creator")
+    win.title("SpyRo's Monster Hunter Tri [NA/EU] Event Quest Creator <Beta 0.1>")
+    win.geometry('540x540')
+    win.resizable(False, False)
+    style = ttk.Style(win)
+    style.theme_use('clam')
 
-# Create a notebook that holds the tabs
-notebook = ttk.Notebook(win)
+    dataholder = []
+    dataholder.append(InitializeDataDict())
 
-# Create tab frames
-tab1 = ttk.Frame(notebook) # Quest Info
-tab2 = ttk.Frame(notebook) # Quest Settings
-tab3 = ttk.Frame(notebook) # Large Monsters
-tab4 = ttk.Frame(notebook) # Objectives
-tab5 = ttk.Frame(notebook) # Small Monsters
-tab6 = ttk.Frame(notebook) # Unknowns
+    # Create a notebook that holds the tabs
+    notebook = ttk.Notebook(win)
 
-# Add the tab frames to the notebook
-notebook.add(tab1, text="Quest Info")
-notebook.add(tab2, text="Quest Settings")
-notebook.add(tab3, text="Large Monsters")
-notebook.add(tab4, text="Objectives")
-notebook.add(tab5, text="Small Monsters")
-notebook.add(tab6, text="Unknowns")
+    # Create tab frames
+    tab1 = ttk.Frame(notebook) # Quest Info
+    tab2 = ttk.Frame(notebook) # Quest Settings
+    tab3 = ttk.Frame(notebook) # Large Monsters
+    tab4 = ttk.Frame(notebook) # Objectives
+    tab5 = ttk.Frame(notebook) # Small Monsters
+    tab6 = ttk.Frame(notebook) # Unknowns
 
-notebook.pack(expand=1, fill='both')
+    # Add the tab frames to the notebook
+    notebook.add(tab1, text="Quest Info")
+    notebook.add(tab2, text="Quest Settings")
+    notebook.add(tab3, text="Large Monsters")
+    notebook.add(tab4, text="Objectives")
+    notebook.add(tab5, text="Small Monsters")
+    notebook.add(tab6, text="Unknowns")
 
-QuestInfo(tab1, data)
-QuestSettings(tab2, data)
-LargeMonsters(tab3, data)
-Objectives(tab4, data)
-SmallMonsters(tab5, data)
-Unknowns(tab6, data)
+    notebook.pack(expand=1, fill='both')
 
-#frm = ttk.Frame(win, padding=10)
-#frm.grid()
-frm = Frame(win, width=100)
-frm.pack()
-ttk.Button(frm, text='Load', command=lambda:LoadQuest(tab1, tab2, tab3, tab4, tab5, tab6)).pack(side='left')
-ttk.Button(frm, text='Save', command=lambda: print(data['objective_details']['main_quest']['objective_type'].get())).pack(side='left')#.grid(column=0, row=0)
-ttk.Button(frm, text='Close').pack(side='right')#.grid(column=1,row=0)
+    QuestInfo(tab1, dataholder[0])
+    QuestSettings(tab2, dataholder[0])
+    LargeMonsters(tab3, dataholder[0])
+    Objectives(tab4, dataholder[0])
+    SmallMonsters(tab5, dataholder[0])
+    Unknowns(tab6, dataholder[0])
 
-win.mainloop()
+    def Loader():
+        dataholder[0] = LoadQuest(tab1, tab2, tab3, tab4, tab5, tab6)
+    def Saver():
+        SaveQuest(dataholder[0])
+
+    #frm = ttk.Frame(win, padding=10)
+    #frm.grid()
+    frm = Frame(win, width=100)
+    frm.pack()
+    ttk.Button(frm, text='Load', command=Loader).pack(side='left')
+    ttk.Button(frm, text='Save', command=Saver).pack(side='left')
+    ttk.Button(frm, text='Close', command=lambda:print(dataholder[0]['quest_info']['description'])).pack(side='right')
+
+    win.mainloop()
