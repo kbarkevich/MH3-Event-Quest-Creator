@@ -67,13 +67,13 @@ def QuestSettings(tab, data):
     var17 = flags[0][6]
     var18 = flags[0][7]
     ttk.Checkbutton(questFlagsFrame1, text="Unknown1", variable=var11).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame1, text="Multiple", variable=var12).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame1, text="Single", variable=var13).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame1, text="Combine & Require 1st Sub", variable=var12).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame1, text="Combine & Require 2 Subs", variable=var13).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame1, text="Unknown4", variable=var14).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame1, text="Jhen", variable=var15).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame1, text="Shakalaka", variable=var16).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame1, text="Jhen(?)", variable=var15).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame1, text="Shakalaka(?)", variable=var16).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame1, text="Advanced", variable=var17).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame1, text="Unknown8", variable=var18).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame1, text="Combine Main & Subs", variable=var18).pack(side='top', anchor=N+W)
 
     var21 = flags[1][0]
     var22 = flags[1][1]
@@ -85,12 +85,12 @@ def QuestSettings(tab, data):
     var28 = flags[1][7]
     ttk.Checkbutton(questFlagsFrame2, text="Unknown1", variable=var21).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame2, text="Unknown2", variable=var22).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame2, text="Unknown3", variable=var23).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame2, text="Require Both Subs", variable=var23).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame2, text="Unknown4", variable=var24).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame2, text="Unknown5", variable=var25).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame2, text="Unknown6", variable=var26).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame2, text="\"Qualifying Time\"", variable=var25).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame2, text="Don't Announce Subs", variable=var26).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame2, text="Unknown7", variable=var27).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame2, text="Unknown8", variable=var28).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame2, text="\"Dragon Left Wounded\"", variable=var28).pack(side='top', anchor=N+W)
 
     var31 = flags[2][0]
     var32 = flags[2][1]
@@ -100,10 +100,10 @@ def QuestSettings(tab, data):
     var36 = flags[2][5]
     var37 = flags[2][6]
     var38 = flags[2][7]
-    ttk.Checkbutton(questFlagsFrame3, text="Unstable", variable=var31).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame3, text="2Mon/0Subs/ReqSub1/Unstable", variable=var31).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame3, text="Unknown2", variable=var32).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame3, text="Unknown3", variable=var33).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(questFlagsFrame3, text="Unknown4", variable=var34).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame3, text="Banjo Music", variable=var34).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame3, text="Unknown5", variable=var35).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame3, text="Unknown6", variable=var36).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame3, text="Unknown7", variable=var37).pack(side='top', anchor=N+W)
@@ -157,7 +157,7 @@ def QuestSettings(tab, data):
     ttk.Checkbutton(menuFlagsFrame, text="Slay Hidden", variable=var44).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Arena", variable=var45).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Unknown2", variable=var46).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(menuFlagsFrame, text="Repel", variable=var47).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(menuFlagsFrame, text="End@Main(?)", variable=var47).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Unknown3", variable=var48).pack(side='top', anchor=N+W)
     menuFlagsFrame.pack(side='right', expand=True)
 
