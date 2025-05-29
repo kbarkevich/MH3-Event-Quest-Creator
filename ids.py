@@ -8,6 +8,7 @@ class WaveType(Enum):
     monster = 1
     item = 2
     unknown = 3
+WaveType = WaveType()
 
 
 class InvaderType(Enum):

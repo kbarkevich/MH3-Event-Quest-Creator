@@ -621,105 +621,155 @@ def Objectives(tab, data):
     ttk.Button(sub2Tab, text='Item Rewards', command=lambda:CreateRewards(data, 2)).pack(expand=True)
 
 class ScrolledCanvas():
-    def __init__(self, root, color='brown'):
-        canv = Canvas(root, bg=color, relief=SUNKEN)
-        canv.config(width=300, height=200)                
+    def __init__(self, root, data, areaIdx, color='brown'):
+        self.root = root
+        self.areaIdx = areaIdx
+        self.monsters = data['small_monsters'][self.areaIdx]
+
+        self.canv = Canvas(self.root, bg=color, relief=SUNKEN)
+        self.canv.config(width=300, height=200)                
 
         ##---------- scrollregion has to be larger than canvas size
         ##           otherwise it just stays in the visible canvas
-        canv.config(scrollregion=(0,0,300, 1000))         
-        canv.config(highlightthickness=0)                 
+        self.canv.config(scrollregion=(0,0,300, 1000))         
+        self.canv.config(highlightthickness=0)                 
 
-        ybar = Scrollbar(root)
-        ybar.config(command=canv.yview)                   
+        ybar = Scrollbar(self.root)
+        ybar.config(command=self.canv.yview)                   
         ## connect the two widgets together
-        canv.config(yscrollcommand=ybar.set)              
+        self.canv.config(yscrollcommand=ybar.set)              
         ybar.pack(side=RIGHT, fill=Y)                     
-        canv.pack(side=LEFT, expand=YES, fill=BOTH)       
+        self.canv.pack(side=LEFT, expand=YES, fill=BOTH)       
+        self.draw()
 
+    def draw(self):
+        self.canv.delete('all')
         bg_color=True
-        for ctr in range(10):
+        ctr=0
+        for monster in self.monsters:
             clr="lightgrey"
             if bg_color:
                 clr="white"
             bg_color= not bg_color
-            frm = ttk.Frame(root, padding=2)#,width=960, height=100,
+            frm = ttk.Frame(self.root, padding=2)#,width=960, height=100,
                         #bd=2, relief=SUNKEN)
-            #Label(frm, text="Frame #"+str(ctr+1),
-            #      bg=clr).grid()
-            Label(frm, text="", bg=clr).grid(column=0, row=0, columnspan=2, sticky='ew')
-            Label(frm, text="Var:", bg=clr).grid(column=2, row=0, sticky='ew')
-            Label(frm, text="Room:", bg=clr).grid(column=3, row=0, sticky='ew')
-            Label(frm, text="Quantity:", bg=clr).grid(column=4, row=0, sticky='ew')
-            Label(frm, text="Unk 1:", bg=clr).grid(column=5, row=0, sticky='ew')
-            ttk.Entry(frm, width=26).grid(column=0, row=1, columnspan=2, sticky=W+E)
-            ttk.Entry(frm, width=13).grid(column=2, row=1)
-            ttk.Entry(frm, width=13).grid(column=3, row=1)
-            ttk.Entry(frm, width=13).grid(column=4, row=1)
-            ttk.Entry(frm, width=13).grid(column=5, row=1)
+
+            #Label(frm, text="", bg=clr).grid(column=0, row=0, sticky='ew')
+            Button(frm, text='Delete', bg=clr, command=lambda x=ctr:self.delete_entry(x)).grid(column=0, row=0, sticky='ew')
+            Label(frm, text="Unk. 1", bg=clr).grid(column=1, row=0, sticky='ew')
+            Label(frm, text="Unk. 2:", bg=clr).grid(column=2, row=0, sticky='ew')
+            Label(frm, text="Variant:", bg=clr).grid(column=3, row=0, sticky='ew')
+            Label(frm, text="Room:", bg=clr).grid(column=4, row=0, sticky='ew')
+            Label(frm, text="Quantity:", bg=clr).grid(column=5, row=0, sticky='ew')
+            Dropdown(frm, Monster, width=13, variable=monster['type']).grid(column=0, row=1)
+            NumEntry(frm, limit=0xFF, width=13, variable=monster['unk1']).grid(column=1, row=1)
+            NumEntry(frm, limit=0xFF, width=13, variable=monster['unk2']).grid(column=2, row=1)
+            NumEntry(frm, limit=0xFF, width=13, variable=monster['variant']).grid(column=3, row=1)
+            NumEntry(frm, limit=0xFF, width=13, variable=monster['room']).grid(column=4, row=1)
+            NumEntry(frm, limit=0xFF, width=13, allowNeg=True, variable=monster['quantity']).grid(column=5, row=1)
             Label(frm, text="Pos X:", bg=clr).grid(column=0, row=2, sticky='ew')
             Label(frm, text="Pos Y:", bg=clr).grid(column=1, row=2, sticky='ew')
             Label(frm, text="Pos Z:", bg=clr).grid(column=2, row=2, sticky='ew')
             Label(frm, text="Rot X:", bg=clr).grid(column=3, row=2, sticky='ew')
             Label(frm, text="Rot Y:", bg=clr).grid(column=4, row=2, sticky='ew')
             Label(frm, text="Rot Z:", bg=clr).grid(column=5, row=2, sticky='ew')
-            ttk.Entry(frm, width=13).grid(column=0, row=3)
-            ttk.Entry(frm, width=13).grid(column=1, row=3)
-            ttk.Entry(frm, width=13).grid(column=2, row=3)
-            ttk.Entry(frm, width=13).grid(column=3, row=3)
-            ttk.Entry(frm, width=13).grid(column=4, row=3)
-            ttk.Entry(frm, width=13).grid(column=5, row=3)
-            canv.create_window(3,3+(95*ctr),anchor=NW, window=frm)
+            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, decimal=False, variable=monster['pos_x']).grid(column=0, row=3)
+            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, decimal=False, variable=monster['pos_y']).grid(column=1, row=3)
+            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, decimal=False, variable=monster['pos_z']).grid(column=2, row=3)
+            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, variable=monster['rot_x']).grid(column=3, row=3)
+            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, variable=monster['rot_y']).grid(column=4, row=3)
+            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, variable=monster['rot_z']).grid(column=5, row=3)
+            self.canv.create_window(8,3+(95*ctr),anchor=NW, window=frm)
+            ctr += 1
+
+        frm = ttk.Frame(self.root, padding=2)
+        Button(frm, text='ADD MONSTER', bg="white"if bg_color else"lightgrey", width=13+13+13+13+13+4, command=self.add_entry).grid(column=0, row=0, sticky='ew')
+        self.canv.create_window(8,3+(95*ctr),anchor=NW, window=frm)
+        
+    def add_entry(self):
+        self.monsters.append({
+            'type': IntVar(value=Monster.none),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+            'variant': IntVar(value=0),'room': IntVar(value=self.areaIdx),'quantity': IntVar(value=1),
+            'pos_x': DoubleVar(value=0.0),'pos_y': DoubleVar(value=0.0),'pos_z': DoubleVar(value=0.0),
+            'rot_x': IntVar(value=0),'rot_y': IntVar(value=0),'rot_z': IntVar(value=0),
+        })
+        self.draw()
+
+    def delete_entry(self, monsterIdx):
+        del self.monsters[monsterIdx]
+        self.draw()
 
 def SmallMonsters(tab, data):
     minionLevelFrame = ttk.Frame(tab, padding=2)
     ttk.Label(minionLevelFrame, text="Small Monster Map Settings").grid(column=0, row=0, padx=(0, 125), sticky='w')
     ttk.Label(minionLevelFrame, text="Minion Level:").grid(column=1, row=0, padx=(50, 0), sticky='e')
-    Entry(minionLevelFrame).grid(column=2, row=0, sticky='w')
+    NumEntry(minionLevelFrame, limit=0x3c, variable=data['quest_info']['general_enemy_level']).grid(column=2, row=0, sticky='w')
     minionLevelFrame.pack(side='top')
 
     # Create a notebook that holds the tabs
-    objectivesNotebook = ttk.Notebook(tab)
+    areasNotebook = ttk.Notebook(tab)
     # Create tab frames
-    wave1Tab = ttk.Frame(objectivesNotebook) # Quest Info
-    wave2Tab = ttk.Frame(objectivesNotebook) # Quest Settings
-    wave3Tab = ttk.Frame(objectivesNotebook) # Large Monsters
-    # Add tabs
-    objectivesNotebook.add(wave1Tab, text="Wave 1")
-    objectivesNotebook.add(wave2Tab, text="Wave 2")
-    objectivesNotebook.add(wave3Tab, text="Wave 3")
-    objectivesNotebook.pack(expand=1, fill='both')
-    
-    ScrolledCanvas(wave1Tab, color='grey')
-    ScrolledCanvas(wave2Tab, color='grey')
-    ScrolledCanvas(wave3Tab, color='grey')
-    """
-    h = Scrollbar(wave1Tab)
-    h.pack(side='right', fill=Y)
-    for i in range(30):
-        myFrame = ttk.Frame(wave1Tab)
-        Entry(myFrame).pack(side='left')
-        Entry(myFrame).pack(side='left')
-        Entry(myFrame).pack(side='left')
-        myFrame.pack(side='top')
-    """
+    numAreas = LOCATION_SIZE[data['quest_info']['location'].get()]
+    areaTabs = []
+    for i in range(numAreas):
+        areaTab = ttk.Frame(areasNotebook)
+        areasNotebook.add(areaTab, text=str(i))
+        areaTabs.append(areaTab)
+
+    #wave1Tab = ttk.Frame(areasNotebook)
+    #wave2Tab = ttk.Frame(areasNotebook)
+    #wave3Tab = ttk.Frame(areasNotebook)
+    areasNotebook.pack(expand=1, fill='both')
+
+    i = 0
+    for areaTab in areaTabs:
+        ScrolledCanvas(areaTab, data, i, color='grey')
+        i += 1
 
     mainMonstersFrame = ttk.Frame(tab, padding=2)
     ttk.Label(mainMonstersFrame, text="Main Monsters:").grid(column=0, row=0, sticky='w')
-    Entry(mainMonstersFrame).grid(column=0, row=1)
-    Entry(mainMonstersFrame).grid(column=1, row=1)
+    Dropdown(mainMonstersFrame, Monster, variable=data['quest_info']['main_monster_1']).grid(column=0, row=1)
+    Dropdown(mainMonstersFrame, Monster, variable=data['quest_info']['main_monster_2']).grid(column=1, row=1)
     mainMonstersFrame.pack()
 
     waveConditionsFrame = ttk.Frame(tab, padding=2)
     ttk.Label(waveConditionsFrame, text="Second Wave Condition:").grid(column=0, row=0)
-    ttk.Label(waveConditionsFrame, text="Number:").grid(column=1, row=0)
-    Entry(waveConditionsFrame).grid(column=0, row=1)
-    Entry(waveConditionsFrame).grid(column=1, row=1)
+    ttk.Label(waveConditionsFrame, text="Target:").grid(column=1, row=0)
+    ttk.Label(waveConditionsFrame, text="Number:").grid(column=2, row=0)
+
+    wave2TargetDropdown = AutocompleteDropdown(waveConditionsFrame, Monster, variable=data['quest_info']['wave_1_transition_target'])
+    def update_wave2_dropdown(*args):
+        if data['quest_info']['wave_1_transition_type'].get() == WaveType.monster:
+            wave2TargetDropdown.update_dropdown(Monster)
+        elif data['quest_info']['wave_1_transition_type'].get() == WaveType.item:
+            wave2TargetDropdown.update_dropdown(ItemsType)
+        else:
+            wave2TargetDropdown.update_dropdown(list(range(0xFF)))
+    update_wave2_dropdown()
+
+    Dropdown(waveConditionsFrame, WaveType, onSelected=update_wave2_dropdown, variable=data['quest_info']['wave_1_transition_type']).grid(column=0, row=1)
+    wave2TargetDropdown.grid(column=1, row=1)
+    NumEntry(waveConditionsFrame, limit=0xFFFF, variable=data['quest_info']['wave_1_transition_quantity']).grid(column=2, row=1)
+
     ttk.Label(waveConditionsFrame, text="Third Wave Condition:").grid(column=0, row=2)
-    ttk.Label(waveConditionsFrame, text="Number:").grid(column=1, row=2)
-    Entry(waveConditionsFrame).grid(column=0, row=3)
-    Entry(waveConditionsFrame).grid(column=1, row=3)
+    ttk.Label(waveConditionsFrame, text="Target:").grid(column=1, row=2)
+    ttk.Label(waveConditionsFrame, text="Number:").grid(column=2, row=2)
+
+    wave3TargetDropdown = AutocompleteDropdown(waveConditionsFrame, Monster, variable=data['quest_info']['wave_2_transition_target'])
+    def update_wave3_dropdown(*args):
+        if data['quest_info']['wave_2_transition_type'].get() == WaveType.monster:
+            wave3TargetDropdown.update_dropdown(Monster)
+        elif data['quest_info']['wave_2_transition_type'].get() == WaveType.item:
+            wave3TargetDropdown.update_dropdown(ItemsType)
+        else:
+            wave3TargetDropdown.update_dropdown(list(range(0xFF)))
+    update_wave3_dropdown()
+
+    Dropdown(waveConditionsFrame, WaveType, onSelected=update_wave3_dropdown, variable=data['quest_info']['wave_2_transition_type']).grid(column=0, row=3)
+    wave3TargetDropdown.grid(column=1, row=3)
+    NumEntry(waveConditionsFrame, limit=0xFFFF, variable=data['quest_info']['wave_2_transition_quantity']).grid(column=2, row=3)
     waveConditionsFrame.pack()
+
 
 def Unknowns(tab, data):
     ttk.Label(tab, text="Type something:").pack()
@@ -821,19 +871,41 @@ def Prefill(entry, text):
 
 
 class NumEntry(Entry):
-    def __init__(self, master, limit=None, variable=None, **kwargs):
+    def __init__(self, master, limit=None, variable=None, decimal=True, allowNeg=False, **kwargs):
+        self.decimal = decimal
+        self.allowNeg = allowNeg
         if variable is not None:
             self.variable = variable
         else:
-            self.variable = IntVar()
+            self.variable = IntVar() if self.decimal else DoubleVar()
         super().__init__(master, validate="key", validatecommand=(master.register(self.check), '%P', limit), **kwargs)
         Prefill(self, str(self.variable.get()))
 
     def check(self, P, limit):
-        if P.isdigit() and (limit is None or int(P) <= int(limit)):
-            self.variable.set(int(P))
-            return True
-        return False
+        if self.decimal:
+            if self.allowNeg:
+                try:
+                    val = int(P)
+                except:
+                    return False
+                if limit is None or (val <= int(limit)/2 and val > -int(limit)/2):
+                    self.variable.set(val)
+                    return True
+                return False
+            else:
+                if P.isdigit() and (limit is None or int(P) <= int(limit)):
+                    self.variable.set(int(P))
+                    return True
+                return False
+        else:
+            try:
+                val = float(P)
+            except:
+                return False
+            if limit is None or (((not self.allowNeg) and val >= 0.0 and val <= float(limit)) or (self.allowNeg and val <= float(limit)/2 and val > -float(limit)/2)):
+                self.variable.set(val)
+                return True
+            return False
 
 
 class AutocompleteCombobox(ttk.Combobox):
@@ -987,529 +1059,557 @@ class UrlLabel(Label):
 
 def InitializeDataDict():
     data = {
-    'small_monsters': [
-        [
-            # Area 0
+        'small_monsters': [
+            [
+                # Area 0
+            ],
+            [
+                # Area 1
+                {
+                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
+                    'pos_x': DoubleVar(value=2039.26),'pos_y': DoubleVar(value=12.70),'pos_z': DoubleVar(value=210.05),
+                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=17),'rot_z': IntVar(value=0),
+                    
+                },
+                {
+                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
+                    'pos_x': DoubleVar(value=857.89),'pos_y': DoubleVar(value=-41.97),'pos_z': DoubleVar(value=814.06),
+                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=170),'rot_z': IntVar(value=0),
+                },
+                {
+                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
+                    'pos_x': DoubleVar(value=97.58),'pos_y': DoubleVar(value=-75.54),'pos_z': DoubleVar(value=135.22),
+                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=-45),'rot_z': IntVar(value=0),
+                },
+                {
+                    'type': IntVar(value=Monster.jaggi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+                    'variant': IntVar(value=0),'room': IntVar(value=1),'quantity': IntVar(value=1),
+                    'pos_x': DoubleVar(value=-393.52),'pos_y': DoubleVar(value=-163.94),'pos_z': DoubleVar(value=-667.01),
+                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=-199),'rot_z': IntVar(value=0),
+                },
+            ],
+            [
+                # Area 2
+                {
+                    'type': IntVar(value=Monster.kelbi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+                    'variant': IntVar(value=0),'room': IntVar(value=2),'quantity': IntVar(value=1),
+                    'pos_x': DoubleVar(value=-853.86),'pos_y': DoubleVar(value=19.45),'pos_z': DoubleVar(value=1381.66),
+                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=-113),'rot_z': IntVar(value=0),
+                },
+                {
+                    'type': IntVar(value=Monster.kelbi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+                    'variant': IntVar(value=1),'room': IntVar(value=2),'quantity': IntVar(value=2),
+                    'pos_x': DoubleVar(value=-553.59),'pos_y': DoubleVar(value=-2.57),'pos_z': DoubleVar(value=-369.71),
+                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=193),'rot_z': IntVar(value=0),
+                },
+                {
+                    'type': IntVar(value=Monster.kelbi),'unk1': IntVar(value=1),'unk2': IntVar(value=0xFF),
+                    'variant': IntVar(value=0),'room': IntVar(value=2),'quantity': IntVar(value=3),
+                    'pos_x': DoubleVar(value=-1698.75),'pos_y': DoubleVar(value=5.74),'pos_z': DoubleVar(value=-530.30),
+                    'rot_x': IntVar(value=0),'rot_y': IntVar(value=398),'rot_z': IntVar(value=0),
+                },
+            ],
+            [
+                # Area 3
+                {
+                    'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 3,'quantity': -1,
+                    'pos_x': 873.28,'pos_y': 85.07,'pos_z': -610.86,
+                    'rot_x': 0,'rot_y': -153,'rot_z': 0,
+                },
+                {
+                    'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 3,'quantity': -1,
+                    'pos_x': 1247.84,'pos_y': 106.65,'pos_z': 25.11,
+                    'rot_x': 0,'rot_y': -358,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 2,'room': 3,'quantity': 2,
+                    'pos_x': 177.92,'pos_y': 450.70,'pos_z': -32.21,
+                    'rot_x': 0,'rot_y': -238,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 3,'quantity': 2,
+                    'pos_x': -78.66,'pos_y': 330.70,'pos_z': 362.86,
+                    'rot_x': 0,'rot_y': -79,'rot_z': 0,
+                },
+            ],
+            [
+                # Area 4
+                {
+                    'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 4,'quantity': 3,
+                    'pos_x': 606.18,'pos_y': -12.89,'pos_z': 4145.11,
+                    'rot_x': 0,'rot_y': 324,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 4,'quantity': 1,
+                    'pos_x': 524.37,'pos_y': -18.65,'pos_z': 2292.05,
+                    'rot_x': 0,'rot_y': 199,'rot_z': 0,
+                },
+                {
+                    'type': Monster.rhenoplos,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 4,'quantity': -1,
+                    'pos_x': -460.08,'pos_y': -71.51,'pos_z': 3044.50,
+                    'rot_x': 0,'rot_y': -460,'rot_z': 0,
+                },
+            ],
+            [
+                # Area 5
+                {
+                    'type': Monster.jaggi,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 5,'quantity': 1,
+                    'pos_x': 300.40,'pos_y': 4.00,'pos_z': -211.14,
+                    'rot_x': 0,'rot_y': 0,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggi,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 5,'quantity': -1,
+                    'pos_x': 458.16,'pos_y': 1.49,'pos_z': -918.94,
+                    'rot_x': 0,'rot_y': 51,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 5,'quantity': 4,
+                    'pos_x': 1813.83,'pos_y': 3.06,'pos_z': 925.68,
+                    'rot_x': 0,'rot_y': 494,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 5,'quantity': -1,
+                    'pos_x': -504.37,'pos_y': 3.05,'pos_z': -757.30,
+                    'rot_x': 0,'rot_y': 676,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 5,'quantity': 2,
+                    'pos_x': 1118.48,'pos_y': 4.00,'pos_z': -420.89,
+                    'rot_x': 0,'rot_y': 364,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 5,'quantity': -1,
+                    'pos_x': 2658.84,'pos_y': 3.24,'pos_z': 222.99,
+                    'rot_x': 0,'rot_y': 756,'rot_z': 0,
+                },
+            ],
+            [
+                # Area 6 (Area 8 in Sandy Plains)
+                {
+                    'type': Monster.rhenoplos,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 6,'quantity': -1,
+                    'pos_x': 1612.71,'pos_y': -30.27,'pos_z': 695.30,
+                    'rot_x': 0,'rot_y': 517,'rot_z': 0,
+                },
+                {
+                    'type': Monster.rhenoplos,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 6,'quantity': -1,
+                    'pos_x': -2050.04,'pos_y': -31.90,'pos_z': -266.33,
+                    'rot_x': 0,'rot_y': 28,'rot_z': 0,
+                },
+                {
+                    'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 6,'quantity': 5,
+                    'pos_x': -344.14,'pos_y': -13.00,'pos_z': -26.14,
+                    'rot_x': 0,'rot_y': 443,'rot_z': 0,
+                },
+                {
+                    'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 6,'quantity': 4,
+                    'pos_x': -161.74,'pos_y': 4.80,'pos_z': -416.52,
+                    'rot_x': 0,'rot_y': 472,'rot_z': 0,
+                },
+                {
+                    'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 6,'quantity': 2,
+                    'pos_x': -481.05,'pos_y': 15.34,'pos_z': -643.19,
+                    'rot_x': 0,'rot_y': 568,'rot_z': 0,
+                },
+                {
+                    'type': Monster.altaroth,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 6,'quantity': -1,
+                    'pos_x': -692.26,'pos_y': -11.02,'pos_z': -235.13,
+                    'rot_x': 0,'rot_y': 608,'rot_z': 0,
+                },
+                {
+                    'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 6,'quantity': 3,
+                    'pos_x': -417.82,'pos_y': -1.44,'pos_z': -343.46,
+                    'rot_x': 0,'rot_y': 147,'rot_z': 0,
+                },
+            ],
+            [
+                # Area 7 (Area 9 in Sandy Plains)
+                {
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 7,'quantity': 3,
+                    'pos_x': 4294.59,'pos_y': -75.65,'pos_z': -2925.29,
+                    'rot_x': 0,'rot_y': -130,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 7,'quantity': 2,
+                    'pos_x': 3995.30,'pos_y': -45.09,'pos_z': -2049.22,
+                    'rot_x': 0,'rot_y': -85,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 7,'quantity': 2,
+                    'pos_x': 4187.00,'pos_y': -17.07,'pos_z': -1574.97,
+                    'rot_x': 0,'rot_y': -17,'rot_z': 0,
+                },
+                {
+                    'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 7,'quantity': 1,
+                    'pos_x': 3781.64,'pos_y': -66.86,'pos_z': -2570.78,
+                    'rot_x': 0,'rot_y': -130,'rot_z': 0,
+                },
+            ],
+            [
+                # Area 8 (Area 10 in Sandy Plains)
+                {
+                    'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 8,'quantity': 7,
+                    'pos_x': 293.99,'pos_y': -170.31,'pos_z': 4049.95,
+                    'rot_x': 0,'rot_y': 819,'rot_z': 0,
+                },
+                {
+                    'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 8,'quantity': 5,
+                    'pos_x': 124.95,'pos_y': -186.54,'pos_z': 3440.16,
+                    'rot_x': 0,'rot_y': 819,'rot_z': 0,
+                },
+                {
+                    'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 8,'quantity': 3,
+                    'pos_x': -425.01,'pos_y': -179.30,'pos_z': 4509.84,
+                    'rot_x': 0,'rot_y': 819,'rot_z': 0,
+                },
+                {
+                    'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 8,'quantity': 2,
+                    'pos_x': -714.48,'pos_y': -183.78,'pos_z': 4108.50,
+                    'rot_x': 0,'rot_y': 819,'rot_z': 0,
+                },
+                {
+                    'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 8,'quantity': 1,
+                    'pos_x': -1021.27,'pos_y': -215.48,'pos_z': 3726.09,
+                    'rot_x': 0,'rot_y': 819,'rot_z': 0,
+                },
+                {
+                    'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 8,'quantity': -1,
+                    'pos_x': -1974.57,'pos_y': -209.48,'pos_z': -316.05,
+                    'rot_x': 0,'rot_y': -56,'rot_z': 0,
+                },
+                {
+                    'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 8,'quantity': -1,
+                    'pos_x': -1825.11,'pos_y': -210.91,'pos_z': -382.90,
+                    'rot_x': 0,'rot_y': 130,'rot_z': 0,
+                    
+                },
+            ],
+            [
+                # Area 9 (Area 7 in Sandy Plains)
+                {
+                    'type': Monster.felyne,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 9,'quantity': 2,
+                    'pos_x': 3383.92,'pos_y': 2.65,'pos_z': 592.49,
+                    'rot_x': 0,'rot_y': -193,'rot_z': 0,
+                },
+                {
+                    'type': Monster.felyne,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 9,'quantity': 1,
+                    'pos_x': 2653.55,'pos_y': -22.59,'pos_z': 987.24,
+                    'rot_x': 0,'rot_y': -73,'rot_z': 0,
+                },
+                {
+                    'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 9,'quantity': -1,
+                    'pos_x': 2838.69,'pos_y': -28.00,'pos_z': 445.91,
+                    'rot_x': 0,'rot_y': -142,'rot_z': 0,
+                },
+                {
+                    'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
+                    'variant': 0,'room': 9,'quantity': -1,
+                    'pos_x': 2109.53,'pos_y': -26.57,'pos_z': 575.43,
+                    'rot_x': 0,'rot_y': -460,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 1,'room': 9,'quantity': -1,
+                    'pos_x': -1713.72,'pos_y': 1262.50,'pos_z': 2199.24,
+                    'rot_x': 273,'rot_y': -45,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 1,'room': 9,'quantity': 6,
+                    'pos_x': -1174.44,'pos_y': 1319.50,'pos_z': 1682.19,
+                    'rot_x': 0,'rot_y': -39,'rot_z': 0,
+                },
+            ],
+            [
+                # Area 10
+            ],
+            [
+                # Area 11 (Area 6 in Sandy Plains)
+                {
+                    'type': Monster.giggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 11,'quantity': 2,
+                    'pos_x': 2195.89,'pos_y': 73.70,'pos_z': -720.92,
+                    'rot_x': 0,'rot_y': 39,'rot_z': 0,
+                    
+                },
+                {
+                    'type': Monster.giggi,'unk1': 1,'unk2': 0xFF,
+                    'variant': 6,'room': 11,'quantity': 1,
+                    'pos_x': -535.73,'pos_y': 1212.59,'pos_z': 896.44,
+                    'rot_x': 0,'rot_y': 169,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 11,'quantity': 2,
+                    'pos_x': -434.00,'pos_y': 198.96,'pos_z': 289.52,
+                    'rot_x': 0,'rot_y': -267,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 11,'quantity': 2,
+                    'pos_x': -802.69,'pos_y': 198.96,'pos_z': 66.62,
+                    'rot_x': 0,'rot_y': -216,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 11,'quantity': 2,
+                    'pos_x': -645.14,'pos_y': 288.96,'pos_z': -371.21,
+                    'rot_x': 0,'rot_y': -227,'rot_z': 0,
+                },
+                {
+                    'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
+                    'variant': 0,'room': 11,'quantity': 1,
+                    'pos_x': -473.33,'pos_y': 168.96,'pos_z': -166.43,
+                    'rot_x': 0,'rot_y': -210,'rot_z': 0,
+                },
+            ],
         ],
-        [
-            # Area 1
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 1,'quantity': 1,
-                'pos_x': 2039.26,'pos_y': 12.70,'pos_z': 210.05,
-                'rot_x': 0,'rot_y': 17,'rot_z': 0,
-                
-            },
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 1,'quantity': 1,
-                'pos_x': 857.89,'pos_y': -41.97,'pos_z': 814.06,
-                'rot_x': 0,'rot_y': 170,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 1,'quantity': 1,
-                'pos_x': 97.58,'pos_y': -75.54,'pos_z': 135.22,
-                'rot_x': 0,'rot_y': -45,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 1,'quantity': 1,
-                'pos_x': -393.52,'pos_y': -163.94,'pos_z': -667.01,
-                'rot_x': 0,'rot_y': -199,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 2
-            {
-                'type': Monster.kelbi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 2,'quantity': 1,
-                'pos_x': -853.86,'pos_y': 19.45,'pos_z': 1381.66,
-                'rot_x': 0,'rot_y': -113,'rot_z': 0,
-            },
-            {
-                'type': Monster.kelbi,'unk1': 1,'unk2': 0xFF,
-                'variant': 1,'room': 2,'quantity': 2,
-                'pos_x': -553.59,'pos_y': -2.57,'pos_z': -369.71,
-                'rot_x': 0,'rot_y': 193,'rot_z': 0,
-            },
-            {
-                'type': Monster.kelbi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 2,'quantity': 3,
-                'pos_x': -1698.75,'pos_y': 5.74,'pos_z': -530.30,
-                'rot_x': 0,'rot_y': 398,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 3
-            {
-                'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 3,'quantity': -1,
-                'pos_x': 873.28,'pos_y': 85.07,'pos_z': -610.86,
-                'rot_x': 0,'rot_y': -153,'rot_z': 0,
-            },
-            {
-                'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 3,'quantity': -1,
-                'pos_x': 1247.84,'pos_y': 106.65,'pos_z': 25.11,
-                'rot_x': 0,'rot_y': -358,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 2,'room': 3,'quantity': 2,
-                'pos_x': 177.92,'pos_y': 450.70,'pos_z': -32.21,
-                'rot_x': 0,'rot_y': -238,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 3,'quantity': 2,
-                'pos_x': -78.66,'pos_y': 330.70,'pos_z': 362.86,
-                'rot_x': 0,'rot_y': -79,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 4
-            {
-                'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 4,'quantity': 3,
-                'pos_x': 606.18,'pos_y': -12.89,'pos_z': 4145.11,
-                'rot_x': 0,'rot_y': 324,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 4,'quantity': 1,
-                'pos_x': 524.37,'pos_y': -18.65,'pos_z': 2292.05,
-                'rot_x': 0,'rot_y': 199,'rot_z': 0,
-            },
-            {
-                'type': Monster.rhenoplos,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 4,'quantity': -1,
-                'pos_x': -460.08,'pos_y': -71.51,'pos_z': 3044.50,
-                'rot_x': 0,'rot_y': -460,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 5
-            {
-                'type': Monster.jaggi,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 5,'quantity': 1,
-                'pos_x': 300.40,'pos_y': 4.00,'pos_z': -211.14,
-                'rot_x': 0,'rot_y': 0,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggi,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 5,'quantity': -1,
-                'pos_x': 458.16,'pos_y': 1.49,'pos_z': -918.94,
-                'rot_x': 0,'rot_y': 51,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 5,'quantity': 4,
-                'pos_x': 1813.83,'pos_y': 3.06,'pos_z': 925.68,
-                'rot_x': 0,'rot_y': 494,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 5,'quantity': -1,
-                'pos_x': -504.37,'pos_y': 3.05,'pos_z': -757.30,
-                'rot_x': 0,'rot_y': 676,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 5,'quantity': 2,
-                'pos_x': 1118.48,'pos_y': 4.00,'pos_z': -420.89,
-                'rot_x': 0,'rot_y': 364,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggia,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 5,'quantity': -1,
-                'pos_x': 2658.84,'pos_y': 3.24,'pos_z': 222.99,
-                'rot_x': 0,'rot_y': 756,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 6 (Area 8 in Sandy Plains)
-            {
-                'type': Monster.rhenoplos,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 6,'quantity': -1,
-                'pos_x': 1612.71,'pos_y': -30.27,'pos_z': 695.30,
-                'rot_x': 0,'rot_y': 517,'rot_z': 0,
-            },
-            {
-                'type': Monster.rhenoplos,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 6,'quantity': -1,
-                'pos_x': -2050.04,'pos_y': -31.90,'pos_z': -266.33,
-                'rot_x': 0,'rot_y': 28,'rot_z': 0,
-            },
-            {
-                'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 6,'quantity': 5,
-                'pos_x': -344.14,'pos_y': -13.00,'pos_z': -26.14,
-                'rot_x': 0,'rot_y': 443,'rot_z': 0,
-            },
-            {
-                'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 6,'quantity': 4,
-                'pos_x': -161.74,'pos_y': 4.80,'pos_z': -416.52,
-                'rot_x': 0,'rot_y': 472,'rot_z': 0,
-            },
-            {
-                'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 6,'quantity': 2,
-                'pos_x': -481.05,'pos_y': 15.34,'pos_z': -643.19,
-                'rot_x': 0,'rot_y': 568,'rot_z': 0,
-            },
-            {
-                'type': Monster.altaroth,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 6,'quantity': -1,
-                'pos_x': -692.26,'pos_y': -11.02,'pos_z': -235.13,
-                'rot_x': 0,'rot_y': 608,'rot_z': 0,
-            },
-            {
-                'type': Monster.altaroth,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 6,'quantity': 3,
-                'pos_x': -417.82,'pos_y': -1.44,'pos_z': -343.46,
-                'rot_x': 0,'rot_y': 147,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 7 (Area 9 in Sandy Plains)
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 7,'quantity': 3,
-                'pos_x': 4294.59,'pos_y': -75.65,'pos_z': -2925.29,
-                'rot_x': 0,'rot_y': -130,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 7,'quantity': 2,
-                'pos_x': 3995.30,'pos_y': -45.09,'pos_z': -2049.22,
-                'rot_x': 0,'rot_y': -85,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 7,'quantity': 2,
-                'pos_x': 4187.00,'pos_y': -17.07,'pos_z': -1574.97,
-                'rot_x': 0,'rot_y': -17,'rot_z': 0,
-            },
-            {
-                'type': Monster.jaggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 7,'quantity': 1,
-                'pos_x': 3781.64,'pos_y': -66.86,'pos_z': -2570.78,
-                'rot_x': 0,'rot_y': -130,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 8 (Area 10 in Sandy Plains)
-            {
-                'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 8,'quantity': 7,
-                'pos_x': 293.99,'pos_y': -170.31,'pos_z': 4049.95,
-                'rot_x': 0,'rot_y': 819,'rot_z': 0,
-            },
-            {
-                'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 8,'quantity': 5,
-                'pos_x': 124.95,'pos_y': -186.54,'pos_z': 3440.16,
-                'rot_x': 0,'rot_y': 819,'rot_z': 0,
-            },
-            {
-                'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 8,'quantity': 3,
-                'pos_x': -425.01,'pos_y': -179.30,'pos_z': 4509.84,
-                'rot_x': 0,'rot_y': 819,'rot_z': 0,
-            },
-            {
-                'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 8,'quantity': 2,
-                'pos_x': -714.48,'pos_y': -183.78,'pos_z': 4108.50,
-                'rot_x': 0,'rot_y': 819,'rot_z': 0,
-            },
-            {
-                'type': Monster.delex,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 8,'quantity': 1,
-                'pos_x': -1021.27,'pos_y': -215.48,'pos_z': 3726.09,
-                'rot_x': 0,'rot_y': 819,'rot_z': 0,
-            },
-            {
-                'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 8,'quantity': -1,
-                'pos_x': -1974.57,'pos_y': -209.48,'pos_z': -316.05,
-                'rot_x': 0,'rot_y': -56,'rot_z': 0,
-            },
-            {
-                'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 8,'quantity': -1,
-                'pos_x': -1825.11,'pos_y': -210.91,'pos_z': -382.90,
-                'rot_x': 0,'rot_y': 130,'rot_z': 0,
-                
-            },
-        ],
-        [
-            # Area 9 (Area 7 in Sandy Plains)
-            {
-                'type': Monster.felyne,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 9,'quantity': 2,
-                'pos_x': 3383.92,'pos_y': 2.65,'pos_z': 592.49,
-                'rot_x': 0,'rot_y': -193,'rot_z': 0,
-            },
-            {
-                'type': Monster.felyne,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 9,'quantity': 1,
-                'pos_x': 2653.55,'pos_y': -22.59,'pos_z': 987.24,
-                'rot_x': 0,'rot_y': -73,'rot_z': 0,
-            },
-            {
-                'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 9,'quantity': -1,
-                'pos_x': 2838.69,'pos_y': -28.00,'pos_z': 445.91,
-                'rot_x': 0,'rot_y': -142,'rot_z': 0,
-            },
-            {
-                'type': Monster.melynx,'unk1': 3,'unk2': 0xFF,
-                'variant': 0,'room': 9,'quantity': -1,
-                'pos_x': 2109.53,'pos_y': -26.57,'pos_z': 575.43,
-                'rot_x': 0,'rot_y': -460,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 1,'room': 9,'quantity': -1,
-                'pos_x': -1713.72,'pos_y': 1262.50,'pos_z': 2199.24,
-                'rot_x': 273,'rot_y': -45,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 1,'room': 9,'quantity': 6,
-                'pos_x': -1174.44,'pos_y': 1319.50,'pos_z': 1682.19,
-                'rot_x': 0,'rot_y': -39,'rot_z': 0,
-            },
-        ],
-        [
-            # Area 10
-        ],
-        [
-            # Area 11 (Area 6 in Sandy Plains)
-            {
-                'type': Monster.giggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 11,'quantity': 2,
-                'pos_x': 2195.89,'pos_y': 73.70,'pos_z': -720.92,
-                'rot_x': 0,'rot_y': 39,'rot_z': 0,
-                
-            },
-            {
-                'type': Monster.giggi,'unk1': 1,'unk2': 0xFF,
-                'variant': 6,'room': 11,'quantity': 1,
-                'pos_x': -535.73,'pos_y': 1212.59,'pos_z': 896.44,
-                'rot_x': 0,'rot_y': 169,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 11,'quantity': 2,
-                'pos_x': -434.00,'pos_y': 198.96,'pos_z': 289.52,
-                'rot_x': 0,'rot_y': -267,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 11,'quantity': 2,
-                'pos_x': -802.69,'pos_y': 198.96,'pos_z': 66.62,
-                'rot_x': 0,'rot_y': -216,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 11,'quantity': 2,
-                'pos_x': -645.14,'pos_y': 288.96,'pos_z': -371.21,
-                'rot_x': 0,'rot_y': -227,'rot_z': 0,
-            },
-            {
-                'type': Monster.bnahabra3,'unk1': 1,'unk2': 0xFF,
-                'variant': 0,'room': 11,'quantity': 1,
-                'pos_x': -473.33,'pos_y': 168.96,'pos_z': -166.43,
-                'rot_x': 0,'rot_y': -210,'rot_z': 0,
-            },
-        ],
-    ],
-    'quest_info': {
-        'quest_id': IntVar(value=61001),
-        'name': StringVar(value="Jump Four Jaggi"),
-        'client': StringVar(value="Guild Subcontractor"),
-        'description': (
-            StringVar(value="Hunt 4 Great Jaggi"),
-            StringVar(value="")
-        ),
-        'details': (
-            StringVar(value="I'm gonna get so fired for"),
-            StringVar(value="this... The Great Jaggi some"),
-            StringVar(value="hunter brought in just"),
-            StringVar(value="escaped. Mind going after"),
-            StringVar(value="them? You better hurry,"),
-            StringVar(value="though. Bet they've got some"),
-            StringVar(value="incredible materials, too.")),
-        'success_message': (
-            StringVar(value="Complete the Main Quest."),
-            StringVar()
-        ),
-        'flags': (
-            (BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0)),
-            (BooleanVar(value=1), BooleanVar(value=1), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0)),
-            (BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0)),
-            (BooleanVar(value=1), BooleanVar(value=0), BooleanVar(value=1), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=1), BooleanVar(value=1))
-        ),
-        'penalty_per_cart': IntVar(value=1400),
-        'quest_fee': IntVar(value=400),
-        'time_limit': IntVar(value=50),
-        'main_monster_1': Monster.bnahabra2,
-        'main_monster_2': Monster.melynx,
-        'location': IntVar(value=LocationType.QUEST_LOCATION_SANDY_PLAINS),
-        'quest_rank': IntVar(value=QuestRankType.star_1),
-        'hrp_restriction': IntVar(value=QuestRestrictionType.RESTRICTION_NONE),
-        'resources': IntVar(value=ResourcesType.low_rank),
-        'supply_set_number': IntVar(value=19),
-        'starting_position': IntVar(value=StartingPositionType.camp),
-        'general_enemy_level': 0x0017,
-        'summon': (
-            IntVar(value=0x64),
-            IntVar(value=0x05),
-            IntVar(value=0x02),
-            IntVar(value=0x19)
-        ),#(0x64050219),
-        'wave_1_transition_type': WaveType.none,
-        'wave_1_transition_target': 0x0000,
-        'wave_1_transition_quantity': 0x0000,
-        'wave_2_transition_type': WaveType.none,
-        'wave_2_transition_target': 0x0000,
-        'wave_2_transition_quantity': 0x0000,
-    },
-    'large_monsters': {
-        'monster_1': {
-            'type': IntVar(value=Monster.great_jaggi),
-            'starting_area': IntVar(value=0x00),
-            'boss_id': IntVar(value=0xFF),
-            'spawn_count': IntVar(value=0x04),
-            'level': IntVar(value=0x17),  # 0x01 through 0x3c
-            'size': IntVar(value=0x64),
-            'hp_spread': IntVar(value=0x01),  # 0: fixed, 1: spread of 5, 2: spread of 3
-            'size_spread': IntVar(value=0x01)
+        'quest_info': {
+            'quest_id': IntVar(value=61001),
+            'name': StringVar(value="Jump Four Jaggi"),
+            'client': StringVar(value="Guild Subcontractor"),
+            'description': (
+                StringVar(value="Hunt 4 Great Jaggi"),
+                StringVar(value="")
+            ),
+            'details': (
+                StringVar(value="I'm gonna get so fired for"),
+                StringVar(value="this... The Great Jaggi some"),
+                StringVar(value="hunter brought in just"),
+                StringVar(value="escaped. Mind going after"),
+                StringVar(value="them? You better hurry,"),
+                StringVar(value="though. Bet they've got some"),
+                StringVar(value="incredible materials, too.")),
+            'success_message': (
+                StringVar(value="Complete the Main Quest."),
+                StringVar()
+            ),
+            'flags': (
+                (BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0)),
+                (BooleanVar(value=1), BooleanVar(value=1), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0)),
+                (BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0)),
+                (BooleanVar(value=1), BooleanVar(value=0), BooleanVar(value=1), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=1), BooleanVar(value=1))
+            ),
+            'penalty_per_cart': IntVar(value=1400),
+            'quest_fee': IntVar(value=400),
+            'time_limit': IntVar(value=50),
+            'main_monster_1': IntVar(value=Monster.bnahabra2),
+            'main_monster_2': IntVar(value=Monster.melynx),
+            'location': IntVar(value=LocationType.QUEST_LOCATION_SANDY_PLAINS),
+            'quest_rank': IntVar(value=QuestRankType.star_1),
+            'hrp_restriction': IntVar(value=QuestRestrictionType.RESTRICTION_NONE),
+            'resources': IntVar(value=ResourcesType.low_rank),
+            'supply_set_number': IntVar(value=19),
+            'starting_position': IntVar(value=StartingPositionType.camp),
+            'general_enemy_level': IntVar(value=0x0017),
+            'summon': (
+                IntVar(value=0x64),
+                IntVar(value=0x05),
+                IntVar(value=0x02),
+                IntVar(value=0x19)
+            ),#(0x64050219),
+            'wave_1_transition_type': IntVar(value=WaveType.none),
+            'wave_1_transition_target': IntVar(value=0x0000),
+            'wave_1_transition_quantity': IntVar(value=0x0000),
+            'wave_2_transition_type': IntVar(value=WaveType.none),
+            'wave_2_transition_target': IntVar(value=0x0000),
+            'wave_2_transition_quantity': IntVar(value=0x0000),
         },
-        'monster_2': {
-            'type': IntVar(value=Monster.none),
-            'starting_area': IntVar(value=0x00),
-            'boss_id': IntVar(value=0x00),
-            'spawn_count': IntVar(value=0x00),
-            'level': IntVar(value=0x00),  # 0x01 through 0x3c
-            'size': IntVar(value=0x00),
-            'hp_spread': IntVar(value=0x00),  # 0: fixed, 1: spread of 5, 2: spread of 3
-            'size_spread': IntVar(value=0x00)
+        'large_monsters': {
+            'monster_1': {
+                'type': IntVar(value=Monster.great_jaggi),
+                'starting_area': IntVar(value=0x00),
+                'boss_id': IntVar(value=0xFF),
+                'spawn_count': IntVar(value=0x04),
+                'level': IntVar(value=0x17),  # 0x01 through 0x3c
+                'size': IntVar(value=0x64),
+                'hp_spread': IntVar(value=0x01),  # 0: fixed, 1: spread of 5, 2: spread of 3
+                'size_spread': IntVar(value=0x01)
+            },
+            'monster_2': {
+                'type': IntVar(value=Monster.none),
+                'starting_area': IntVar(value=0x00),
+                'boss_id': IntVar(value=0x00),
+                'spawn_count': IntVar(value=0x00),
+                'level': IntVar(value=0x00),  # 0x01 through 0x3c
+                'size': IntVar(value=0x00),
+                'hp_spread': IntVar(value=0x00),  # 0: fixed, 1: spread of 5, 2: spread of 3
+                'size_spread': IntVar(value=0x00)
+            },
+            'monster_3': {
+                'type': IntVar(value=Monster.none),
+                'starting_area': IntVar(value=0x00),
+                'boss_id': IntVar(value=0x00),
+                'spawn_count': IntVar(value=0x00),
+                'level': IntVar(value=0x00),  # 0x01 through 0x3c
+                'size': IntVar(value=0x00),
+                'hp_spread': IntVar(value=0x00),  # 0: fixed, 1: spread of 5, 2: spread of 3
+                'size_spread': IntVar(value=0x00)
+            }
         },
-        'monster_3': {
-            'type': IntVar(value=Monster.none),
-            'starting_area': IntVar(value=0x00),
-            'boss_id': IntVar(value=0x00),
-            'spawn_count': IntVar(value=0x00),
-            'level': IntVar(value=0x00),  # 0x01 through 0x3c
-            'size': IntVar(value=0x00),
-            'hp_spread': IntVar(value=0x00),  # 0: fixed, 1: spread of 5, 2: spread of 3
-            'size_spread': IntVar(value=0x00)
+        'objective_details': {
+            'main_quest': {
+                #'type': 0x00000001,
+                'type': (
+                    (BooleanVar(value=1),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                    (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                    (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
+                ),
+                'objective_type': IntVar(value=Monster.great_jaggi),
+                'objective_num': IntVar(value=0x04),
+                'zenny_reward': IntVar(value=4000),
+                'hrp_reward': IntVar(value=440),
+                'rewards_row_1': [
+                    (IntVar(value=ItemsType.great_jagi_claw), IntVar(value=1), IntVar(value=3)),
+                    (IntVar(value=ItemsType.great_jagi_hide), IntVar(value=1), IntVar(value=12)),
+                    (IntVar(value=ItemsType.jagi_scale), IntVar(value=1), IntVar(value=10)),
+                    (IntVar(value=ItemsType.screamer), IntVar(value=1), IntVar(value=20)),
+                    (IntVar(value=ItemsType.kings_frill), IntVar(value=1), IntVar(value=12)),
+                    (IntVar(value=ItemsType.bone_husk_s), IntVar(value=8), IntVar(value=18)),
+                    (IntVar(value=ItemsType.great_jagi_head), IntVar(value=1), IntVar(value=25)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
+                ],
+                'rewards_row_2': [
+                    (IntVar(value=ItemsType.mystery_charm), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.aquaglow_jewel), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.shining_charm), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.armor_sphere), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.armor_sphere_plus), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
+                ],
+            },
+            'subquest_1': {
+                'description': StringVar(value="Hunt 2 Great Jaggi"),
+                'type': (
+                    (BooleanVar(value=1),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                    (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                    (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
+                ),
+                'objective_type': IntVar(value=Monster.great_jaggi),
+                'objective_num': IntVar(value=0x02),
+                'zenny_reward': IntVar(value=4000),
+                'hrp_reward': IntVar(value=440),
+                'rewards_row_1': [
+                    (IntVar(value=ItemsType.great_jagi_claw), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.great_jagi_hide), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.jagi_scale), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.screamer), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.kings_frill), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.bone_husk_s), IntVar(value=8), IntVar(value=1)),
+                    (IntVar(value=ItemsType.great_jagi_head), IntVar(value=1), IntVar(value=1)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
+                ],
+            },
+            'subquest_2': {
+                'description': StringVar(value="None"),
+                'type': (
+                    (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                    (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
+                    (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
+                ),
+                'objective_type': IntVar(value=Monster.none),
+                'objective_num': IntVar(value=0),
+                'zenny_reward': IntVar(value=0),
+                'hrp_reward': IntVar(value=0),
+                'rewards_row_1': [
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
+                    (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
+                ],
+            }
+        },
+        'unknown': {
+            # (2 for large mon quest, 3 for small/delivery, 5 for jhen/ala)
+            'unk_12': 0x00000002,
+            'unk_4': 0x00,
+            'unk_5': 0x00,
+            'unk_6': 0x00,
+            'unk_7': 0x00000000,
         }
-    },
-    'objective_details': {
-        'main_quest': {
-            #'type': 0x00000001,
-            'type': (
-                (BooleanVar(value=1),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
-                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
-                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
-            ),
-            'objective_type': IntVar(value=Monster.great_jaggi),
-            'objective_num': IntVar(value=0x04),
-            'zenny_reward': IntVar(value=4000),
-            'hrp_reward': IntVar(value=440),
-            'rewards_row_1': [
-                (IntVar(value=ItemsType.great_jagi_claw), IntVar(value=1), IntVar(value=3)),
-                (IntVar(value=ItemsType.great_jagi_hide), IntVar(value=1), IntVar(value=12)),
-                (IntVar(value=ItemsType.jagi_scale), IntVar(value=1), IntVar(value=10)),
-                (IntVar(value=ItemsType.screamer), IntVar(value=1), IntVar(value=20)),
-                (IntVar(value=ItemsType.kings_frill), IntVar(value=1), IntVar(value=12)),
-                (IntVar(value=ItemsType.bone_husk_s), IntVar(value=8), IntVar(value=18)),
-                (IntVar(value=ItemsType.great_jagi_head), IntVar(value=1), IntVar(value=25)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
-            ],
-            'rewards_row_2': [
-                (IntVar(value=ItemsType.mystery_charm), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.aquaglow_jewel), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.shining_charm), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.armor_sphere), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.armor_sphere_plus), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
-            ],
-        },
-        'subquest_1': {
-            'description': StringVar(value="Hunt 2 Great Jaggi"),
-            'type': (
-                (BooleanVar(value=1),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
-                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
-                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
-            ),
-            'objective_type': IntVar(value=Monster.great_jaggi),
-            'objective_num': IntVar(value=0x02),
-            'zenny_reward': IntVar(value=4000),
-            'hrp_reward': IntVar(value=440),
-            'rewards_row_1': [
-                (IntVar(value=ItemsType.great_jagi_claw), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.great_jagi_hide), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.jagi_scale), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.screamer), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.kings_frill), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.bone_husk_s), IntVar(value=8), IntVar(value=1)),
-                (IntVar(value=ItemsType.great_jagi_head), IntVar(value=1), IntVar(value=1)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
-            ],
-        },
-        'subquest_2': {
-            'description': StringVar(value="None"),
-            'type': (
-                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
-                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0)),
-                (BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0),BooleanVar(value=0))
-            ),
-            'objective_type': IntVar(value=Monster.none),
-            'objective_num': IntVar(value=0),
-            'zenny_reward': IntVar(value=0),
-            'hrp_reward': IntVar(value=0),
-            'rewards_row_1': [
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0)),
-                (IntVar(value=ItemsType.none), IntVar(value=0), IntVar(value=0))
-            ],
-        }
-    },
-    'unknown': {
-        # (2 for large mon quest, 3 for small/delivery, 5 for jhen/ala)
-        'unk_12': 0x00000002,
-        'unk_4': 0x00,
-        'unk_5': 0x00,
-        'unk_6': 0x00,
-        'unk_7': 0x00000000,
     }
-}
+
+    for area in data['small_monsters']:
+        for monster in area:
+            if type(monster['type']) != IntVar:
+                monster['type'] = IntVar(value=monster['type'])
+            if type(monster['unk1']) != IntVar:
+                monster['unk1'] = IntVar(value=monster['unk1'])
+            if type(monster['unk2']) != IntVar:
+                monster['unk2'] = IntVar(value=monster['unk2'])
+            if type(monster['variant']) != IntVar:
+                monster['variant'] = IntVar(value=monster['variant'])
+            if type(monster['room']) != IntVar:
+                monster['room'] = IntVar(value=monster['room'])
+            if type(monster['quantity']) != IntVar:
+                monster['quantity'] = IntVar(value=monster['quantity'])
+            if type(monster['pos_x']) != DoubleVar:
+                monster['pos_x'] = DoubleVar(value=monster['pos_x'])
+            if type(monster['pos_y']) != DoubleVar:
+                monster['pos_y'] = DoubleVar(value=monster['pos_y'])
+            if type(monster['pos_z']) != DoubleVar:
+                monster['pos_z'] = DoubleVar(value=monster['pos_z'])
+            if type(monster['rot_x']) != IntVar:
+                monster['rot_x'] = IntVar(value=monster['rot_x'])
+            if type(monster['rot_y']) != IntVar:
+                monster['rot_y'] = IntVar(value=monster['rot_y'])
+            if type(monster['rot_z']) != IntVar:
+                monster['rot_z'] = IntVar(value=monster['rot_z'])
+
     return data
 
 
