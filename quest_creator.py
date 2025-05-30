@@ -1071,6 +1071,6 @@ if __name__ == '__main__':
     frm.pack()
     ttk.Button(frm, text='Load', command=Loader).pack(side='left')
     ttk.Button(frm, text='Save', command=Saver).pack(side='left')
-    ttk.Button(frm, text='Close', command=lambda:print(dataholder[0]['arena_equipment'][0][8][0][0].get())).pack(side='right')
+    ttk.Button(frm, text='Close', command=exit).pack(side='right')
 
     win.mainloop()
