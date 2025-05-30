@@ -803,8 +803,8 @@ def Arena(tab, data):
         armor12Frame.pack()
         armor13Frame.pack()
 
-        Button(frame, text="Item Pouch", command=lambda:0).pack()
-        Button(frame, text="Gunner's Pouch", command=lambda:0).pack()
+        Button(frame, text="Item Pouch", command=lambda:CreateItemPouch(loadout[8], False)).pack()
+        Button(frame, text="Gunner's Pouch", command=lambda:CreateItemPouch(loadout[9], True)).pack()
 
     construct_loadout_slot(loadouts[0], frame1, 1)
     construct_loadout_slot(loadouts[1], frame2, 2)
@@ -815,6 +815,83 @@ def Arena(tab, data):
     frame2.grid(column=1, row=0, sticky='nsew')
     frame3.grid(column=0, row=1, sticky='nsew')
     frame4.grid(column=1, row=1, sticky='nsew')
+
+
+def CreateItemPouch(items, gunner=False):
+    t = Toplevel(win)
+    if gunner:
+        t.wm_title("Ammo Pouch")
+        t.geometry('260x198')
+    else:
+        t.wm_title("Item Pouch")
+        t.geometry('520x198')
+
+    t.resizable(False, False)
+    tstyle = ttk.Style(t)
+    tstyle.theme_use('clam')
+
+    item_width=21
+    other_width=4
+    page_padding = 10
+
+    pouchFrame = ttk.Frame(t)
+
+    page1Frame = ttk.Frame(pouchFrame, padding=2)
+    ttk.Label(page1Frame, text="Ammo" if gunner else "Page 1 Items").grid(column=0, row=0, sticky=W)
+    ttk.Label(page1Frame, text="#").grid(column=1, row=0)
+
+    def add_item_row(frame, items, idx):
+        AutocompleteDropdown(frame, ItemsType, variable=items[idx][0], width=item_width).grid(column=0, row=1+idx)
+        NumEntry(frame, limit=0xFF, variable=items[idx][1], width=other_width).grid(column=1, row=1+idx)
+
+    add_item_row(page1Frame, items, 0)
+    add_item_row(page1Frame, items, 1)
+    add_item_row(page1Frame, items, 2)
+    add_item_row(page1Frame, items, 3)
+    add_item_row(page1Frame, items, 4)
+    add_item_row(page1Frame, items, 5)
+    add_item_row(page1Frame, items, 6)
+    add_item_row(page1Frame, items, 7)
+
+    page1Frame.grid(column=0, row=0, padx=(0,page_padding))
+
+    if not gunner:
+        page2Frame = ttk.Frame(pouchFrame, padding=2)
+        ttk.Label(page2Frame, text="Page 2 Items").grid(column=0, row=0, sticky=W)
+        ttk.Label(page2Frame, text="#").grid(column=1, row=0)
+
+        add_item_row(page2Frame, items, 8)
+        add_item_row(page2Frame, items, 9)
+        add_item_row(page2Frame, items, 10)
+        add_item_row(page2Frame, items, 11)
+        add_item_row(page2Frame, items, 12)
+        add_item_row(page2Frame, items, 13)
+        add_item_row(page2Frame, items, 14)
+        add_item_row(page2Frame, items, 15)
+
+        page2Frame.grid(column=1, row=0, padx=(0,page_padding))
+
+        page3Frame = ttk.Frame(pouchFrame, padding=2)
+        ttk.Label(page3Frame, text="Page 3 Items").grid(column=0, row=0, sticky=W)
+        ttk.Label(page3Frame, text="#").grid(column=1, row=0)
+
+        add_item_row(page3Frame, items, 16)
+        add_item_row(page3Frame, items, 17)
+        add_item_row(page3Frame, items, 18)
+        add_item_row(page3Frame, items, 19)
+        add_item_row(page3Frame, items, 20)
+        add_item_row(page3Frame, items, 21)
+        add_item_row(page3Frame, items, 22)
+        add_item_row(page3Frame, items, 23)
+
+        page3Frame.grid(column=2, row=0, padx=(0,page_padding))
+
+    pouchFrame.pack()
+
+    t.wait_visibility()
+    x = win.winfo_x() + win.winfo_width()//2 - t.winfo_width()//2
+    y = win.winfo_y() + win.winfo_height()//2 - t.winfo_height()//2
+    t.geometry(f"+{x}+{y}")
 
 
 def CreateRewards(data, objective=0):
@@ -990,6 +1067,6 @@ if __name__ == '__main__':
     frm.pack()
     ttk.Button(frm, text='Load', command=Loader).pack(side='left')
     ttk.Button(frm, text='Save', command=Saver).pack(side='left')
-    ttk.Button(frm, text='Close', command=lambda:print(dataholder[0]['arena_equipment'][0][0][0].get())).pack(side='right')
+    ttk.Button(frm, text='Close', command=lambda:print(dataholder[0]['arena_equipment'][0][8][0][0].get())).pack(side='right')
 
     win.mainloop()

@@ -712,7 +712,7 @@ class ItemsType(Enum):
     barioth_claw_plus = 454
     diablos_marrow = 455
     diablos_carapace = 456
-    diablos_ridge = 457
+    diablos_ridge2 = 457
     stout_horn = 458
     ceadeus_hide = 459
     ceadeus_scale = 460

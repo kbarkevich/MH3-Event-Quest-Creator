@@ -369,7 +369,7 @@ def InitializeArenaEquipment(data):
                 (ItemsType.sleep_knife, 5), (ItemsType.poison_knife, 5), (ItemsType.tinged_meat, 5), (ItemsType.druged_meat, 5), (ItemsType.pitfall_trap, 1),
                 (ItemsType.shock_trap, 1), (ItemsType.ez_shock_trap, 1), (ItemsType.ez_flash_bomb, 5), (ItemsType.ez_barrel_bomb_l, 2), (ItemsType.barrel_bomb_l_plus, 2),
                 (ItemsType.barrel_bomb_l, 3), (ItemsType.barrel_bomb_s, 10), (ItemsType.max_potion, 2), (ItemsType.ancient_potion, 1), (ItemsType.powercharm, 1),
-                (ItemsType.armorcharm, 1), (ItemsType.powertalon, 1), (ItemsType.armortalon, 1)],
+                (ItemsType.armorcharm, 1), (ItemsType.powertalon, 1), (ItemsType.armortalon, 1), (ItemsType.none, 1)],
             [(ItemsType.normal_s_lv2, 99), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
                 (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0)]]
     ]
