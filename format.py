@@ -6,6 +6,10 @@ import json
 import math
 
 
+ITEMS_SIZE = 24
+GUNNER_SIZE = 8
+
+
 def SaveQuestFile(data):
     ff = asksaveasfilename(title="Save Quest Json", filetypes=[("Allowed Types", "*.json",)])
     if ff:
@@ -60,10 +64,21 @@ def DepopulateDataDict(data):
 
     def unget_rewards(rew):
         return [
-            [g[0].get(), g[1].get(), g[2].get()] for g in rew if g[0].get() != 0
+            [g[0].get(), g[1].get(), g[2].get()] for g in rew if g[0].get() != ItemsType.none
         ]
 
-    return {
+    def unfetch_items_from_slots(items):
+        return [
+            [x[0].get(), x[1].get()] for x in items if x[0].get() != ItemsType.none
+        ]
+
+    def unformat_arena_equipment_slot(slot):
+        return [[slot[0][0].get(), slot[0][1].get()], [slot[1][0].get(), slot[1][1].get()] if slot[0][0].get() == EquipmentClasses.BowgunFrame else None, [slot[2][0].get(), slot[2][1].get()] if slot[0][0].get() == EquipmentClasses.BowgunFrame else None,
+                slot[3].get(), slot[4].get(), slot[5].get(), slot[6].get(), slot[7].get(),
+                unfetch_items_from_slots(slot[8]),
+                unfetch_items_from_slots(slot[9])]
+
+    out = {
         'small_monsters': [
             [
                 {
@@ -173,6 +188,14 @@ def DepopulateDataDict(data):
             'unk_7': data['unknown']['unk_7'].get(),
         }
     }
+    if data['quest_info']['flags'][3][4].get():
+        out['arena_equipment'] = [
+            unformat_arena_equipment_slot(data['arena_equipment'][0]),
+            unformat_arena_equipment_slot(data['arena_equipment'][1]),
+            unformat_arena_equipment_slot(data['arena_equipment'][2]),
+            unformat_arena_equipment_slot(data['arena_equipment'][3])
+        ]
+    return out
 
 
 def PopulateDataDict(data):
@@ -222,8 +245,8 @@ def PopulateDataDict(data):
     def format_arena_equipment_slot(slot):
         return [(IntVar(value=slot[0][0]), IntVar(value=slot[0][1])), (IntVar(value=slot[1][0]), IntVar(value=slot[1][1])) if slot[1] is not None else (IntVar(value=EquipmentClasses.BowgunBarrel), IntVar(value=0)), (IntVar(value=slot[2][0]), IntVar(value=slot[2][1])) if slot[2] is not None else (IntVar(value=EquipmentClasses.BowgunStock), IntVar(value=0)),
                 IntVar(value=slot[3]), IntVar(value=slot[4]), IntVar(value=slot[5]), IntVar(value=slot[6]), IntVar(value=slot[7]),
-                fetch_items_from_slots(slot[8], 24),
-                fetch_items_from_slots(slot[9], 8)]
+                fetch_items_from_slots(slot[8], ITEMS_SIZE),
+                fetch_items_from_slots(slot[9], GUNNER_SIZE)]
 
     out = {
         'small_monsters': [
@@ -350,8 +373,6 @@ def PopulateDataDict(data):
     return out
 
 
-ITEMS_SIZE = 24
-GUNNER_SIZE = 8
 def InitializeArenaEquipment(data):
     arena_equipment = [\
         [(EquipmentClasses.SnS, SnS.HuntersKnife), (EquipmentClasses.BowgunBarrel, BowgunBarrel.SelectBarrel), (EquipmentClasses.BowgunStock, BowgunStock.NoEquipment),
