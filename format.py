@@ -1,5 +1,6 @@
 from tkinter import *
 from ids import *
+from equipment_ids import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 import json
 import math
@@ -326,6 +327,76 @@ def PopulateDataDict(data):
             'unk_7': IntVar(value=data['unknown']['unk_7']),
         }
     }
+
+
+ITEMS_SIZE = 24
+GUNNER_SIZE = 8
+def InitializeArenaEquipment(data):
+    arena_equipment = [\
+        [(EquipmentClasses.SnS, SnS.HuntersKnife), (EquipmentClasses.BowgunBarrel, BowgunBarrel.SelectBarrel), (EquipmentClasses.BowgunStock, BowgunStock.NoEquipment),
+            Helmet.HuntersHelm, Chestpiece.HuntersMail, Gauntlets.HuntersVambraces, Faulds.HuntersFaulds, Leggings.HuntersGreaves,
+            [(ItemsType.whetstone, 20), (ItemsType.potion, 10), (ItemsType.mega_potion, 10), (ItemsType.ration, 10), (ItemsType.lifepowder, 3),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0)],
+            [(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),
+                (ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0)]],
+        [(EquipmentClasses.Lance, Lance.IronLance), (EquipmentClasses.BowgunBarrel, BowgunBarrel.SelectBarrel), (EquipmentClasses.BowgunStock, BowgunStock.NoEquipment),
+            Helmet.HuntersHelm, Chestpiece.HuntersMail, Gauntlets.HuntersVambraces, Faulds.HuntersFaulds, Leggings.HuntersGreaves,
+            [(ItemsType.whetstone, 20), (ItemsType.potion, 10), (ItemsType.mega_potion, 10), (ItemsType.ration, 10), (ItemsType.lifepowder, 3),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0)],
+            [(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),
+                (ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0)]],
+        [(EquipmentClasses.Hammer, Hammer.IronHammer), (EquipmentClasses.BowgunBarrel, BowgunBarrel.SelectBarrel), (EquipmentClasses.BowgunStock, BowgunStock.NoEquipment),
+            Helmet.HuntersHelm, Chestpiece.HuntersMail, Gauntlets.HuntersVambraces, Faulds.HuntersFaulds, Leggings.HuntersGreaves,
+            [(ItemsType.whetstone, 20), (ItemsType.potion, 10), (ItemsType.mega_potion, 10), (ItemsType.ration, 10), (ItemsType.lifepowder, 3),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0)],
+            [(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),
+                (ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0),(ItemsType.none, 0)]],
+        [(EquipmentClasses.BowgunFrame, BowgunFrame.LightBowgun), (EquipmentClasses.BowgunBarrel, BowgunBarrel.LightBowgun), (EquipmentClasses.BowgunStock, BowgunStock.NoEquipment),
+            Helmet.BarrageEarring, Chestpiece.DamascusVest, Gauntlets.DamascusGuards, Faulds.DamascusCoat, Leggings.DamascusLeggings,
+            [(ItemsType.potion, 10), (ItemsType.mega_potion, 10), (ItemsType.energy_drink, 5), (ItemsType.lifepowder, 3), (ItemsType.paralysis_knife, 5),
+                (ItemsType.sleep_knife, 5), (ItemsType.poison_knife, 5), (ItemsType.tinged_meat, 5), (ItemsType.druged_meat, 5), (ItemsType.pitfall_trap, 1),
+                (ItemsType.shock_trap, 1), (ItemsType.ez_shock_trap, 1), (ItemsType.ez_flash_bomb, 5), (ItemsType.ez_barrel_bomb_l, 2), (ItemsType.barrel_bomb_l_plus, 2),
+                (ItemsType.barrel_bomb_l, 3), (ItemsType.barrel_bomb_s, 10), (ItemsType.max_potion, 2), (ItemsType.ancient_potion, 1), (ItemsType.powercharm, 1),
+                (ItemsType.armorcharm, 1), (ItemsType.powertalon, 1), (ItemsType.armortalon, 1)],
+            [(ItemsType.normal_s_lv2, 99), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0),
+                (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0), (ItemsType.none, 0)]]
+    ]
+
+    for loadout_idx in range(len(arena_equipment)):
+        arena_equipment[loadout_idx][0] = (IntVar(value=arena_equipment[loadout_idx][0][0]), IntVar(value=arena_equipment[loadout_idx][0][1]))
+        arena_equipment[loadout_idx][1] = (IntVar(value=arena_equipment[loadout_idx][1][0]), IntVar(value=arena_equipment[loadout_idx][1][1]))
+        arena_equipment[loadout_idx][2] = (IntVar(value=arena_equipment[loadout_idx][2][0]), IntVar(value=arena_equipment[loadout_idx][2][1]))
+
+        arena_equipment[loadout_idx][3] = IntVar(value=arena_equipment[loadout_idx][3])
+        arena_equipment[loadout_idx][4] = IntVar(value=arena_equipment[loadout_idx][4])
+        arena_equipment[loadout_idx][5] = IntVar(value=arena_equipment[loadout_idx][5])
+        arena_equipment[loadout_idx][6] = IntVar(value=arena_equipment[loadout_idx][6])
+        arena_equipment[loadout_idx][7] = IntVar(value=arena_equipment[loadout_idx][7])
+
+        for itempouch_idx in range(len(arena_equipment[loadout_idx][8])):
+            arena_equipment[loadout_idx][8][itempouch_idx] = (IntVar(value=arena_equipment[loadout_idx][8][itempouch_idx][0]), IntVar(value=arena_equipment[loadout_idx][8][itempouch_idx][1]))
+
+        arena_equipment[loadout_idx][8] = tuple(arena_equipment[loadout_idx][8])
+
+        for gunnerpouch_idx in range(len(arena_equipment[loadout_idx][9])):
+            arena_equipment[loadout_idx][9][gunnerpouch_idx] = (IntVar(value=arena_equipment[loadout_idx][9][gunnerpouch_idx][0]), IntVar(value=arena_equipment[loadout_idx][9][gunnerpouch_idx][1]))
+
+        arena_equipment[loadout_idx][9] = tuple(arena_equipment[loadout_idx][9])
+        arena_equipment[loadout_idx] = tuple(arena_equipment[loadout_idx])
+
+    data['arena_equipment'] = tuple(arena_equipment)
 
 
 def InitializeDataDict():

@@ -45,7 +45,7 @@ def QuestInfo(tab, data):
     questDescriptionFrame.pack(side='bottom', expand=True)
 
 
-def QuestSettings(tab, data):
+def QuestSettings(tab, data, onArenaToggle=None):
     questFlagsFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questFlagsFrame, text="Quest Flags").grid(column=1, row=0)
     questFlagsFrame1 = ttk.Frame(questFlagsFrame, padding=2)
@@ -155,7 +155,7 @@ def QuestSettings(tab, data):
     ttk.Checkbutton(menuFlagsFrame, text="Gather", variable=var42).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Capture", variable=var43).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Slay Hidden", variable=var44).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(menuFlagsFrame, text="Arena", variable=var45).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(menuFlagsFrame, text="Arena", variable=var45, command=lambda x=var45:onArenaToggle(x)if onArenaToggle is not None else None).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Unknown2", variable=var46).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="End@Main(?)", variable=var47).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Unknown3", variable=var48).pack(side='top', anchor=N+W)
@@ -715,6 +715,108 @@ def Unknowns(tab, data):
     NumEntry(tab, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unk_12']).pack()
 
 
+def Arena(tab, data):
+    if 'arena_equipment' not in data:
+        InitializeArenaEquipment(data)
+
+    loadouts = data['arena_equipment']
+
+    #frameHolder = ttk.Frame(tab, padding=2).grid(sticky='nsew')
+    tab.grid_columnconfigure((0,1), weight=1)
+    tab.grid_rowconfigure((0,1), weight=1)
+    frame1 = ttk.Frame(tab, padding=2)
+    frame2 = ttk.Frame(tab, padding=2)
+    frame3 = ttk.Frame(tab, padding=2)
+    frame4 = ttk.Frame(tab, padding=2)
+
+    def valid_bowgun_start(wepType):
+        return wepType.get() == EquipmentClasses.BowgunFrame
+
+    def determine_weapon_enum(wepType, allowBarrelStock=False):
+        if wepType.get() == EquipmentClasses.Greatsword:
+            return True, Greatsword
+        elif wepType.get() == EquipmentClasses.SnS:
+            return True, SnS
+        elif wepType.get() == EquipmentClasses.Hammer:
+            return True, Hammer
+        elif wepType.get() == EquipmentClasses.Lance:
+            return True, Lance
+        elif wepType.get() == EquipmentClasses.BowgunFrame and not allowBarrelStock:
+            return True, BowgunFrame
+        elif wepType.get() == EquipmentClasses.BowgunBarrel and allowBarrelStock:
+            return True, BowgunBarrel
+        elif wepType.get() == EquipmentClasses.BowgunStock and allowBarrelStock:
+            return True, BowgunStock
+        elif wepType.get() == EquipmentClasses.Longsword:
+            return True, Longsword
+        elif wepType.get() == EquipmentClasses.Switchaxe:
+            return True, Switchaxe
+        else:
+            return False, SnS
+
+    def on_switch_weapon_type(dropdown, wepType, bowgunOnlyDropdowns=[]):
+        status, enum = determine_weapon_enum(wepType, allowBarrelStock=len(bowgunOnlyDropdowns)==0)
+        dropdown.update_dropdown(enum)
+        dropdown['state'] = "readonly" if status else "disabled"
+        for dd in bowgunOnlyDropdowns:
+            _ = dd.grid() if valid_bowgun_start(wepType) else dd.grid_remove()
+
+    def construct_loadout_slot(loadout, frame, number):
+        ttk.Label(frame, text="Loadout "+str(number)).pack(side='top', expand=True)
+        weapon12Frame = ttk.Frame(frame, padding=2)
+        weapon12TypeDropdown = Dropdown(weapon12Frame, determine_weapon_enum(loadout[1][0], allowBarrelStock=True)[1], variable=loadout[1][1])
+        weapon12CategoryDropdown = Dropdown(weapon12Frame, EquipmentClasses,  state='disabled', onSelected=lambda:on_switch_weapon_type(weapon12TypeDropdown, loadout[1][0]), width=13, variable=loadout[1][0])
+        weapon13Frame = ttk.Frame(frame, padding=2)
+        weapon13TypeDropdown = Dropdown(weapon13Frame, determine_weapon_enum(loadout[2][0], allowBarrelStock=True)[1], variable=loadout[2][1])
+        weapon13CategoryDropdown = Dropdown(weapon13Frame, EquipmentClasses,  state='disabled', onSelected=lambda:on_switch_weapon_type(weapon13TypeDropdown, loadout[2][0]), width=13, variable=loadout[2][0])
+        
+        weapon11Frame = ttk.Frame(frame, padding=2)
+        weapon11TypeDropdown = Dropdown(weapon11Frame, determine_weapon_enum(loadout[0][0])[1], variable=loadout[0][1])
+        Dropdown(weapon11Frame, EquipmentClasses, onSelected=lambda:on_switch_weapon_type(weapon11TypeDropdown, loadout[0][0], [weapon12CategoryDropdown, weapon13CategoryDropdown, weapon12TypeDropdown, weapon13TypeDropdown]), width=13, variable=loadout[0][0]).grid(column=0,row=0)#.pack(side='left')
+        weapon11TypeDropdown.grid(column=1,row=0)#.pack(side='right')
+        weapon11Frame.pack()
+
+        weapon12CategoryDropdown.grid(column=0,row=0)#.pack(side='left')
+        weapon12TypeDropdown.grid(column=1,row=0)#.pack(side='right')
+        weapon12Frame.pack()
+
+        weapon13CategoryDropdown.grid(column=0,row=0)#.pack(side='left')
+        weapon13TypeDropdown.grid(column=1,row=0)#.pack(side='right')
+        weapon13Frame.pack()
+
+        _ = weapon12CategoryDropdown.grid() if valid_bowgun_start(loadout[0][0]) else weapon12CategoryDropdown.grid_remove()
+        _ = weapon12TypeDropdown.grid() if valid_bowgun_start(loadout[0][0]) else weapon12TypeDropdown.grid_remove()
+        _ = weapon13CategoryDropdown.grid() if valid_bowgun_start(loadout[0][0]) else weapon13CategoryDropdown.grid_remove()
+        _ = weapon13TypeDropdown.grid() if valid_bowgun_start(loadout[0][0]) else weapon13TypeDropdown.grid_remove()
+
+        armor11Frame = ttk.Frame(frame, padding=2)
+        armor12Frame = ttk.Frame(frame, padding=2)
+        armor13Frame = ttk.Frame(frame, padding=2)
+
+        Dropdown(armor11Frame, Helmet, variable=loadout[3]).pack(side='left')
+        Dropdown(armor11Frame, Chestpiece, variable=loadout[4]).pack(side='right')
+        Dropdown(armor12Frame, Gauntlets, variable=loadout[5]).pack(side='left')
+        Dropdown(armor12Frame, Faulds, variable=loadout[6]).pack(side='right')
+        Dropdown(armor13Frame, Leggings, variable=loadout[7]).pack()
+
+        armor11Frame.pack()
+        armor12Frame.pack()
+        armor13Frame.pack()
+
+        Button(frame, text="Item Pouch", command=lambda:0).pack()
+        Button(frame, text="Gunner's Pouch", command=lambda:0).pack()
+
+    construct_loadout_slot(loadouts[0], frame1, 1)
+    construct_loadout_slot(loadouts[1], frame2, 2)
+    construct_loadout_slot(loadouts[2], frame3, 3)
+    construct_loadout_slot(loadouts[3], frame4, 4)
+
+    frame1.grid(column=0, row=0, sticky='nsew')
+    frame2.grid(column=1, row=0, sticky='nsew')
+    frame3.grid(column=0, row=1, sticky='nsew')
+    frame4.grid(column=1, row=1, sticky='nsew')
+
+
 def CreateRewards(data, objective=0):
     t = Toplevel(win)
     if objective == 0:
@@ -856,23 +958,26 @@ if __name__ == '__main__':
     tab4 = ttk.Frame(notebook) # Objectives
     tab5 = ttk.Frame(notebook) # Small Monsters
     tab6 = ttk.Frame(notebook) # Unknowns
+    tab7 = ttk.Frame(notebook) # Arena
 
     # Add the tab frames to the notebook
     notebook.add(tab1, text="Quest Info")
     notebook.add(tab2, text="Quest Settings")
     notebook.add(tab3, text="Large Monsters")
     notebook.add(tab4, text="Objectives")
-    notebook.add(tab5, text="Small Monsters")
+    notebook.add(tab5, text="Minions")
     notebook.add(tab6, text="Unknowns")
+    notebook.add(tab7, text="Arena", state="normal" if dataholder[0]['quest_info']['flags'][3][4].get() else "hidden")
 
     notebook.pack(expand=1, fill='both')
 
     QuestInfo(tab1, dataholder[0])
-    QuestSettings(tab2, dataholder[0])
+    QuestSettings(tab2, dataholder[0], onArenaToggle=lambda x:notebook.tab(6, state="normal" if x.get() else "hidden"))
     LargeMonsters(tab3, dataholder[0])
     Objectives(tab4, dataholder[0])
     SmallMonsters(tab5, dataholder[0])
     Unknowns(tab6, dataholder[0])
+    Arena(tab7, dataholder[0])
 
     def Loader():
         dataholder[0] = LoadQuest(tab1, tab2, tab3, tab4, tab5, tab6)
@@ -885,6 +990,6 @@ if __name__ == '__main__':
     frm.pack()
     ttk.Button(frm, text='Load', command=Loader).pack(side='left')
     ttk.Button(frm, text='Save', command=Saver).pack(side='left')
-    ttk.Button(frm, text='Close', command=lambda:print(dataholder[0]['quest_info']['description'])).pack(side='right')
+    ttk.Button(frm, text='Close', command=lambda:print(dataholder[0]['arena_equipment'][0][0][0].get())).pack(side='right')
 
     win.mainloop()

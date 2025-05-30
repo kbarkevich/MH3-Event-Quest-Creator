@@ -154,7 +154,7 @@ class AutocompleteDropdown(AutocompleteCombobox):
 
 
 class Dropdown(ttk.Combobox):
-    def __init__(self, master, optionEnum, variable=None, criteria=None, onSelected=None, width=None, **kwargs):
+    def __init__(self, master, optionEnum, variable=None, criteria=None, onSelected=None, width=None, state='readonly', **kwargs):
         self.criteria = criteria
         if variable is not None:
             self.variable = variable
@@ -170,7 +170,7 @@ class Dropdown(ttk.Combobox):
             self.width = 20 - 3
         else:
             self.width = width - 3
-        super().__init__(master, state='readonly', width=self.width, **kwargs)
+        super().__init__(master, state=state, width=self.width, **kwargs)
         self.config(values=options)
         self.current(self.variable.get())
         self.onSelected = onSelected
