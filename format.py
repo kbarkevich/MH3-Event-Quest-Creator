@@ -212,7 +212,20 @@ def PopulateDataDict(data):
             (IntVar(value=0), IntVar(value=0), IntVar(value=0)) for g in range(11-len(ret))
         ]
 
-    return {
+    def fetch_items_from_slots(items, quantity):
+        return [
+            (IntVar(value=x[0]), IntVar(value=x[1])) for x in items
+        ] + [
+            (IntVar(value=0), IntVar(value=0)) for x in range(quantity-len(items))
+        ]
+
+    def format_arena_equipment_slot(slot):
+        return [(IntVar(value=slot[0][0]), IntVar(value=slot[0][1])), (IntVar(value=slot[1][0]), IntVar(value=slot[1][1])) if slot[1] is not None else (IntVar(value=EquipmentClasses.BowgunBarrel), IntVar(value=0)), (IntVar(value=slot[2][0]), IntVar(value=slot[2][1])) if slot[2] is not None else (IntVar(value=EquipmentClasses.BowgunStock), IntVar(value=0)),
+                IntVar(value=slot[3]), IntVar(value=slot[4]), IntVar(value=slot[5]), IntVar(value=slot[6]), IntVar(value=slot[7]),
+                fetch_items_from_slots(slot[8], 24),
+                fetch_items_from_slots(slot[9], 8)]
+
+    out = {
         'small_monsters': [
             [
                 {
@@ -327,6 +340,14 @@ def PopulateDataDict(data):
             'unk_7': IntVar(value=data['unknown']['unk_7']),
         }
     }
+    if 'arena_equipment' in data:
+        out['arena_equipment'] = [\
+            format_arena_equipment_slot(data['arena_equipment'][0]),
+            format_arena_equipment_slot(data['arena_equipment'][1]),
+            format_arena_equipment_slot(data['arena_equipment'][2]),
+            format_arena_equipment_slot(data['arena_equipment'][3])
+        ]
+    return out
 
 
 ITEMS_SIZE = 24

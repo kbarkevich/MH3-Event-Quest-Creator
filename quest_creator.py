@@ -982,13 +982,13 @@ def CreateRewards(data, objective=0):
     t.geometry(f"+{x}+{y}")
 
 
-def RebuildTabs(data, tab1, tab2, tab3, tab4, tab5, tab6):
+def RebuildTabs(data, notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
     for widget in tab1.winfo_children():
         widget.destroy()
     QuestInfo(tab1, data)
     for widget in tab2.winfo_children():
         widget.destroy()
-    QuestSettings(tab2, data)
+    QuestSettings(tab2, data, onArenaToggle=lambda x:notebook.tab(6, state="normal" if x.get() else "hidden"))
     for widget in tab3.winfo_children():
         widget.destroy()
     LargeMonsters(tab3, data)
@@ -1001,12 +1001,16 @@ def RebuildTabs(data, tab1, tab2, tab3, tab4, tab5, tab6):
     for widget in tab6.winfo_children():
         widget.destroy()
     Unknowns(tab6, data)
+    for widget in tab7.winfo_children():
+        widget.destroy()
+    Arena(tab7, data)
+    notebook.tab(6, state="normal" if data['quest_info']['flags'][3][4].get() else "hidden")
 
-def LoadQuest(tab1, tab2, tab3, tab4, tab5, tab6):
+def LoadQuest(notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
     questdata = LoadQuestFile()
     if questdata is not None:
         data = questdata
-        RebuildTabs(data, tab1, tab2, tab3, tab4, tab5, tab6)
+        RebuildTabs(data, notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
         return data
     return None
 
@@ -1057,7 +1061,7 @@ if __name__ == '__main__':
     Arena(tab7, dataholder[0])
 
     def Loader():
-        dataholder[0] = LoadQuest(tab1, tab2, tab3, tab4, tab5, tab6)
+        dataholder[0] = LoadQuest(notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
     def Saver():
         SaveQuest(dataholder[0])
 
