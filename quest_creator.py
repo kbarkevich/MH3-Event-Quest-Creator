@@ -194,7 +194,7 @@ def LargeMonsters(tab, data):
         elif boss['level'].get() not in LEVELS:
             label.config(text = "Invalid Level")
         else:
-            arena_mode = dataholder[0]['quest_info']['flags'][3][4].get()
+            arena_mode = data['quest_info']['flags'][3][4].get()
             base_hp = MONSTER_HP[boss['type'].get()]
             level_mult = LEVELS[boss['level'].get()]
             arena_mult = 0.55 if arena_mode else 1.0
@@ -213,7 +213,6 @@ def LargeMonsters(tab, data):
             else:
                 info_str = "(base "+str(int(base_hp))+(" * arena 0.55"if arena_mode else "") + " * level multiplier) HP: "
                 label.config(text = info_str + str(int(base_hp * level_mult * arena_mult)))
-    update_boss_info_display(boss1, boss1_label)
     updater1.onSelected = lambda:update_boss_info_display(boss1, boss1_label)
     updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss1, boss1_label))
     updater3.onSelected = lambda:update_boss_info_display(boss1, boss1_label)
@@ -241,7 +240,6 @@ def LargeMonsters(tab, data):
     NumEntry(boss2Frame, limit=0xFF, variable=boss2['size_spread']).grid(column=3, row=3)
     boss2_label = ttk.Label(boss2Frame, text="------")
     boss2_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
-    update_boss_info_display(boss2, boss2_label)
     updater1.onSelected = lambda:update_boss_info_display(boss2, boss2_label)
     updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss2, boss2_label))
     updater3.onSelected = lambda:update_boss_info_display(boss2, boss2_label)
@@ -269,7 +267,6 @@ def LargeMonsters(tab, data):
     NumEntry(boss3Frame, limit=0xFF, variable=boss3['size_spread']).grid(column=3, row=3)
     boss3_label = ttk.Label(boss3Frame, text="------")
     boss3_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
-    update_boss_info_display(boss3, boss3_label)
     updater1.onSelected = lambda:update_boss_info_display(boss3, boss3_label)
     updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss3, boss3_label))
     updater3.onSelected = lambda:update_boss_info_display(boss3, boss3_label)
@@ -289,6 +286,13 @@ def LargeMonsters(tab, data):
     boss2Frame.pack(side='top', anchor='n')
     boss3Frame.pack(side='top', anchor='n')
     bossInvaderFrame.pack(side='bottom', anchor='n')
+
+    def update_all_bosses(x=None):
+        update_boss_info_display(boss1, boss1_label)
+        update_boss_info_display(boss2, boss2_label)
+        update_boss_info_display(boss3, boss3_label)
+    update_all_bosses()
+    return update_all_bosses
 
 
 def Objectives(tab, data):
@@ -955,16 +959,16 @@ def CreateRewards(data, objective=0):
     t.geometry(f"+{x}+{y}")
 
 
-def RebuildTabs(data, notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
+def RebuildTabs(data, notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
     for widget in tab1.winfo_children():
         widget.destroy()
     QuestInfo(tab1, data)
     for widget in tab2.winfo_children():
         widget.destroy()
-    QuestSettings(tab2, data, onArenaToggle=lambda x:notebook.tab(6, state="normal" if x.get() else "hidden"))
+    QuestSettings(tab2, data, onArenaToggle=on_arena_toggle)
     for widget in tab3.winfo_children():
         widget.destroy()
-    LargeMonsters(tab3, data)
+    callback2 = LargeMonsters(tab3, data)
     for widget in tab4.winfo_children():
         widget.destroy()
     Objectives(tab4, data)
@@ -978,14 +982,15 @@ def RebuildTabs(data, notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
         widget.destroy()
     Arena(tab7, data)
     notebook.tab(6, state="normal" if data['quest_info']['flags'][3][4].get() else "hidden")
+    return [lambda checkbox:notebook.tab(6, state="normal" if checkbox.get() else "hidden"), callback2]
 
-def LoadQuest(notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
+def LoadQuest(notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
     questdata = LoadQuestFile()
     if questdata is not None:
         data = questdata
-        RebuildTabs(data, notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
-        return data
-    return None
+        arenaCallbacks = RebuildTabs(data, notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        return data, arenaCallbacks
+    return None, None
 
 def SaveQuest(data):
     SaveQuestFile(data)
@@ -1025,21 +1030,33 @@ if __name__ == '__main__':
 
     notebook.pack(expand=1, fill='both')
 
+    arenaCallbacks = [
+        lambda checkbox:notebook.tab(6, state="normal" if checkbox.get() else "hidden")
+    ]
+    def on_arena_toggle(checkbox):
+        for cb in arenaCallbacks:
+            cb(checkbox)
+
     QuestInfo(tab1, dataholder[0])
-    QuestSettings(tab2, dataholder[0], onArenaToggle=lambda x:notebook.tab(6, state="normal" if x.get() else "hidden"))
-    LargeMonsters(tab3, dataholder[0])
+    QuestSettings(tab2, dataholder[0], onArenaToggle=on_arena_toggle)
+    arenacallback2 = LargeMonsters(tab3, dataholder[0])
     Objectives(tab4, dataholder[0])
     SmallMonsters(tab5, dataholder[0])
     Unknowns(tab6, dataholder[0])
     Arena(tab7, dataholder[0])
 
+    arenaCallbacks.append(arenacallback2)
+
     def Loader():
-        dataholder[0] = LoadQuest(notebook, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        newData, newArenaCallbacks = LoadQuest(notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        if newData is not None:
+            dataholder[0] = newData
+            arenaCallbacks.clear()
+            for cb in newArenaCallbacks:
+                arenaCallbacks.append(cb)
     def Saver():
         SaveQuest(dataholder[0])
 
-    #frm = ttk.Frame(win, padding=10)
-    #frm.grid()
     frm = Frame(win, width=100)
     frm.pack()
     ttk.Button(frm, text='Load', command=Loader).pack(side='left')
