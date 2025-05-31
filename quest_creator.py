@@ -163,18 +163,6 @@ def QuestSettings(tab, data, onArenaToggle=None):
 
 
 def LargeMonsters(tab, data):
-
-    """
-        'type': IntVar(value=Monster.great_jaggi),
-        'starting_area': IntVar(value=0x00),
-        'boss_id': IntVar(value=0xFF),
-        'spawn_count': IntVar(value=0x04),
-        'level': IntVar(value=0x17),  # 0x01 through 0x3c
-        'size': IntVar(value=0x64),
-        'hp_spread': IntVar(value=0x01),  # 0: fixed, 1: spread of 5, 2: spread of 3
-        'size_spread': IntVar(value=0x01)
-    """
-
     boss1 = data['large_monsters']['monster_1']
     boss1Frame = ttk.Frame(tab, padding=2)
     ttk.Label(boss1Frame, text="Boss 1", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(20, 0), sticky='w')
@@ -198,24 +186,37 @@ def LargeMonsters(tab, data):
     NumEntry(boss1Frame, limit=0xFF, variable=boss1['size_spread']).grid(column=3, row=3)
     boss1_label = ttk.Label(boss1Frame, text="------")
     boss1_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
-    def update_boss1_info_display(e):
-        if boss1['type'].get() == 0:
-            boss1_label.config(text = "------")
-        elif boss1['type'].get() not in MONSTER_HP:
-            boss1_label.config(text = "Invalid Monster")
-        elif boss1['level'].get() not in LEVELS:
-            boss1_label.config(text = "Invalid Level")
+    def update_boss_info_display(boss, label):
+        if boss['type'].get() == 0:
+            label.config(text = "------")
+        elif boss['type'].get() not in MONSTER_HP:
+            label.config(text = "Invalid Monster")
+        elif boss['level'].get() not in LEVELS:
+            label.config(text = "Invalid Level")
         else:
-            if boss1['hp_spread'].get() == 2 and boss1['level'].get() - 1 in LEVELS and boss1['level'].get() + 1 in LEVELS:
-                boss1_label.config(text = "HP: " + str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()-1])) +"/"+ str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()])) +"/"+ str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()+1])))
-            elif boss1['hp_spread'].get() == 1 and boss1['level'].get() - 2 in LEVELS and boss1['level'].get() + 2 in LEVELS:
-                boss1_label.config(text = "HP: " + str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()-2])) +"/"+ str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()-1])) +"/"+ str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()])) +"/"+ str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()+1])) +"/"+str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()+2])))
+            arena_mode = dataholder[0]['quest_info']['flags'][3][4].get()
+            base_hp = MONSTER_HP[boss['type'].get()]
+            level_mult = LEVELS[boss['level'].get()]
+            arena_mult = 0.55 if arena_mode else 1.0
+            if boss['hp_spread'].get() == 2 and boss['level'].get() - 1 in LEVELS and boss['level'].get() + 1 in LEVELS:
+                info_str = "(base "+str(int(base_hp))+(" * arena 0.55"if arena_mode else "") + " * level multipliers) HP: "
+                level_mult_1 = LEVELS[boss['level'].get()-1]
+                level_mult_2 = LEVELS[boss['level'].get()+1]
+                label.config(text = info_str + str(int(base_hp * level_mult_1 * arena_mult)) +"/"+ str(int(base_hp * level_mult * arena_mult)) +"/"+ str(int(base_hp * level_mult_2 * arena_mult)))
+            elif boss['hp_spread'].get() == 1 and boss['level'].get() - 2 in LEVELS and boss['level'].get() + 2 in LEVELS:
+                info_str = "(base "+str(int(base_hp))+(" * arena 0.55"if arena_mode else "") + " * level multipliers) HP: "
+                level_mult_1 = LEVELS[boss['level'].get()-2]
+                level_mult_2 = LEVELS[boss['level'].get()-1]
+                level_mult_3 = LEVELS[boss['level'].get()+1]
+                level_mult_4 = LEVELS[boss['level'].get()+2]
+                label.config(text = info_str + str(int(base_hp * level_mult_1 * arena_mult)) +"/"+ str(int(base_hp * level_mult_2 * arena_mult)) +"/"+ str(int(base_hp * level_mult * arena_mult)) +"/"+ str(int(base_hp * level_mult_3 * arena_mult)) +"/"+str(int(base_hp * level_mult_4 * arena_mult)))
             else:
-                boss1_label.config(text = "HP: " + str(int(MONSTER_HP[boss1['type'].get()] * LEVELS[boss1['level'].get()])))
-    update_boss1_info_display(None)
-    updater1.onSelected = lambda:update_boss1_info_display(None)
-    updater2.bind('<KeyRelease>', update_boss1_info_display)
-    updater3.onSelected = lambda:update_boss1_info_display(None)
+                info_str = "(base "+str(int(base_hp))+(" * arena 0.55"if arena_mode else "") + " * level multiplier) HP: "
+                label.config(text = info_str + str(int(base_hp * level_mult * arena_mult)))
+    update_boss_info_display(boss1, boss1_label)
+    updater1.onSelected = lambda:update_boss_info_display(boss1, boss1_label)
+    updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss1, boss1_label))
+    updater3.onSelected = lambda:update_boss_info_display(boss1, boss1_label)
 
     boss2 = data['large_monsters']['monster_2']
     boss2Frame = ttk.Frame(tab, padding=2)
@@ -240,24 +241,10 @@ def LargeMonsters(tab, data):
     NumEntry(boss2Frame, limit=0xFF, variable=boss2['size_spread']).grid(column=3, row=3)
     boss2_label = ttk.Label(boss2Frame, text="------")
     boss2_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
-    def update_boss2_info_display(e):
-        if boss2['type'].get() == 0:
-            boss2_label.config(text = "------")
-        elif boss2['type'].get() not in MONSTER_HP:
-            boss2_label.config(text = "Invalid Monster")
-        elif boss2['level'].get() not in LEVELS:
-            boss2_label.config(text = "Invalid Level")
-        else:
-            if boss2['hp_spread'].get() == 2 and boss2['level'].get() - 1 in LEVELS and boss2['level'].get() + 1 in LEVELS:
-                boss2_label.config(text = "HP: " + str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()-1])) +"/"+ str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()])) +"/"+ str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()+1])))
-            elif boss2['hp_spread'].get() == 1 and boss2['level'].get() - 2 in LEVELS and boss2['level'].get() + 2 in LEVELS:
-                boss2_label.config(text = "HP: " + str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()-2])) +"/"+ str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()-1])) +"/"+ str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()])) +"/"+ str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()+1])) +"/"+str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()+2])))
-            else:
-                boss2_label.config(text = "HP: " + str(int(MONSTER_HP[boss2['type'].get()] * LEVELS[boss2['level'].get()])))
-    update_boss2_info_display(None)
-    updater1.onSelected = lambda:update_boss2_info_display(None)
-    updater2.bind('<KeyRelease>', update_boss2_info_display)
-    updater3.onSelected = lambda:update_boss2_info_display(None)
+    update_boss_info_display(boss2, boss2_label)
+    updater1.onSelected = lambda:update_boss_info_display(boss2, boss2_label)
+    updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss2, boss2_label))
+    updater3.onSelected = lambda:update_boss_info_display(boss2, boss2_label)
 
     boss3 = data['large_monsters']['monster_3']
     boss3Frame = ttk.Frame(tab, padding=2)
@@ -282,24 +269,10 @@ def LargeMonsters(tab, data):
     NumEntry(boss3Frame, limit=0xFF, variable=boss3['size_spread']).grid(column=3, row=3)
     boss3_label = ttk.Label(boss3Frame, text="------")
     boss3_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
-    def update_boss3_info_display(e):
-        if boss3['type'].get() == 0:
-            boss3_label.config(text = "------")
-        elif boss3['type'].get() not in MONSTER_HP:
-            boss3_label.config(text = "Invalid Monster")
-        elif boss3['level'].get() not in LEVELS:
-            boss3_label.config(text = "Invalid Level")
-        else:
-            if boss3['hp_spread'].get() == 2 and boss3['level'].get() - 1 in LEVELS and boss3['level'].get() + 1 in LEVELS:
-                boss3_label.config(text = "HP: " + str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()-1])) +"/"+ str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()])) +"/"+ str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()+1])))
-            elif boss3['hp_spread'].get() == 1 and boss3['level'].get() - 2 in LEVELS and boss3['level'].get() + 2 in LEVELS:
-                boss3_label.config(text = "HP: " + str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()-2])) +"/"+ str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()-1])) +"/"+ str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()])) +"/"+ str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()+1])) +"/"+str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()+2])))
-            else:
-                boss3_label.config(text = "HP: " + str(int(MONSTER_HP[boss3['type'].get()] * LEVELS[boss3['level'].get()])))
-    update_boss3_info_display(None)
-    updater1.onSelected = lambda:update_boss3_info_display(None)
-    updater2.bind('<KeyRelease>', update_boss3_info_display)
-    updater3.onSelected = lambda:update_boss3_info_display(None)
+    update_boss_info_display(boss3, boss3_label)
+    updater1.onSelected = lambda:update_boss_info_display(boss3, boss3_label)
+    updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss3, boss3_label))
+    updater3.onSelected = lambda:update_boss_info_display(boss3, boss3_label)
 
     summon = data['quest_info']['summon']
     bossInvaderFrame = ttk.Frame(tab, padding=2)
