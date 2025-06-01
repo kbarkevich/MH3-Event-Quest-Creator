@@ -1,3 +1,6 @@
+import os
+import sys
+from sys import exit
 from tkinter import *
 from tkinter import ttk
 from ids import *
@@ -995,9 +998,16 @@ def LoadQuest(notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab
 def SaveQuest(data):
     SaveQuestFile(data)
 
+def resource(path):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, path)
+    else:
+        return "resources/"+path
+
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
+    win.iconphoto(False, PhotoImage(file=resource('Lagiacrus.png')))
     win.title("SpyRo's Monster Hunter Tri [NA/EU] Event Quest Creator <Beta 0.1>")
     win.geometry('540x540')
     win.resizable(False, False)
