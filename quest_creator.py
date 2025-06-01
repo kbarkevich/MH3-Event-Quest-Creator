@@ -1005,10 +1005,12 @@ def resource(path):
         return "resources/"+path
 
 
+VERSION = 0.3
+
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
     win.iconphoto(False, PhotoImage(file=resource('Lagiacrus.png')))
-    win.title("SpyRo's Monster Hunter Tri [NA/EU] Event Quest Creator <Beta 0.1>")
+    win.title("SpyRo's Monster Hunter Tri [NA/EU] Event Quest Creator <Beta "+str(VERSION)+">")
     win.geometry('540x540')
     win.resizable(False, False)
     style = ttk.Style(win)
