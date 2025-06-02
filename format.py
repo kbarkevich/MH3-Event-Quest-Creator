@@ -440,6 +440,8 @@ def InitializeArenaEquipment(data):
 
     data['arena_equipment'] = tuple(arena_equipment)
 
+def ClearSmallMonsters(data):
+    data['small_monsters'] = [[] for _ in range(LOCATION_SIZE[data['quest_info']['location'].get()])]
 
 def InitializeDataDict():
     data = {

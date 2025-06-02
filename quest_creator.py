@@ -48,7 +48,7 @@ def QuestInfo(tab, data):
     questDescriptionFrame.pack(side='bottom', expand=True)
 
 
-def QuestSettings(tab, data, onArenaToggle=None):
+def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     questFlagsFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questFlagsFrame, text="Quest Flags").grid(column=1, row=0)
     questFlagsFrame1 = ttk.Frame(questFlagsFrame, padding=2)
@@ -116,7 +116,7 @@ def QuestSettings(tab, data, onArenaToggle=None):
     basicSettingsFrame.rowconfigure((0,1,2,3,4,5,6,7), weight=1)
     basicSettingsFrame.columnconfigure((0,1,2), weight=1)
     ttk.Label(basicSettingsFrame, text="Map:").grid(column=0, row=0, padx=10, pady=(15,0), sticky='w')
-    Dropdown(basicSettingsFrame, LocationType, variable=data['quest_info']['location'], criteria=lambda a: [x[15:] for x in a if x[:1]!="_"]).grid(column=0,row=1, padx=10, pady=(0,10))
+    Dropdown(basicSettingsFrame, LocationType, onSelected=onAreaChange, variable=data['quest_info']['location'], criteria=lambda a: [x[15:] for x in a if x[:1]!="_"]).grid(column=0,row=1, padx=10, pady=(0,10))
 
     ttk.Label(basicSettingsFrame, text="Quest ID:").grid(column=1, row=0, padx=10, pady=(15,0), sticky='w')
     NumEntry(basicSettingsFrame, variable=data['quest_info']['quest_id'], limit=0xFFFF).grid(column=1,row=1, padx=10, pady=(0,10))
@@ -962,36 +962,29 @@ def CreateRewards(data, objective=0):
     t.geometry(f"+{x}+{y}")
 
 
-def RebuildTabs(data, notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
-    for widget in tab1.winfo_children():
+def RebuildTab(tab, data, Builder):
+    for widget in tab.winfo_children():
         widget.destroy()
-    QuestInfo(tab1, data)
+    return Builder(tab, data)
+
+def RebuildTabs(data, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
+    RebuildTab(tab1, data, QuestInfo)
     for widget in tab2.winfo_children():
         widget.destroy()
-    QuestSettings(tab2, data, onArenaToggle=on_arena_toggle)
-    for widget in tab3.winfo_children():
-        widget.destroy()
-    callback2 = LargeMonsters(tab3, data)
-    for widget in tab4.winfo_children():
-        widget.destroy()
-    Objectives(tab4, data)
-    for widget in tab5.winfo_children():
-        widget.destroy()
-    SmallMonsters(tab5, data)
-    for widget in tab6.winfo_children():
-        widget.destroy()
-    Unknowns(tab6, data)
-    for widget in tab7.winfo_children():
-        widget.destroy()
-    Arena(tab7, data)
+    QuestSettings(tab2, data, onAreaChange=on_area_change, onArenaToggle=on_arena_toggle)
+    callback2 = RebuildTab(tab3, data, LargeMonsters)
+    RebuildTab(tab4, data, Objectives)
+    RebuildTab(tab5, data, SmallMonsters)
+    RebuildTab(tab6, data, Unknowns)
+    RebuildTab(tab7, data, Arena)
     notebook.tab(6, state="normal" if data['quest_info']['flags'][3][4].get() else "hidden")
     return [lambda checkbox:notebook.tab(6, state="normal" if checkbox.get() else "hidden"), callback2]
 
-def LoadQuest(notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
+def LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
     questdata = LoadQuestFile()
     if questdata is not None:
         data = questdata
-        arenaCallbacks = RebuildTabs(data, notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        arenaCallbacks = RebuildTabs(data, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
         return data, arenaCallbacks
     return None, None
 
@@ -1048,9 +1041,15 @@ if __name__ == '__main__':
     def on_arena_toggle(checkbox):
         for cb in arenaCallbacks:
             cb(checkbox)
+    def on_area_change():
+        ClearSmallMonsters(dataholder[0])
+        RebuildTab(tab5, dataholder[0], SmallMonsters)
+        #RebuildTabs(dataholder[0], notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        #for cb in areachangeCallbacks:
+        #    cb()
 
     QuestInfo(tab1, dataholder[0])
-    QuestSettings(tab2, dataholder[0], onArenaToggle=on_arena_toggle)
+    QuestSettings(tab2, dataholder[0], onAreaChange=on_area_change, onArenaToggle=on_arena_toggle)
     arenacallback2 = LargeMonsters(tab3, dataholder[0])
     Objectives(tab4, dataholder[0])
     SmallMonsters(tab5, dataholder[0])
@@ -1060,7 +1059,7 @@ if __name__ == '__main__':
     arenaCallbacks.append(arenacallback2)
 
     def Loader():
-        newData, newArenaCallbacks = LoadQuest(notebook, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        newData, newArenaCallbacks = LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
         if newData is not None:
             dataholder[0] = newData
             arenaCallbacks.clear()
