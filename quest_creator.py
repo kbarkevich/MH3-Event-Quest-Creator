@@ -612,24 +612,34 @@ def SmallMonsters(tab, data):
     minionLevelFrame.pack(side='top')
 
     # Create a notebook that holds the tabs
-    areasNotebook = ttk.Notebook(tab)
-    # Create tab frames
-    numAreas = LOCATION_SIZE[data['quest_info']['location'].get()]
-    areaTabs = []
-    for i in range(numAreas):
-        areaTab = ttk.Frame(areasNotebook)
-        areasNotebook.add(areaTab, text=str(i))
-        areaTabs.append(areaTab)
+    wavesNotebook = ttk.Notebook(tab)
+    numWaves = 1 + (1 if (data['quest_info']['wave_1_transition_type'].get() != 0) else 0) + (1 if (data['quest_info']['wave_2_transition_type'].get() != 0) else 0)
+    waveTabs = []
+    for i in range(numWaves):
+        waveTab = ttk.Frame(wavesNotebook)
+        wavesNotebook.add(waveTab, text="Wave "+str(i+1))
+        waveTabs.append(waveTab)
+    wavesNotebook.pack(expand=1, fill='both')
 
-    #wave1Tab = ttk.Frame(areasNotebook)
-    #wave2Tab = ttk.Frame(areasNotebook)
-    #wave3Tab = ttk.Frame(areasNotebook)
-    areasNotebook.pack(expand=1, fill='both')
+    wave = 0
+    for waveTab in waveTabs:
+        # Create a notebook that holds the tabs
+        areasNotebook = ttk.Notebook(waveTab)
+        # Create tab frames
+        numAreas = LOCATION_SIZE[data['quest_info']['location'].get()]
+        areaTabs = []
+        for i in range(numAreas):
+            areaTab = ttk.Frame(areasNotebook)
+            areasNotebook.add(areaTab, text=str(i))
+            areaTabs.append(areaTab)
 
-    i = 0
-    for areaTab in areaTabs:
-        ScrolledCanvas(areaTab, data, i, color='grey')
-        i += 1
+        areasNotebook.pack(expand=1, fill='both')
+
+        i = 0
+        for areaTab in areaTabs:
+            ScrolledCanvas(areaTab, data, wave, i, color='grey')
+            i += 1
+        wave += 1
 
     mainMonstersFrame = ttk.Frame(tab, padding=2)
     ttk.Label(mainMonstersFrame, text="Main Monsters:").grid(column=0, row=0, sticky='w')
@@ -637,13 +647,15 @@ def SmallMonsters(tab, data):
     Dropdown(mainMonstersFrame, Monster, variable=data['quest_info']['main_monster_2']).grid(column=1, row=1)
     mainMonstersFrame.pack()
 
+    wave2SelectorsHolder = []
+    wave3SelectorsHolder = []
     waveConditionsFrame = ttk.Frame(tab, padding=2)
     ttk.Label(waveConditionsFrame, text="Second Wave Condition:").grid(column=0, row=0)
     ttk.Label(waveConditionsFrame, text="Target:").grid(column=1, row=0)
     ttk.Label(waveConditionsFrame, text="Number:").grid(column=2, row=0)
 
     wave2TargetDropdown = AutocompleteDropdown(waveConditionsFrame, Monster if data['quest_info']['wave_1_transition_type'].get() == WaveType.monster else ItemsType if data['quest_info']['wave_1_transition_type'].get() == WaveType.item else list(range(0xFF)), variable=data['quest_info']['wave_1_transition_target'])
-    def update_wave2_dropdown(*args):
+    def update_wave2_dropdown(full):
         if data['quest_info']['wave_1_transition_type'].get() == WaveType.monster:
             wave2TargetDropdown.update_dropdown(Monster)
         elif data['quest_info']['wave_1_transition_type'].get() == WaveType.item:
@@ -651,16 +663,47 @@ def SmallMonsters(tab, data):
         else:
             wave2TargetDropdown.update_dropdown(list(range(0xFF)))
 
-    Dropdown(waveConditionsFrame, WaveType, onSelected=update_wave2_dropdown, variable=data['quest_info']['wave_1_transition_type']).grid(column=0, row=1)
+        if data['quest_info']['wave_1_transition_type'].get() == WaveType.none:
+            while len(data['small_monsters']) > LOCATION_SIZE[data['quest_info']['location'].get()]:
+                data['small_monsters'].pop()
+            if full:
+                RebuildTab(tab, data, SmallMonsters)
+                return
+            data['quest_info']['wave_2_transition_type'].set(0)
+            data['quest_info']['wave_2_transition_target'].set(0)
+            data['quest_info']['wave_2_transition_quantity'].set(0)
+            for a in wave3SelectorsHolder:
+                a['state'] = 'disabled'
+                try:
+                    a.current(0)
+                except:
+                    pass  # can't update the NumEntrys
+        else:
+            while len(data['small_monsters']) < (2 * LOCATION_SIZE[data['quest_info']['location'].get()]):
+                data['small_monsters'] += [[]]
+            if full:
+                RebuildTab(tab, data, SmallMonsters)
+                return
+            for a in wave3SelectorsHolder:
+                if type(a) == Dropdown:
+                    a['state'] = 'readonly'
+                else:
+                    a['state'] = 'normal'
+
+    wave2TypeDropdown = Dropdown(waveConditionsFrame, WaveType, onSelected=lambda: update_wave2_dropdown(True), variable=data['quest_info']['wave_1_transition_type'])
+    wave2TypeDropdown.grid(column=0, row=1)
     wave2TargetDropdown.grid(column=1, row=1)
-    NumEntry(waveConditionsFrame, limit=0xFFFF, variable=data['quest_info']['wave_1_transition_quantity']).grid(column=2, row=1)
+    wave2QuantityDropdown = NumEntry(waveConditionsFrame, limit=0xFFFF, variable=data['quest_info']['wave_1_transition_quantity'])
+    wave2QuantityDropdown.grid(column=2, row=1)
+
+    wave2SelectorsHolder = [wave2TypeDropdown, wave2TargetDropdown, wave2QuantityDropdown]
 
     ttk.Label(waveConditionsFrame, text="Third Wave Condition:").grid(column=0, row=2)
     ttk.Label(waveConditionsFrame, text="Target:").grid(column=1, row=2)
     ttk.Label(waveConditionsFrame, text="Number:").grid(column=2, row=2)
 
     wave3TargetDropdown = AutocompleteDropdown(waveConditionsFrame, Monster if data['quest_info']['wave_2_transition_type'].get() == WaveType.monster else ItemsType if data['quest_info']['wave_2_transition_type'].get() == WaveType.item else list(range(0xFF)), variable=data['quest_info']['wave_2_transition_target'])
-    def update_wave3_dropdown(*args):
+    def update_wave3_dropdown(full):
         if data['quest_info']['wave_2_transition_type'].get() == WaveType.monster:
             wave3TargetDropdown.update_dropdown(Monster)
         elif data['quest_info']['wave_2_transition_type'].get() == WaveType.item:
@@ -668,10 +711,36 @@ def SmallMonsters(tab, data):
         else:
             wave3TargetDropdown.update_dropdown(list(range(0xFF)))
 
-    Dropdown(waveConditionsFrame, WaveType, onSelected=update_wave3_dropdown, variable=data['quest_info']['wave_2_transition_type']).grid(column=0, row=3)
+        if data['quest_info']['wave_2_transition_type'].get() == WaveType.none:
+            while len(data['small_monsters']) > 2*LOCATION_SIZE[data['quest_info']['location'].get()]:
+                data['small_monsters'].pop()
+            if full:
+                RebuildTab(tab, data, SmallMonsters)
+                return
+            for a in wave2SelectorsHolder:
+                if type(a) == Dropdown:
+                    a['state'] = 'readonly'
+                else:
+                    a['state'] = 'normal'
+        else:
+            while len(data['small_monsters']) < (3 * LOCATION_SIZE[data['quest_info']['location'].get()]):
+                data['small_monsters'] += [[]]
+            if full:
+                RebuildTab(tab, data, SmallMonsters)
+                return
+            for a in wave2SelectorsHolder:
+                a['state'] = 'disabled'
+
+    wave3TypeDropdown = Dropdown(waveConditionsFrame, WaveType, onSelected=lambda: update_wave3_dropdown(True), variable=data['quest_info']['wave_2_transition_type'])
+    wave3TypeDropdown.grid(column=0, row=3)
     wave3TargetDropdown.grid(column=1, row=3)
-    NumEntry(waveConditionsFrame, limit=0xFFFF, variable=data['quest_info']['wave_2_transition_quantity']).grid(column=2, row=3)
+    wave3QuantityDropdown = NumEntry(waveConditionsFrame, limit=0xFFFF, variable=data['quest_info']['wave_2_transition_quantity'])
+    wave3QuantityDropdown.grid(column=2, row=3)
+    wave3SelectorsHolder = [wave3TypeDropdown, wave3TargetDropdown, wave3QuantityDropdown]
     waveConditionsFrame.pack()
+
+    update_wave2_dropdown(False)
+    update_wave3_dropdown(False)
 
 
 def Unknowns(tab, data):

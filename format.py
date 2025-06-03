@@ -441,7 +441,9 @@ def InitializeArenaEquipment(data):
     data['arena_equipment'] = tuple(arena_equipment)
 
 def ClearSmallMonsters(data):
-    data['small_monsters'] = [[] for _ in range(LOCATION_SIZE[data['quest_info']['location'].get()])]
+    data['small_monsters'] = [[] for _ in range(LOCATION_SIZE[data['quest_info']['location'].get()] * (
+        1 + (1 if (data['quest_info']['wave_1_transition_type'].get() != 0) else 0) + (1 if (data['quest_info']['wave_2_transition_type'].get() != 0) else 0)
+    ))]
 
 def InitializeDataDict():
     data = {

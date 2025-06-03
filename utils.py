@@ -114,6 +114,7 @@ class AutocompleteCombobox(ttk.Combobox):
 class AutocompleteDropdown(AutocompleteCombobox):
     def __init__(self, master, optionEnum, variable=None, criteria=None, onSelected=None, width=None, **kwargs):
         self.criteria = criteria
+        self.optionEnum = optionEnum
         if variable is not None:
             self.variable = variable
         else:
@@ -141,6 +142,8 @@ class AutocompleteDropdown(AutocompleteCombobox):
             self.onSelected()
 
     def update_dropdown(self, optionEnum):
+        if optionEnum == self.optionEnum:
+            return
         self.variable.set(0)
         if type(optionEnum) == type(list()):
             options = [str(op) for op in optionEnum]
@@ -148,6 +151,7 @@ class AutocompleteDropdown(AutocompleteCombobox):
             options = [item for item in optionEnum.__class__.__dict__.keys() if item[:1] != "_"]
         else:
             options = self.criteria(optionEnum.__class__.__dict__.keys())
+        self.optionEnum = optionEnum
         self.set_completion_list(options, callback=self.callback)
         self['values'] = options
         self.current(self.variable.get())
@@ -160,6 +164,7 @@ class Dropdown(ttk.Combobox):
             self.variable = variable
         else:
             self.variable = IntVar()
+        self.optionEnum = optionEnum
         if type(optionEnum) == type(list()):
             options = [str(op) for op in optionEnum]
         elif self.criteria is None:
@@ -182,6 +187,8 @@ class Dropdown(ttk.Combobox):
             self.onSelected()
 
     def update_dropdown(self, optionEnum):
+        if optionEnum == self.optionEnum:
+            return
         self.variable.set(0)
         if type(optionEnum) == type(list()):
             options = [str(op) for op in optionEnum]
@@ -189,6 +196,7 @@ class Dropdown(ttk.Combobox):
             options = [item for item in optionEnum.__class__.__dict__.keys() if item[:1] != "_"]
         else:
             options = self.criteria(optionEnum.__class__.__dict__.keys())
+        self.optionEnum = optionEnum
         self['values'] = options
         self.current(self.variable.get())
 
@@ -204,10 +212,10 @@ class UrlLabel(Label):
 
 
 class ScrolledCanvas():
-    def __init__(self, root, data, areaIdx, color='brown'):
+    def __init__(self, root, data, waveIdx, areaIdx, color='brown'):
         self.root = root
         self.areaIdx = areaIdx
-        self.monsters = data['small_monsters'][self.areaIdx]
+        self.monsters = data['small_monsters'][LOCATION_SIZE[data['quest_info']['location'].get()]*waveIdx + self.areaIdx]
 
         self.canv = Canvas(self.root, bg=color, relief=SUNKEN)
         self.canv.config(width=300, height=200)                
