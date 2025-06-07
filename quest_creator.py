@@ -745,19 +745,118 @@ def Unknowns(tab, data):
     'unk_4': 0x00,
     'unk_5': 0x00,
     'unk_6': 0x00,
-    'unk_7': 0x00000000,
+    'unk_7': 0x0000,
+    # NEW:
+    'unkInt0': IntVar(value=0x0000),  # 0x1C2
+    'unkShort0': IntVar(value=0x0000),  # 0x1C6
+    'unkByte0': IntVar(value=0x0000),  # 0x1C8
+    'unkBytes0_0': IntVar(value=0x00),  # 0x0306
+    'unkBytes0_1': IntVar(value=0x00),
+    'unkBytes0_2': IntVar(value=0x00),
+    'unkBytes1_0': IntVar(value=0x00),  # 0x0309
+    'unkBytes1_1': IntVar(value=0x00),
+    'unkBytes1_2': IntVar(value=0x00),
+    'unkBytes2_0': IntVar(value=0x00),  # 0x030E
+    'unkBytes2_1': IntVar(value=0x00),
+    'unkUintAlways15': IntVar(value=0x0000000f),  # 0x0360
+    'unkShort1': IntVar(value=0x0000),  # 0x0370
+    'unkShort2': IntVar(value=0x0000),  # 0x0374
+    'unkByte1': IntVar(value=0x00),  # 0x0378
+    'unkByte2': IntVar(value=0x00),  # 0x0379
+    'unkByte3': IntVar(value=0x00),  # 0x037C
+    'unkByte4': IntVar(value=0x00),  # 0x037D
+    'unkByte7': IntVar(value=0x00),  # 0x0380
+    'unkByte8': IntVar(value=0x00),  # 0x0381
     """
-    ttk.Label(tab, text="Unknown 4: One Byte:").pack()
-    NumEntry(tab, limit=0xFF, width=25, variable=data['unknown']['unk_4']).pack()
-    ttk.Label(tab, text="Unknown 5: One Byte:").pack()
-    NumEntry(tab, limit=0xFF, width=25, variable=data['unknown']['unk_5']).pack()
-    ttk.Label(tab, text="Unknown 6: One Byte:").pack()
-    NumEntry(tab, limit=0xFF, width=25, variable=data['unknown']['unk_6']).pack()
-    ttk.Label(tab, text="Unknown 7: Four Bytes:").pack()
-    NumEntry(tab, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unk_7']).pack()
-    ttk.Label(tab, text="Unknown 12: Four Bytes").pack()
-    ttk.Label(tab, text="(1 for hunter killer, 2 for large mon quest, 3 for small/delivery, 5 for jhen/ala/ceadeus):").pack()
-    NumEntry(tab, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unk_12']).pack()
+    unk_box_1 = ttk.Frame(tab)
+    ttk.Label(unk_box_1, text="Unknown 4: One Byte:").grid(column=0, row=0)
+    NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_4']).grid(column=0, row=1)
+    ttk.Label(unk_box_1, text="Unknown 5: One Byte:").grid(column=1, row=0)
+    NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_5']).grid(column=1, row=1)
+    ttk.Label(unk_box_1, text="Unknown 6: One Byte:").grid(column=0, row=2)
+    NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_6']).grid(column=0, row=3)
+    ttk.Label(unk_box_1, text="Unknown 7: Four Bytes:").grid(column=1, row=2)
+    NumEntry(unk_box_1, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unk_7']).grid(column=1, row=3)
+
+    unk_box_2 = ttk.Frame(tab)
+    ttk.Label(unk_box_2, text="Unknown 12: Four Bytes").pack()
+    ttk.Label(unk_box_2, text="(1 for hunter killer, 2 for large mon quest, 3 for small/delivery, 5 for jhen/ala/ceadeus):").pack()
+    NumEntry(unk_box_2, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unk_12']).pack()
+
+    unk_box_1.pack()
+    unk_box_2.pack()
+
+    unk_box_3 = ttk.Frame(tab)
+    ttk.Label(unk_box_3, text="unkInt0").grid(column=0, row=0)
+    NumEntry(unk_box_3, limit=0xFFFFFFFF, width=20, variable=data['unknown']['unkInt0']).grid(column=0, row=1)
+    ttk.Label(unk_box_3, text="unkShort0").grid(column=1, row=0)
+    NumEntry(unk_box_3, limit=0xFFFF, width=20, variable=data['unknown']['unkShort0']).grid(column=1, row=1)
+    ttk.Label(unk_box_3, text="unkByte0").grid(column=2, row=0)
+    NumEntry(unk_box_3, limit=0xFF, width=20, variable=data['unknown']['unkByte0']).grid(column=2, row=1)
+    
+    unk_box_3.pack()
+
+    unk_box_4 = ttk.Frame(tab)
+    ttk.Label(unk_box_4, text="unkBytes0_0").grid(column=0, row=0)
+    NumEntry(unk_box_4, limit=0xFF, width=10, variable=data['unknown']['unkBytes0_0']).grid(column=0, row=1)
+    ttk.Label(unk_box_4, text="unkBytes0_1").grid(column=1, row=0)
+    NumEntry(unk_box_4, limit=0xFF, width=10, variable=data['unknown']['unkBytes0_1']).grid(column=1, row=1)
+    ttk.Label(unk_box_4, text="unkBytes0_2").grid(column=2, row=0)
+    NumEntry(unk_box_4, limit=0xFF, width=10, variable=data['unknown']['unkBytes0_2']).grid(column=2, row=1)
+
+    unk_box_4.pack()
+
+    unk_box_5 = ttk.Frame(tab)
+    ttk.Label(unk_box_5, text="unkBytes1_0").grid(column=0, row=0)
+    NumEntry(unk_box_5, limit=0xFF, width=10, variable=data['unknown']['unkBytes1_0']).grid(column=0, row=1)
+    ttk.Label(unk_box_5, text="unkBytes1_1").grid(column=1, row=0)
+    NumEntry(unk_box_5, limit=0xFF, width=10, variable=data['unknown']['unkBytes1_1']).grid(column=1, row=1)
+    ttk.Label(unk_box_5, text="unkBytes1_2").grid(column=2, row=0)
+    NumEntry(unk_box_5, limit=0xFF, width=10, variable=data['unknown']['unkBytes1_2']).grid(column=2, row=1)
+
+    unk_box_5.pack()
+
+    unk_box_6 = ttk.Frame(tab)
+    ttk.Label(unk_box_6, text="unkBytes2_0").grid(column=0, row=0)
+    NumEntry(unk_box_6, limit=0xFF, width=10, variable=data['unknown']['unkBytes2_0']).grid(column=0, row=1)
+    ttk.Label(unk_box_6, text="unkBytes2_1").grid(column=1, row=0)
+    NumEntry(unk_box_6, limit=0xFF, width=10, variable=data['unknown']['unkBytes2_1']).grid(column=1, row=1)
+
+    unk_box_6.pack()
+
+    unk_box_7 = ttk.Frame(tab)
+    ttk.Label(unk_box_7, text="unkUint (Always 15...)").grid(column=0, row=0)
+    NumEntry(unk_box_7, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unkUintAlways15']).grid(column=0, row=1)
+
+    unk_box_7.pack()
+
+    unk_box_8 = ttk.Frame(tab)
+    ttk.Label(unk_box_8, text="unkShort1").grid(column=0, row=0)
+    NumEntry(unk_box_8, limit=0xFFFF, width=10, variable=data['unknown']['unkShort1']).grid(column=0, row=1)
+    ttk.Label(unk_box_8, text="unkShort1").grid(column=1, row=0)
+    NumEntry(unk_box_8, limit=0xFFFF, width=10, variable=data['unknown']['unkShort1']).grid(column=1, row=1)
+
+    unk_box_8.pack()
+
+    unk_box_9 = ttk.Frame(tab)
+    ttk.Label(unk_box_9, text="unkByte1").grid(column=0, row=0)
+    NumEntry(unk_box_9, limit=0xFF, width=10, variable=data['unknown']['unkByte1']).grid(column=0, row=1)
+    ttk.Label(unk_box_9, text="unkByte2").grid(column=1, row=0)
+    NumEntry(unk_box_9, limit=0xFF, width=10, variable=data['unknown']['unkByte2']).grid(column=1, row=1)
+    ttk.Label(unk_box_9, text="unkByte3").grid(column=2, row=0)
+    NumEntry(unk_box_9, limit=0xFF, width=10, variable=data['unknown']['unkByte3']).grid(column=2, row=1)
+
+    unk_box_9.pack()
+
+    unk_box_10 = ttk.Frame(tab)
+    ttk.Label(unk_box_10, text="unkByte4").grid(column=0, row=0)
+    NumEntry(unk_box_10, limit=0xFF, width=10, variable=data['unknown']['unkByte4']).grid(column=0, row=1)
+    ttk.Label(unk_box_10, text="unkByte7").grid(column=1, row=0)
+    NumEntry(unk_box_10, limit=0xFF, width=10, variable=data['unknown']['unkByte7']).grid(column=1, row=1)
+    ttk.Label(unk_box_10, text="unkByte8").grid(column=2, row=0)
+    NumEntry(unk_box_10, limit=0xFF, width=10, variable=data['unknown']['unkByte8']).grid(column=2, row=1)
+
+    unk_box_10.pack()
 
 
 def Arena(tab, data):

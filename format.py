@@ -187,6 +187,27 @@ def DepopulateDataDict(data):
             'unk_5': data['unknown']['unk_5'].get(),
             'unk_6': data['unknown']['unk_6'].get(),
             'unk_7': data['unknown']['unk_7'].get(),
+            # NEW
+            'unkInt0': data['unknown']['unkInt0'].get(),  # 0x1C2
+            'unkShort0': data['unknown']['unkShort0'].get(),  # 0x1C6
+            'unkByte0': data['unknown']['unkByte0'].get(),  # 0x1C8
+            'unkBytes0_0': data['unknown']['unkBytes0_0'].get(),  # 0x0306
+            'unkBytes0_1': data['unknown']['unkBytes0_1'].get(),
+            'unkBytes0_2': data['unknown']['unkBytes0_2'].get(),
+            'unkBytes1_0': data['unknown']['unkBytes1_0'].get(),  # 0x0309
+            'unkBytes1_1': data['unknown']['unkBytes1_1'].get(),
+            'unkBytes1_2': data['unknown']['unkBytes1_2'].get(),
+            'unkBytes2_0': data['unknown']['unkBytes2_0'].get(),  # 0x030E
+            'unkBytes2_1': data['unknown']['unkBytes2_1'].get(),
+            'unkUintAlways15': data['unknown']['unkUintAlways15'].get(),  # 0x0360
+            'unkShort1': data['unknown']['unkShort1'].get(),  # 0x0370
+            'unkShort2': data['unknown']['unkShort2'].get(),  # 0x0374
+            'unkByte1': data['unknown']['unkByte1'].get(),  # 0x0378
+            'unkByte2': data['unknown']['unkByte2'].get(),  # 0x0379
+            'unkByte3': data['unknown']['unkByte3'].get(),  # 0x037C
+            'unkByte4': data['unknown']['unkByte4'].get(),  # 0x037D
+            'unkByte7': data['unknown']['unkByte7'].get(),  # 0x0380
+            'unkByte8': data['unknown']['unkByte8'].get(),  # 0x0381
         }
     }
     if data['quest_info']['flags'][3][4].get():
@@ -363,6 +384,27 @@ def PopulateDataDict(data):
             'unk_5': IntVar(value=data['unknown']['unk_5']),
             'unk_6': IntVar(value=data['unknown']['unk_6']),
             'unk_7': IntVar(value=data['unknown']['unk_7']),
+            # NEW:
+            'unkInt0': IntVar(value=data['unknown']['unkInt0'] if 'unkInt0' in data['unknown'] else 0),  # 0x1C2
+            'unkShort0': IntVar(value=data['unknown']['unkShort0'] if 'unkShort0' in data['unknown'] else 0),  # 0x1C6
+            'unkByte0': IntVar(value=data['unknown']['unkByte0'] if 'unkByte0' in data['unknown'] else 0),  # 0x1C8
+            'unkBytes0_0': IntVar(value=data['unknown']['unkBytes0_0'] if 'unkBytes0_0' in data['unknown'] else 0),  # 0x0306
+            'unkBytes0_1': IntVar(value=data['unknown']['unkBytes0_1'] if 'unkBytes0_1' in data['unknown'] else 0),
+            'unkBytes0_2': IntVar(value=data['unknown']['unkBytes0_2'] if 'unkBytes0_2' in data['unknown'] else 0),
+            'unkBytes1_0': IntVar(value=data['unknown']['unkBytes1_0'] if 'unkBytes1_0' in data['unknown'] else 0),  # 0x0309
+            'unkBytes1_1': IntVar(value=data['unknown']['unkBytes1_1'] if 'unkBytes1_1' in data['unknown'] else 0),
+            'unkBytes1_2': IntVar(value=data['unknown']['unkBytes1_2'] if 'unkBytes1_2' in data['unknown'] else 0),
+            'unkBytes2_0': IntVar(value=data['unknown']['unkBytes2_0'] if 'unkBytes2_0' in data['unknown'] else 0),  # 0x030E
+            'unkBytes2_1': IntVar(value=data['unknown']['unkBytes2_1'] if 'unkBytes2_1' in data['unknown'] else 0),
+            'unkUintAlways15': IntVar(value=data['unknown']['unkUintAlways15'] if 'unkUintAlways15' in data['unknown'] else 15),  # 0x0360
+            'unkShort1': IntVar(value=data['unknown']['unkShort1'] if 'unkShort1' in data['unknown'] else 0),  # 0x0370
+            'unkShort2': IntVar(value=data['unknown']['unkShort2'] if 'unkShort2' in data['unknown'] else 0),  # 0x0374
+            'unkByte1': IntVar(value=data['unknown']['unkByte1'] if 'unkByte1' in data['unknown'] else 0),  # 0x0378
+            'unkByte2': IntVar(value=data['unknown']['unkByte2'] if 'unkByte2' in data['unknown'] else 0),  # 0x0379
+            'unkByte3': IntVar(value=data['unknown']['unkByte3'] if 'unkByte3' in data['unknown'] else 0),  # 0x037C
+            'unkByte4': IntVar(value=data['unknown']['unkByte4'] if 'unkByte4' in data['unknown'] else 0),  # 0x037D
+            'unkByte7': IntVar(value=data['unknown']['unkByte7'] if 'unkByte7' in data['unknown'] else 0),  # 0x0380
+            'unkByte8': IntVar(value=data['unknown']['unkByte8'] if 'unkByte8' in data['unknown'] else 0),  # 0x0381
         }
     }
     if 'arena_equipment' in data:
@@ -968,11 +1010,32 @@ def InitializeDataDict():
         },
         'unknown': {
             # (1 for hunter killer, 2 for large mon quest, 3 for small/delivery, 5 for jhen/ala)
-            'unk_12': IntVar(value=0x00000002),
-            'unk_4': IntVar(value=0x00),
-            'unk_5': IntVar(value=0x00),
-            'unk_6': IntVar(value=0x00),
-            'unk_7': IntVar(value=0x00000000),
+            'unk_12': IntVar(value=0x00000002),  # 0x390
+            'unk_4': IntVar(value=0x00),  # 0x036C
+            'unk_5': IntVar(value=0x00),  # 0x036E
+            'unk_6': IntVar(value=0x00),  # 0x036F
+            'unk_7': IntVar(value=0x0000),  # 0x0376
+            # NEW:
+            'unkInt0': IntVar(value=0x0000),  # 0x1C2
+            'unkShort0': IntVar(value=0x0000),  # 0x1C6
+            'unkByte0': IntVar(value=0x0000),  # 0x1C8
+            'unkBytes0_0': IntVar(value=0x00),  # 0x0306
+            'unkBytes0_1': IntVar(value=0x00),
+            'unkBytes0_2': IntVar(value=0x00),
+            'unkBytes1_0': IntVar(value=0x00),  # 0x0309
+            'unkBytes1_1': IntVar(value=0x00),
+            'unkBytes1_2': IntVar(value=0x00),
+            'unkBytes2_0': IntVar(value=0x00),  # 0x030E
+            'unkBytes2_1': IntVar(value=0x00),
+            'unkUintAlways15': IntVar(value=0x0000000f),  # 0x0360
+            'unkShort1': IntVar(value=0x0000),  # 0x0370
+            'unkShort2': IntVar(value=0x0000),  # 0x0374
+            'unkByte1': IntVar(value=0x00),  # 0x0378
+            'unkByte2': IntVar(value=0x00),  # 0x0379
+            'unkByte3': IntVar(value=0x00),  # 0x037C
+            'unkByte4': IntVar(value=0x00),  # 0x037D
+            'unkByte7': IntVar(value=0x00),  # 0x0380
+            'unkByte8': IntVar(value=0x00),  # 0x0381
         }
     }
 
