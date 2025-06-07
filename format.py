@@ -96,6 +96,7 @@ def DepopulateDataDict(data):
             'description': unsplit_multiline_string(data['quest_info']['description']),
             'details': unsplit_multiline_string(data['quest_info']['details']),
             'success_message': unsplit_multiline_string(data['quest_info']['success_message']),
+            'failure_message': unsplit_multiline_string(data['quest_info']['failure_message']),
             'flags': unformat_flags(data['quest_info']['flags']),
             'penalty_per_cart': data['quest_info']['penalty_per_cart'].get(),
             'quest_fee': data['quest_info']['quest_fee'].get(),
@@ -266,6 +267,7 @@ def PopulateDataDict(data):
             'description': split_multiline_str(data['quest_info']['description'], lines=2),
             'details': split_multiline_str(data['quest_info']['details'], lines=7),
             'success_message': split_multiline_str(data['quest_info']['success_message'], lines=2),
+            'failure_message': split_multiline_str(data['quest_info']['failure_message'] if 'failure_message' in data['quest_info'] else "Reward hits 0, or time\nexpires.", lines=2),
             'flags': format_flags(data['quest_info']['flags']),
             'penalty_per_cart': IntVar(value=data['quest_info']['penalty_per_cart']),
             'quest_fee': IntVar(value=data['quest_info']['quest_fee']),
@@ -806,6 +808,10 @@ def InitializeDataDict():
             'success_message': (
                 StringVar(value="Complete the Main Quest."),
                 StringVar()
+            ),
+            'failure_message': (
+                StringVar(value="Reward hits 0, or time"),
+                StringVar(value="expires.")
             ),
             'flags': (
                 (BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0), BooleanVar(value=0)),

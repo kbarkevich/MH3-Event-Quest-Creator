@@ -23,12 +23,8 @@ def QuestInfo(tab, data):
 
     questFailFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questFailFrame, text="Fail Conditions:").pack()
-    ent1 = ttk.Entry(questFailFrame, width=60)
-    ent2 = ttk.Entry(questFailFrame, width=60)
-    Prefill(ent1, "Reward hits 0, or time").pack()
-    Prefill(ent2, "expires.").pack()
-    ent1.configure(state='readonly')
-    ent2.configure(state='readonly')
+    ent1 = ttk.Entry(questFailFrame, width=60, textvariable=data['quest_info']['failure_message'][0]).pack()
+    ent2 = ttk.Entry(questFailFrame, width=60, textvariable=data['quest_info']['failure_message'][1]).pack()
     questFailFrame.pack(side='top', expand=True)
 
     questClientFrame = ttk.Frame(tab, padding=2, width=40, height=40)
