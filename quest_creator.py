@@ -1051,7 +1051,7 @@ def CreateRewards(data, objective=0):
         t.wm_title("Subquest 1 Rewards")
         t.geometry('290x300')
     else:
-        rewards1 = data['objective_details']['subquest_1']['rewards_row_1']
+        rewards1 = data['objective_details']['subquest_2']['rewards_row_1']
         rewards2 = None
         t.wm_title("Subquest 2 Rewards")
         t.geometry('290x300')
