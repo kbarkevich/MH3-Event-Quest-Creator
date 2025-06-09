@@ -267,9 +267,9 @@ class ScrolledCanvas():
             NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, decimal=False, variable=monster['pos_x']).grid(column=0, row=3)
             NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, decimal=False, variable=monster['pos_y']).grid(column=1, row=3)
             NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, decimal=False, variable=monster['pos_z']).grid(column=2, row=3)
-            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, variable=monster['rot_x']).grid(column=3, row=3)
-            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, variable=monster['rot_y']).grid(column=4, row=3)
-            NumEntry(frm, limit=0xFFFF, width=13, allowNeg=True, variable=monster['rot_z']).grid(column=5, row=3)
+            NumEntry(frm, limit=0xFFFFFFFF, width=13, allowNeg=True, variable=monster['rot_x']).grid(column=3, row=3)
+            NumEntry(frm, limit=0xFFFFFFFF, width=13, allowNeg=True, variable=monster['rot_y']).grid(column=4, row=3)
+            NumEntry(frm, limit=0xFFFFFFFF, width=13, allowNeg=True, variable=monster['rot_z']).grid(column=5, row=3)
             self.canv.create_window(8,3+(95*ctr),anchor=NW, window=frm)
             ctr += 1
 

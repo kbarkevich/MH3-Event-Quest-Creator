@@ -1,6 +1,7 @@
 from tkinter import *
 from ids import *
 from equipment_ids import *
+from utils import Dropdown
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 import json
 import math
@@ -8,6 +9,75 @@ import math
 
 ITEMS_SIZE = 24
 GUNNER_SIZE = 8
+
+
+class QuestSelectPopup(Toplevel):
+    def __init__(self, parent, suggestions):
+        super().__init__(parent)
+        self.listbox = Dropdown(self, suggestions, height=10, width=30)
+        self.listbox.pack(pady=15)
+
+        self.btn = Button(self, text="Confirm Selection", command=self.select)
+        self.btn.pack(pady=10)
+
+        self.selection = None
+
+    def select(self):
+        self.selection = self.listbox.variable.get()#curselection()
+        #if selection:
+        #    self.selection = self.listbox.get(selection[0])
+        self.destroy()
+
+    def show(self):
+        self.deiconify()
+        self.wm_protocol("WM_DELETE_WINDOW", self.destroy)
+        self.wait_window(self)
+        return self.selection
+
+
+def LoadFromQuestBinary(root):
+    ff = askopenfilename(title="Load Quest Json", filetypes=[("Allowed Types", "*.bin",)])
+    if ff:
+        questBytes = list()
+        questNames = list()
+        with open(ff, 'rb') as f:
+            byte = f.read(1)
+            bts = bytes()#list()
+            while byte != b"":
+                # Do stuff with byte.
+                bts += byte
+                byte = f.read(1)
+
+            currQuestIdxIdx = 0x00000008#bts[8:12]
+            currQuestIdx = int.from_bytes(bts[currQuestIdxIdx:currQuestIdxIdx+4], 'big')
+            
+            #print(currQuestIdx)
+            while currQuestIdx != 0:
+                currQuestLen = int.from_bytes(bts[currQuestIdxIdx+4:currQuestIdxIdx+8], 'big')
+
+                currQuestBytes = bts[currQuestIdx:currQuestIdx+currQuestLen]
+                questBytes.append(currQuestBytes)
+                questNames.append(currQuestBytes[:44].strip(b'\00').decode("ascii"))
+                #mainBytes = currQuestBytes[:0x4B4]
+                #idk = currQuestBytes[0x4B4:0x4B8]
+                #extraBytes = currQuestBytes[0x4B8:]
+
+                #exit()
+
+                currQuestIdxIdx += 8
+                currQuestIdx = int.from_bytes(bts[currQuestIdxIdx:currQuestIdxIdx+4], 'big')
+            
+            #exit()
+            #result = json.load(f)
+            #return PopulateDataDictFromBin(result)#PopulateDataDict(result)
+
+        #print(questNames)
+        popup = QuestSelectPopup(root, questNames)
+        result = popup.show()
+        if result is None:
+            return None
+        return ProcessBinary(questBytes[result])
+    return None
 
 
 def SaveQuestFile(data):
@@ -26,6 +96,972 @@ def LoadQuestFile():
             result = json.load(f)
             return PopulateDataDict(result)
     return None
+
+
+def ProcessBinary(bin):
+    # - id: name
+    # type: str
+    # size: 44
+    # offset: 0x0000
+    name = bin[:44]
+    bin=bin[44:]
+    #data += pad(quest_info['name'].encode("ascii"), 40)  # Size 0x28
+    #data += struct.pack(">I", 0x00000000)
+
+    # - id: quest_id
+    # type: u2
+    # offset: 0x002C
+    quest_id = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">H", quest_info['quest_id'])
+
+    # - id: description
+    # type: str
+    # size: 92
+    # offset: 0x002E
+    description = bin[:80]
+    bin=bin[80:]
+    #data += pad(quest_info['description'].encode("ascii"), 80)
+
+    padding1 = bin[:0xC]
+    bin=bin[0xC:]
+    #data += b'\0' * 0xC  # Padding
+
+    # - id: quest_rank
+    # type: u1
+    # enum: QuestRankType
+    # offset: 0x008A
+    quest_rank = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", quest_info['quest_rank'])
+
+    # - id: location
+    # type: u1
+    # enum: LocationType
+    # offset: 0x008B
+    location = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", quest_info['location'])  # Offset 0x8C
+
+    # - id: sub_quest_1_title
+    # type: str
+    # size: 41
+    # offset: 0x008C
+    sub_quest_1_title = bin[:41]
+    bin=bin[41:]
+    #data += pad(
+    #    objective_details['subquest_1']['description'].encode("ascii"),
+    #    0x29
+    #)
+
+    # - id: sub_quest_2_title
+    # type: str
+    # size: 41
+    # offset: 0x00B5
+    sub_quest_2_title = bin[:41]
+    bin=bin[41:]
+    #data += pad(
+    #    objective_details['subquest_2']['description'].encode("ascii"),
+    #    0x29
+    #)
+
+    # - id: sucess_message
+    # type: str
+    # size: 92
+    # offset: 0x00DE
+    success_message = bin[:92]
+    bin=bin[92:]
+    #data += pad(quest_info['success_message'].encode("ascii"), 0x5C)
+
+    # - id: time_limit
+    # type: u2
+    # offset: 0x013A
+    time_limit = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['time_limit'])
+
+    # - id: failure_message
+    # type: str
+    # size: 92
+    # Presently hardcoded
+    # offset: 0x013C
+    failure_message = bin[:92]
+    bin=bin[92:]
+    #data += (pad(quest_info['failure_message'].encode("ascii"), 0x5C) if 'failure_message' in quest_info else pad(b"Reward hits 0, or time\nexpires.", 0x5C))
+
+    # - id: hunter_rank_point_restriction
+    # type: u2
+    # offset: 0x0198
+    hrp_restriction = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['hrp_restriction'])
+
+    # - id: client
+    # type: str
+    # size: 40
+    # offset: 0x019A
+    client = bin[:40]
+    bin=bin[40:]
+    #data += pad(quest_info['client'].encode("ascii"), 0x28)
+
+    # - id: unkInt0
+    # size: u4
+    # offset: 0x1C2
+    unkInt0 = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", or_zeros(unknown, 'unkInt0', 4))
+
+    # - id: unkShort0
+    # size: u2
+    # offset: 0x1C6
+    unkShort0 = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">H", or_zeros(unknown, 'unkShort0', 2))
+
+    # - id: unkByte0
+    # size: u1
+    # offset: 0x1C8
+    unkByte0 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkByte0', 1))
+
+    # - id: details
+    # type: str
+    # size: 256
+    # offset: 0x01C9
+    details = bin[:256]
+    bin=bin[256:]
+    #data += pad(quest_info['details'].encode("ascii"), 0x100)  # b'\0' * 0x100
+
+    # - id: unk1
+    # size: 61
+    # offset: 0x02C9
+    padding2 = bin[:61]
+    bin=bin[61:]
+    #data += b'\0' * 0x3D
+
+    # - id: minion_unsure
+    # size: 3
+    # offset: 0x0306
+    #data += b'\0' * 0x03
+    unkBytes0_0 = bin[:1]
+    bin=bin[1:]
+    unkBytes0_1 = bin[:1]
+    bin=bin[1:]
+    unkBytes0_2 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes0_0', 1))
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes0_1', 1))
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes0_2', 1))
+
+    # - id: quest_flags_unsure
+    # size: 3
+    # offset: 0x0309
+    #data += b'\0' * 0x03
+    unkBytes1_0 = bin[:1]
+    bin=bin[1:]
+    unkBytes1_1 = bin[:1]
+    bin=bin[1:]
+    unkBytes1_2 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes1_0', 1))
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes1_1', 1))
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes1_2', 1))
+
+    # - id: monster_1
+    # type: u1
+    # enum: Monster
+    # Offset 0x30C ("Main monsters" 1)
+    monster_1 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", quest_info['main_monster_1'])
+
+    # - id: monster_2
+    # type: u1
+    # enum: Monster
+    # Offset 0x30D ("Main monsters" 2)
+    monster_2 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", quest_info['main_monster_2'])
+
+    # - id: unk3
+    # size: 2
+    # offset: 0x030E
+    #data += b'\0' * 0x02  # Padding
+    unkBytes2_0 = bin[:1]
+    bin=bin[1:]
+    unkBytes2_1 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes2_0', 1))
+    #data += struct.pack(">B", or_zeros(unknown, 'unkBytes2_1', 1))
+
+    # - id: flags
+    # type: u4
+    # offset: 0x0310
+    flags = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", generate_flags(*(quest_info['flags'])))  # Offset 0x310
+
+    # - id: monsters
+    # type: monster_quest_type
+    # repeat: expr
+    # repeat-expr: 3
+    # # offset: 0x0314
+    large_monster_1 = bin[:8]
+    bin=bin[8:]
+    #if monster_1['type'] != 0:
+    #    data += make_monster_quest_type(
+    #        monster_type=monster_1['type'],
+    #        starting_area=monster_1['starting_area'],
+    #        boss_id=monster_1['boss_id'],
+    #        spawn_count=monster_1['spawn_count'],
+    #        level=monster_1['level'],
+    #        min=monster_1['hp_spread'],
+    #        size=monster_1['size'],
+    #        max=monster_1['size_spread']
+    #    )  # size: 0x08
+    #else:
+    #    data += b'\0' * 0x08
+
+    # offset: 0x031C
+    large_monster_2 = bin[:8]
+    bin=bin[8:]
+    #if monster_2['type'] != 0:
+    #    data += make_monster_quest_type(
+    #        monster_type=monster_2['type'],
+    #        starting_area=monster_2['starting_area'],
+    #        boss_id=monster_2['boss_id'],
+    #        spawn_count=monster_2['spawn_count'],
+    #        level=monster_2['level'],
+    #        min=monster_2['hp_spread'],
+    #        size=monster_2['size'],
+    #        max=monster_2['size_spread']
+    #    )  # size: 0x08
+    #else:
+    #    data += b'\0' * 0x08
+
+    # offset: 0x0324
+    large_monster_3 = bin[:8]
+    bin=bin[8:]
+    #if monster_3['type'] != 0:
+    #    data += make_monster_quest_type(
+    #        monster_type=monster_3['type'],
+    #        starting_area=monster_3['starting_area'],
+    #        boss_id=monster_3['boss_id'],
+    #        spawn_count=monster_3['spawn_count'],
+    #        level=monster_3['level'],
+    #        min=monster_3['hp_spread'],
+    #        size=monster_3['size'],
+    #        max=monster_3['size_spread']
+    #    )  # size: 0x08
+    #else:
+    #    data += b'\0' * 0x08
+
+    # SUMMON / (INVADER?)
+    # - id: unk5
+    # type: u4
+    # offset: 0x032C
+    summon = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", quest_info['summon'])
+
+    # - id: quests_properties
+    # type: quest_properties_type
+    # repeat: expr
+    # repeat-expr: 3
+    # offset: 0x0330
+    quest_main = bin[:8]
+    bin=bin[8:]
+    #data += make_quest_properties_type(
+    #    main_quest['type'],
+    #    main_quest['objective_type'],
+    #    main_quest['objective_num']
+    #)
+
+    # offset: 0x0338
+    quest_sub1 = bin[:8]
+    bin=bin[8:]
+    #if subquest_1['type'] is not None:
+    #    data += make_quest_properties_type(
+    #        subquest_1['type'],
+    #        subquest_1['objective_type'],
+    #        subquest_1['objective_num']
+    #    )
+    #else:
+    #    data += b"\0" * 0x08
+
+    # offset: 0x0340
+    quest_sub2 = bin[:8]
+    bin=bin[8:]
+    #if subquest_2['type'] is not None:
+    #    data += make_quest_properties_type(
+    #        subquest_2['type'],
+    #        subquest_2['objective_type'],
+    #        subquest_2['objective_num']
+    #    )
+    #else:
+    #    data += b"\0" * 0x08
+
+    # - id: contract_fee
+    # type: u4
+    # offset: 0x0348
+    quest_fee = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", quest_info['quest_fee'])
+
+    # - id: main_objective_reward
+    # type: u4
+    # offset: 0x034C
+    main_zenny_reward = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", main_quest['zenny_reward'])
+
+    # - id: sub_objective_a_reward
+    # type: u4
+    # offset: 0x0350
+    sub1_zenny_reward = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", subquest_1['zenny_reward'])
+
+    # - id: sub_objective_b_reward
+    # type: u4
+    # offset: 0x0354
+    sub2_zenny_reward = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", subquest_2['zenny_reward'])
+
+    # - id: death_reduction
+    # type: u4
+    # offset: 0x0358
+    penalty_per_cart = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", quest_info['penalty_per_cart'])
+
+    # - id: hunter_rank_points
+    # type: u4
+    # offset: 0x035C
+    main_hrp_reward = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", main_quest['hrp_reward'])
+
+    # - id: unk7
+    # type: u4
+    # 0x0000000f for the great jaggi quest/(all quests?)
+    # offset: 0x0360
+    unkUintAlways15 = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", unknown['unkUintAlways15'] if 'unkUintAlways15' in unknown else 0x0000000f)#0x0000000f)
+
+    # - id: unk8
+    # type: u1
+    # offset: 0x0364
+    #data += b'\0' * 0x01
+
+    # - id: gather_rank (wrong)
+    # type: u1
+    # offset: 0x0365
+    #data += b'\0' * 0x01
+
+    # - id: unk9
+    # type: u1
+    # offset: 0x0366
+    #data += b'\0' * 0x01
+
+    # - id: unk10
+    # type: u1
+    # offset: 0x0367
+    sub1_hrp_reward = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", subquest_1['hrp_reward'])
+
+    # - id: supply_set (wrong)
+    # type: u4
+    # offset: 0x0368
+    sub2_hrp_reward = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", subquest_2['hrp_reward'])
+
+    # - id: Unknown 4
+    # type: u1
+    # offset: 0x036C
+    unk_4 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", unknown['unk_4'])
+
+    # - id: supply_type (0x00: low rank, 0x01: high rank, 0x02: arena)
+    # type: u1
+    # offset: 0x036D
+    resources = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", quest_info['resources'])
+
+    # - id: unk11
+    # size: 2
+    # type: u1
+    # offset: 0x036E
+    unk_5 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", unknown['unk_5'])
+    # type: u1
+    # offset: 0x036F
+    unk_6 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", unknown['unk_6'])
+
+    # - id: unkShort1
+    # type: u2
+    # 0x00000011 for the great jaggi quest
+    # offset: 0x0370
+    unkShort1 = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">H", or_zeros(unknown, 'unkShort1', 2))
+
+    # - id: supply_set_number
+    # type: u2
+    # 0x00000011 for the great jaggi quest
+    # offset: 0x0372
+    supply_set_number = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">H", quest_info['supply_set_number'])
+
+    # - id: unkShort2
+    # type: u2
+    # offset: 0x0374
+    unkShort2 = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">H", or_zeros(unknown, 'unkShort2', 2))
+
+    # - id: unk_7
+    # type: u2
+    # offset: 0x0376
+    unk_7 = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">H", unknown['unk_7'])
+
+    # - id: unkByte1
+    # type: u1
+    # offset: 0x0378
+    unkByte1 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkByte1', 1))
+
+    # - id: unkByte2
+    # type: u1
+    # offset: 0x0379
+    unkByte2 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkByte2', 1))
+
+    # - id: type_flag (STARTING POSITION, 0x0000: basecamp,
+    #                  0x0001:random, 0x0002: shrine)
+    # type: u2
+    # offset: 0x037A
+    starting_position = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['starting_position'])
+
+    # - id: unkByte3
+    # offset: 0x037C
+    unkByte3 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkByte3', 1))
+
+    # - id: unkByte4
+    # offset: 0x037D
+    unkByte4 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkByte4', 1))
+
+    # - id: small_monster_data_location
+    # type: u2
+    # offset: 0x037E
+    small_monster_data_location = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", 0x04b8)
+
+    # - id: unkByte7
+    # offset: 0x0380
+    unkByte7 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkByte7', 1))
+
+    # - id: unkByte8
+    # offset: 0x0381
+    unkByte8 = bin[:1]
+    bin=bin[1:]
+    #data += struct.pack(">B", or_zeros(unknown, 'unkByte8', 1))
+
+    # - id: general_enemy_level
+    # type: u2
+    # offset: 0x0382
+    general_enemy_level = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['general_enemy_level'])
+
+    # - id: wave_1_transition_type
+    # type: u2
+    # offset: 0x0384
+    wave_1_transition_type = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['wave_1_transition_type'])
+
+    # - id: wave_1_transition_target
+    # type: u2
+    # offset: 0x0386
+    wave_1_transition_target = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['wave_1_transition_target'])
+
+    # - id: wave_1_transition_quantity
+    # type: u2
+    # offset: 0x0388
+    wave_1_transition_quantity = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['wave_1_transition_quantity'])
+
+    # - id: wave_2_transition_type
+    # type: u2
+    # offset: 0x038A
+    wave_2_transition_type = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['wave_2_transition_type'])
+
+    # - id: wave_2_transition_target
+    # type: u2
+    # offset: 0x038C
+    wave_2_transition_target = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['wave_2_transition_target'])
+
+    # - id: wave_2_transition_quantity
+    # type: u2
+    # offset: 0x038E
+    wave_2_transition_quantity = bin[:2]
+    bin=bin[2:]
+    #data += struct.pack(">h", quest_info['wave_2_transition_quantity'])
+
+
+    # Unknown 12 (0x00000002 for large monster hunting quests,
+    #             0x00000003 for small monster & gathering quests,
+    #             0x00000005 for Jhen & Alatreon)
+    # offset: 0x0390
+    unk_12 = bin[:4]
+    bin=bin[4:]
+    #data += struct.pack(">I", unknown['unk_12'])
+
+    # offset: 0x0394
+    main_properties = bin[:8]
+    bin=bin[8:]
+    #data += make_quest_properties_type(main_quest['type'],
+    #                                   main_quest['objective_type'],
+    #                                   main_quest['objective_num'])
+
+    # - id: main_objective_rewards
+    # type: reward_type
+    # repeat: expr
+    # repeat-expr: 11
+    # offset: 0x039C
+    main_rewards_1 = bin[:4*11]
+    bin=bin[4*11:]
+    #data += generate_rewards(main_quest['rewards_row_1'])
+
+    # - id: main_objective_additional_rewards
+    # type: reward_type
+    # repeat: expr
+    # repeat-expr: 11
+    # offset: 0x03C8
+    main_rewards_2 = bin[:4*11]
+    bin=bin[4*11:]
+    #data += generate_rewards(main_quest['rewards_row_2'])
+
+    # SUBQUEST 1 REWARDS
+    # offset: 0x03F4
+    sub1_properties = bin[:8]
+    bin=bin[8:]
+    sub1_rewards_1 = bin[:4*11]
+    bin=bin[4*11:]
+    sub1_rewards_2_unused = bin[:4*11]
+    bin=bin[4*11:]
+    #if subquest_1['type'] is not None:
+    #    data += make_quest_properties_type(subquest_1['type'],
+    #                                       subquest_1['objective_type'],
+    #                                       subquest_1['objective_num'])
+    #    data += generate_rewards(subquest_1['rewards_row_1'])
+    #else:
+    #    data += b"\0" * 0x08
+    #    data += b'\0' * (4 * 11)
+    ## offset: 0x0428
+    #data += b'\0' * (4 * 11)
+
+    # SUBQUEST 2 REWARDS
+    # offset: 0x0454
+    sub2_properties = bin[:8]
+    bin=bin[8:]
+    sub2_rewards_1 = bin[:4*11]
+    bin=bin[4*11:]
+    sub2_rewards_2_unused = bin[:4*11]
+    bin=bin[4*11:]
+    #if subquest_2['type'] is not None:
+    #    data += make_quest_properties_type(subquest_2['type'],
+    #                                       subquest_2['objective_type'],
+    #                                       subquest_2['objective_num'])
+    #    data += generate_rewards(subquest_2['rewards_row_1'])
+    #else:
+    #    data += b"\0" * 0x08
+    #    data += b'\0' * (4 * 11)
+    ## offset: 0x0488
+    #data += b'\0' * (4 * 11)
+
+    #assert len(data) == 0x4B4
+
+    arena_equipment_location = bin[:4]
+    bin=bin[4:]
+
+    # -------- BEGIN SMALL MONSTER LOADING --------
+
+    # Pre-preamble: Establishing the locations of each of the waves' preambles
+    prepreamble_1 = bin[:4]  # Should always be 0x0000000C
+    bin=bin[4:]
+    #sm_data += struct.pack('>I', 0x0000000C)
+    prepreamble_2 = bin[:4]  # C + 8 * number of areas in map (points to end of wave 1)
+    bin=bin[4:]
+    #sm_data += struct.pack('>I', 0x0000000C + 8*location_size)
+    prepreamble_3 = bin[:4]  # C + 2 * 8 * number of areas in map, IF there are 3 waves, otherwise 0xCCCCCCCC (points to end of wave 2)
+    bin=bin[4:]
+    #if num_waves < 3:
+    #    sm_data += struct.pack('>I', 0xCCCCCCCC)
+    #else:
+    #    sm_data += struct.pack('>I', 0x0000000C + 2*8*location_size)
+
+    num_areas = LOCATION_SIZE[int.from_bytes(location, 'big')]#int((int.from_bytes(prepreamble_2, 'big') - int.from_bytes(prepreamble_1, 'big')) / 8)
+    #print(num_areas)
+    #exit()
+    idxs = list()
+    monlens = list()
+    offset = 0xC
+    exhausted = False
+
+    while not exhausted:
+        idx = bin[:4]
+        bin=bin[4:]
+        monlen = bin[:4]
+        bin=bin[4:]
+        idxs.append(int.from_bytes(idx, 'big'))
+        monlens.append(monlen)
+        offset += 8
+        #print(wave_1_transition_type, 'big')
+        #print(wave_2_transition_type, 'big')
+        #print(((int.from_bytes(wave_1_transition_type, 'big') == 0) and (offset == int.from_bytes(prepreamble_2, 'big'))))
+        #print(((int.from_bytes(wave_2_transition_type, 'big') == 0) and (offset == int.from_bytes(prepreamble_3, 'big'))))
+        #print(int(offset-0xC / 8) == (3*num_areas))#((int.from_bytes(wave_1_transition_type, 'big') == 0) and (offset == int.from_bytes(prepreamble_2, 'big'))) #((int.from_bytes(wave_2_transition_type, 'big') == 0) and (offset == int.from_bytes(prepreamble_3, 'big')))
+        #print()
+        if ((int.from_bytes(wave_1_transition_type, 'big') == 0) and (int((offset-0xC) / 8) == (1*num_areas))) \
+            or ((int.from_bytes(wave_2_transition_type, 'big') == 0) and (int((offset-0xC) / 8) == (2*num_areas))) \
+            or int((offset-0xC) / 8) == (3*num_areas):
+            exhausted = True
+        if int(offset-0xC / 8) > 400:
+            exit()
+
+    small_monsters = []
+
+    import struct
+    #print(idxs)
+    #print(offset)
+    #print()
+
+    def rth(num):
+        return round(num*100)/100
+
+    attempted_offset = offset
+
+    for i in range(len(monlens)):
+        loaded_offset = idxs[i]
+        #print(" ----- small monster group: ", i, " at offset ", offset, " which should be ", loaded_offset)
+        if offset < loaded_offset:
+            bin = bin[loaded_offset-offset:]
+            offset = loaded_offset
+            #print("Corrected offset differential")
+        area_monsters = []
+        
+        num_small_mons = int(int.from_bytes(monlens[i], 'big') / 0x30)
+        for j in range(num_small_mons):
+            offset += 0x30
+            small_mon_binary = bin[:0x30]
+            bin = bin[0x30:]
+
+            m_type = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+            if m_type == 0x00:
+                continue
+
+            #print("j: ", j, m_type)
+
+            m_whoknows = int.from_bytes(small_mon_binary[:3], 'big')
+            small_mon_binary = small_mon_binary[3:]
+            
+            m_quantity = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_unk2 = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_room = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_unk1 = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_variant = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_whoknowsagain = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+
+            m_pos_x = rth(struct.unpack('>f', small_mon_binary[:4])[0])
+            small_mon_binary = small_mon_binary[4:]
+            
+            m_pos_y = rth(struct.unpack('>f', small_mon_binary[:4])[0])
+            small_mon_binary = small_mon_binary[4:]
+
+            m_pos_z = rth(struct.unpack('>f', small_mon_binary[:4])[0])
+            small_mon_binary = small_mon_binary[4:]
+
+            m_rot_x = int.from_bytes(small_mon_binary[:4], 'big', signed=True)
+            small_mon_binary = small_mon_binary[4:]
+
+            m_rot_y = int.from_bytes(small_mon_binary[:4], 'big', signed=True)
+            small_mon_binary = small_mon_binary[4:]
+
+            m_rot_z = int.from_bytes(small_mon_binary[:4], 'big', signed=True)
+            small_mon_binary = small_mon_binary[4:]
+
+            m_whoknows3 = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+
+            m_whoknows4 = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+
+            area_monsters.append({
+                'type': IntVar(value=m_type),'unk1': IntVar(value=m_unk1),'unk2': IntVar(value=m_unk2),
+                'variant': IntVar(value=m_variant),'room': IntVar(value=m_room),'quantity': IntVar(value=m_quantity),
+                'pos_x': DoubleVar(value=m_pos_x),'pos_y': DoubleVar(value=m_pos_y),'pos_z': DoubleVar(value=m_pos_z),
+                'rot_x': IntVar(value=m_rot_x),'rot_y': IntVar(value=m_rot_y),'rot_z': IntVar(value=m_rot_z),
+            })
+        small_monsters.append(area_monsters)
+
+    """
+    done = False
+    for sm in small_monsters:
+        for smm in sm:
+            if not done:
+                print(smm)
+                done = True
+                for k, v in smm.items():
+                    print(k, "--", v.get())
+    print()
+    """
+
+    def get_str_from_bytes(bin_str):
+        return bin_str.strip(b'\00').decode("ascii")
+
+    def get_multiline_str_from_bytes(bin_str, lines):
+        decoded = bin_str.strip(b'\00').decode("ascii").split(b'\x0A'.decode("ascii"))
+        if len(decoded) > lines:
+            decoded = decoded[:lines]
+        elif len(decoded) < lines:
+            decoded = decoded + ["" for _ in range(lines)]
+        return [StringVar(value=dec) for dec in decoded]
+
+    def get_large_monster_from_bin(monster):
+        # - id: monster_type
+        # type: u1
+        # enum: Monster
+        mtype = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", monster_type)
+
+        mstartingarea = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", starting_area)
+
+        mid = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", boss_id)
+
+        # - id: spawn_count
+        # type: u1
+        mcount = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", spawn_count)
+
+        # - id: level
+        # type: u1
+        mlevel = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", level)
+
+        # - id: min
+        # type: u1
+        mmin = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", min)
+
+        # - id: size
+        # type: u1
+        msize = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", size)
+
+        # - id: max
+        # type: u1
+        mmax = int.from_bytes(monster[:1], 'big')
+        monster = monster[1:]
+        #data += struct.pack(">B", max)
+
+        return {
+            'type': IntVar(value=mtype),
+            'starting_area': IntVar(value=mstartingarea),
+            'boss_id': IntVar(value=mid),
+            'spawn_count': IntVar(value=mcount),
+            'level': IntVar(value=mlevel),
+            'size': IntVar(value=msize),
+            'hp_spread': IntVar(value=mmin),
+            'size_spread': IntVar(value=mmax)
+        }
+
+    def get_rewards_from_bin(rew):
+        rews = []
+        for i in range(11):
+            itype = int.from_bytes(rew[:2], 'big')
+            rew = rew[2:]
+            iquan = int.from_bytes(rew[:1], 'big')
+            rew = rew[1:]
+            iperc = int.from_bytes(rew[:1], 'big')
+            rew = rew[1:]
+            rews.append((IntVar(value=itype), IntVar(value=iquan), IntVar(value=iperc)))
+        return rews
+
+    def get_bytes_from_bin(bin_num, reverse=False):
+        num = int.from_bytes(bin_num, 'big')
+        if reverse:
+            first = int(round((num & 0xFF000000)/0x1000000))
+            second = int(round((num & 0xFF0000)/0x10000))
+            third = int(round((num & 0xFF00)/0x100))
+            fourth = int(round((num & 0xFF)/0x1))
+        else:
+            fourth = int(round((num & 0xFF000000)/0x1000000))
+            third = int(round((num & 0xFF0000)/0x10000))
+            second = int(round((num & 0xFF00)/0x100))
+            first = int(round((num & 0xFF)/0x1))
+        return (
+            (BooleanVar(value=first&1), BooleanVar(value=first&2), BooleanVar(value=first&4), BooleanVar(value=first&8), BooleanVar(value=first&16), BooleanVar(value=first&32), BooleanVar(value=first&64), BooleanVar(value=first&128)),
+            (BooleanVar(value=second&1), BooleanVar(value=second&2), BooleanVar(value=second&4), BooleanVar(value=second&8), BooleanVar(value=second&16), BooleanVar(value=second&32), BooleanVar(value=second&64), BooleanVar(value=second&128)),
+            (BooleanVar(value=third&1), BooleanVar(value=third&2), BooleanVar(value=third&4), BooleanVar(value=third&8), BooleanVar(value=third&16), BooleanVar(value=third&32), BooleanVar(value=third&64), BooleanVar(value=third&128)),
+            (BooleanVar(value=fourth&1), BooleanVar(value=fourth&2), BooleanVar(value=fourth&4), BooleanVar(value=fourth&8), BooleanVar(value=fourth&16), BooleanVar(value=fourth&32), BooleanVar(value=fourth&64), BooleanVar(value=fourth&128))
+        )
+
+    out = {
+        'quest_info': {
+            'quest_id': IntVar(value=int.from_bytes(quest_id, 'big')),
+            'name': StringVar(value=get_str_from_bytes(name)),
+            'client': StringVar(value=get_str_from_bytes(client)),
+            'description': get_multiline_str_from_bytes(description, 2),
+            'details': get_multiline_str_from_bytes(details, 7),
+            'success_message': get_multiline_str_from_bytes(success_message, 2),
+            'failure_message': get_multiline_str_from_bytes(failure_message, 2),
+            'flags': get_bytes_from_bin(flags, reverse=True),
+            'penalty_per_cart': IntVar(value=int.from_bytes(penalty_per_cart, 'big')),
+            'quest_fee': IntVar(value=int.from_bytes(quest_fee, 'big')),
+            'time_limit': IntVar(value=int.from_bytes(time_limit, 'big')),
+            'main_monster_1': IntVar(value=int.from_bytes(monster_1, 'big')),
+            'main_monster_2': IntVar(value=int.from_bytes(monster_2, 'big')),
+            'location': IntVar(value=int.from_bytes(location, 'big')),
+            'quest_rank': IntVar(value=int.from_bytes(quest_rank, 'big')),
+            'hrp_restriction': IntVar(value=int.from_bytes(hrp_restriction, 'big')),
+            'resources': IntVar(value=int.from_bytes(resources, 'big')),
+            'supply_set_number': IntVar(value=int.from_bytes(supply_set_number, 'big')),
+            'starting_position': IntVar(value=int.from_bytes(starting_position, 'big')),
+            'general_enemy_level': IntVar(value=int.from_bytes(general_enemy_level, 'big')),
+            'summon': (
+                IntVar(value=int(round((int.from_bytes(summon, 'big') & 0xFF000000)/0x1000000))),
+                IntVar(value=int(round((int.from_bytes(summon, 'big') & 0xFF0000)/0x10000))),
+                IntVar(value=int(round((int.from_bytes(summon, 'big') & 0xFF00)/0x100))),
+                IntVar(value=int(round((int.from_bytes(summon, 'big') & 0xFF)/0x1)))
+            ),#(0x64050219),
+            'wave_1_transition_type': IntVar(value=int.from_bytes(wave_1_transition_type, 'big')),
+            'wave_1_transition_target': IntVar(value=int.from_bytes(wave_1_transition_target, 'big')),
+            'wave_1_transition_quantity': IntVar(value=int.from_bytes(wave_1_transition_quantity, 'big')),
+            'wave_2_transition_type': IntVar(value=int.from_bytes(wave_2_transition_type, 'big')),
+            'wave_2_transition_target': IntVar(value=int.from_bytes(wave_2_transition_target, 'big')),
+            'wave_2_transition_quantity': IntVar(value=int.from_bytes(wave_2_transition_quantity, 'big')),
+        },
+        'large_monsters': {
+            'monster_1': get_large_monster_from_bin(large_monster_1),
+            'monster_2': get_large_monster_from_bin(large_monster_2),
+            'monster_3': get_large_monster_from_bin(large_monster_3)
+        },
+        'objective_details': {
+            'main_quest': {
+                'type': get_bytes_from_bin(quest_main[:4]),
+                'objective_type': IntVar(value=int.from_bytes(quest_main[4:6], 'big')),
+                'objective_num': IntVar(value=int.from_bytes(quest_main[6:8], 'big')),
+                'zenny_reward': IntVar(value=int.from_bytes(main_zenny_reward, 'big')),
+                'hrp_reward': IntVar(value=int.from_bytes(main_hrp_reward, 'big')),
+                'rewards_row_1': get_rewards_from_bin(main_rewards_1),
+                'rewards_row_2': get_rewards_from_bin(main_rewards_2),
+            },
+            'subquest_1': {
+                'description': StringVar(value=get_str_from_bytes(sub_quest_1_title)),
+                'type': get_bytes_from_bin(quest_sub1[:4]),
+                'objective_type': IntVar(value=int.from_bytes(quest_sub1[4:6], 'big')),
+                'objective_num': IntVar(value=int.from_bytes(quest_sub1[6:8], 'big')),
+                'zenny_reward': IntVar(value=int.from_bytes(sub1_zenny_reward, 'big')),
+                'hrp_reward': IntVar(value=int.from_bytes(sub1_hrp_reward, 'big')),
+                'rewards_row_1': get_rewards_from_bin(sub1_rewards_1),
+            },
+            'subquest_2': {
+                'description': StringVar(value=get_str_from_bytes(sub_quest_2_title)),
+                'type': get_bytes_from_bin(quest_sub2[:4]),
+                'objective_type': IntVar(value=int.from_bytes(quest_sub2[4:6], 'big')),
+                'objective_num': IntVar(value=int.from_bytes(quest_sub2[6:8], 'big')),
+                'zenny_reward': IntVar(value=int.from_bytes(sub2_zenny_reward, 'big')),
+                'hrp_reward': IntVar(value=int.from_bytes(sub2_hrp_reward, 'big')),
+                'rewards_row_1': get_rewards_from_bin(sub2_rewards_1),
+            }
+        },
+        'small_monsters': small_monsters,
+        'unknown': {
+            # (1 for hunter killer, 2 for large mon quest, 3 for small/delivery, 5 for jhen/ala)
+            'unk_12': IntVar(value=int.from_bytes(unk_12, 'big')),  # 0x390
+            'unk_4': IntVar(value=int.from_bytes(unk_4, 'big')),  # 0x036C
+            'unk_5': IntVar(value=int.from_bytes(unk_5, 'big')),  # 0x036E
+            'unk_6': IntVar(value=int.from_bytes(unk_6, 'big')),  # 0x036F
+            'unk_7': IntVar(value=int.from_bytes(unk_7, 'big')),  # 0x0376
+            # NEW:
+            'unkInt0': IntVar(value=int.from_bytes(unkInt0, 'big')),  # 0x1C2
+            'unkShort0': IntVar(value=int.from_bytes(unkShort0, 'big')),  # 0x1C6
+            'unkByte0': IntVar(value=int.from_bytes(unkByte0, 'big')),  # 0x1C8
+            'unkBytes0_0': IntVar(value=int.from_bytes(unkBytes0_0, 'big')),  # 0x0306
+            'unkBytes0_1': IntVar(value=int.from_bytes(unkBytes0_1, 'big')),
+            'unkBytes0_2': IntVar(value=int.from_bytes(unkBytes0_2, 'big')),
+            'unkBytes1_0': IntVar(value=int.from_bytes(unkBytes1_0, 'big')),  # 0x0309
+            'unkBytes1_1': IntVar(value=int.from_bytes(unkBytes1_1, 'big')),
+            'unkBytes1_2': IntVar(value=int.from_bytes(unkBytes1_2, 'big')),
+            'unkBytes2_0': IntVar(value=int.from_bytes(unkBytes2_0, 'big')),  # 0x030E
+            'unkBytes2_1': IntVar(value=int.from_bytes(unkBytes2_1, 'big')),
+            'unkUintAlways15': IntVar(value=int.from_bytes(unkUintAlways15, 'big')),  # 0x0360
+            'unkShort1': IntVar(value=int.from_bytes(unkShort1, 'big')),  # 0x0370
+            'unkShort2': IntVar(value=int.from_bytes(unkShort2, 'big')),  # 0x0374
+            'unkByte1': IntVar(value=int.from_bytes(unkByte1, 'big')),  # 0x0378
+            'unkByte2': IntVar(value=int.from_bytes(unkByte2, 'big')),  # 0x0379
+            'unkByte3': IntVar(value=int.from_bytes(unkByte3, 'big')),  # 0x037C
+            'unkByte4': IntVar(value=int.from_bytes(unkByte4, 'big')),  # 0x037D
+            'unkByte7': IntVar(value=int.from_bytes(unkByte7, 'big')),  # 0x0380
+            'unkByte8': IntVar(value=int.from_bytes(unkByte8, 'big')),  # 0x0381
+        }
+    }
+
+    return out
 
 
 def DepopulateDataDict(data):

@@ -129,7 +129,7 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     ttk.Label(basicSettingsFrame, text="Starting Position:").grid(column=0, row=4, padx=10, sticky='w')
     Dropdown(basicSettingsFrame, StartingPositionType, variable=data['quest_info']['starting_position']).grid(column=0,row=5, padx=10, pady=(0,10))
     UrlLabel(basicSettingsFrame, "https://imgur.com/a/QPXdMLK/", text="Supply Set:").grid(column=1, row=4, padx=10, sticky='w')
-    Dropdown(basicSettingsFrame, list(range(53)), variable=data['quest_info']['supply_set_number']).grid(column=1,row=5, padx=10, pady=(0,10))
+    Dropdown(basicSettingsFrame, list(range(255)), variable=data['quest_info']['supply_set_number']).grid(column=1,row=5, padx=10, pady=(0,10))
     ttk.Label(basicSettingsFrame, text="Delivery Type:").grid(column=2, row=4, padx=10, sticky='w')
     Entry(basicSettingsFrame, state='readonly').grid(column=2, row=5, padx=10, pady=(0,10))
 
@@ -1144,6 +1144,14 @@ def RebuildTabs(data, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab
     notebook.tab(6, state="normal" if data['quest_info']['flags'][3][4].get() else "hidden")
     return [lambda checkbox:notebook.tab(6, state="normal" if checkbox.get() else "hidden"), callback2]
 
+def LoadBin(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
+    questdata = LoadFromQuestBinary(notebook)
+    if questdata is not None:
+        data = questdata
+        arenaCallbacks = RebuildTabs(data, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        return data, arenaCallbacks
+    return None, None
+
 def LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
     questdata = LoadQuestFile()
     if questdata is not None:
@@ -1222,6 +1230,13 @@ if __name__ == '__main__':
 
     arenaCallbacks.append(arenacallback2)
 
+    def BinLoader():
+        newData, newArenaCallbacks = LoadBin(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        if newData is not None:
+            dataholder[0] = newData
+            arenaCallbacks.clear()
+            for cb in newArenaCallbacks:
+                arenaCallbacks.append(cb)
     def Loader():
         newData, newArenaCallbacks = LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
         if newData is not None:
@@ -1234,7 +1249,8 @@ if __name__ == '__main__':
 
     frm = Frame(win, width=100)
     frm.pack()
-    ttk.Button(frm, text='Load', command=Loader).pack(side='left')
+    ttk.Button(frm, text='Load Binary', command=BinLoader).pack(side='left')
+    ttk.Button(frm, text='Load Json', command=Loader).pack(side='left')
     ttk.Button(frm, text='Save', command=Saver).pack(side='left')
     ttk.Button(frm, text='Close', command=exit).pack(side='right')
 
