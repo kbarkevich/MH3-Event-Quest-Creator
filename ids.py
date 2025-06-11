@@ -69,6 +69,24 @@ class InvaderType(Enum):
 InvaderType = InvaderType()
 
 
+class TutorialType(Enum):
+    none = 0
+    tutorial101 = 1
+    tutorial102 = 2
+    tutorial103 = 3
+    tutorial104 = 4
+    tutorial105 = 5
+    tutorial106 = 6
+    tutorial107 = 7
+    tutorial108 = 8
+    tutorial109 = 9
+    tutorial110 = 10
+    tutorial111 = 11
+    tutorial112 = 12
+    tutorial112 = 13
+TutorialType = TutorialType()
+
+
 class LocationType(Enum):
     QUEST_LOCATION_NONE = 0
     QUEST_LOCATION_D_ISLAND = 1
@@ -242,6 +260,18 @@ LEVELS = {
     0x3b: 1.3,
     0x3c: 1.5
 }
+
+
+INVADER_CHANCE = [
+    "0",
+    "100",
+    "80",
+    "60",
+    "40",
+    "20",
+    "10"
+]
+
 
 class QuestRankType(Enum):
     none = 0

@@ -65,18 +65,9 @@ def LoadFromQuestBinary(root):
                 currQuestBytes = bts[currQuestIdx:currQuestIdx+currQuestLen]
                 questBytes.append(currQuestBytes)
                 questNames.append(currQuestBytes[:44].strip(b'\00').decode("ascii"))
-                #mainBytes = currQuestBytes[:0x4B4]
-                #idk = currQuestBytes[0x4B4:0x4B8]
-                #extraBytes = currQuestBytes[0x4B8:]
-
-                #exit()
 
                 currQuestIdxIdx += 8
                 currQuestIdx = int.from_bytes(bts[currQuestIdxIdx:currQuestIdxIdx+4], 'big')
-            
-            #exit()
-            #result = json.load(f)
-            #return PopulateDataDictFromBin(result)#PopulateDataDict(result)
 
         #print(questNames)
         popup = QuestSelectPopup(root, questNames)
@@ -805,10 +796,10 @@ def ProcessBinary(bin):
 
             m_whoknows = int.from_bytes(small_mon_binary[:3], 'big')
             small_mon_binary = small_mon_binary[3:]
-            
-            m_quantity = int.from_bytes(small_mon_binary[:1], 'big')
+
+            m_quantity = struct.unpack('>b', small_mon_binary[:1])[0]
             small_mon_binary = small_mon_binary[1:]
-            
+
             m_unk2 = int.from_bytes(small_mon_binary[:1], 'big')
             small_mon_binary = small_mon_binary[1:]
             

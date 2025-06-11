@@ -65,7 +65,7 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     var16 = flags[0][5]
     var17 = flags[0][6]
     var18 = flags[0][7]
-    ttk.Checkbutton(questFlagsFrame1, text="Unknown1", variable=var11).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(questFlagsFrame1, text="Tutorial", variable=var11).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame1, text="Combine & Require 1st Sub", variable=var12).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame1, text="Combine & Require 2 Subs", variable=var13).pack(side='top', anchor=N+W)
     ttk.Checkbutton(questFlagsFrame1, text="Unknown4", variable=var14).pack(side='top', anchor=N+W)
@@ -276,7 +276,7 @@ def LargeMonsters(tab, data):
     ttk.Label(bossInvaderFrame, text="%:").grid(column=0, row=1, sticky='w')
     NumEntry(bossInvaderFrame, limit=0x64, variable=summon[0]).grid(column=0, row=2, pady=(0, 20))
     ttk.Label(bossInvaderFrame, text="Unk 1:").grid(column=1, row=1, sticky='sw')
-    NumEntry(bossInvaderFrame, limit=0xFF, variable=summon[1]).grid(column=1, row=2, pady=(0, 20))
+    Dropdown(bossInvaderFrame, INVADER_CHANCE, summon[1]).grid(column=1, row=2, pady=(0, 20))
     ttk.Label(bossInvaderFrame, text="Unk 2:").grid(column=2, row=1, sticky='sw')
     NumEntry(bossInvaderFrame, limit=0xFF, variable=summon[2]).grid(column=2, row=2, pady=(0, 20))
     Dropdown(bossInvaderFrame, InvaderType, summon[3], criteria=lambda a: [x[:-3].replace("_"," ") for x in a if x[:1]!="_"]).grid(column=3, row=2, pady=(0, 20), columnspan=2, sticky=W+E)
@@ -771,8 +771,9 @@ def Unknowns(tab, data):
     unk_box_1 = ttk.Frame(tab)
     ttk.Label(unk_box_1, text="Unknown 4: One Byte:").grid(column=0, row=0)
     NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_4']).grid(column=0, row=1)
-    ttk.Label(unk_box_1, text="Unknown 5: One Byte:").grid(column=1, row=0)
-    NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_5']).grid(column=1, row=1)
+    ttk.Label(unk_box_1, text="Tutorial:").grid(column=1, row=0)
+    #NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_5']).grid(column=1, row=1)
+    Dropdown(unk_box_1, TutorialType, data['unknown']['unk_5']).grid(column=1, row=1)
     ttk.Label(unk_box_1, text="Unknown 6: One Byte:").grid(column=0, row=2)
     NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_6']).grid(column=0, row=3)
     ttk.Label(unk_box_1, text="Unknown 7: Four Bytes:").grid(column=1, row=2)
