@@ -14,11 +14,14 @@ GUNNER_SIZE = 8
 class QuestSelectPopup(Toplevel):
     def __init__(self, parent, suggestions):
         super().__init__(parent)
-        self.listbox = Dropdown(self, suggestions, height=10, width=30)
+        self.parent = parent
+        self.listbox = Dropdown(self, suggestions, height=10, width=50)
         self.listbox.pack(pady=15)
 
         self.btn = Button(self, text="Confirm Selection", command=self.select)
         self.btn.pack(pady=10)
+
+        self.resizable(False, False)
 
         self.selection = None
 
@@ -31,6 +34,10 @@ class QuestSelectPopup(Toplevel):
     def show(self):
         self.deiconify()
         self.wm_protocol("WM_DELETE_WINDOW", self.destroy)
+        self.wait_visibility()
+        x = self.parent.winfo_x() + self.parent.winfo_width()//2 - self.winfo_width()//2
+        y = self.parent.winfo_y() + self.parent.winfo_height()//2 - self.winfo_height()//2
+        self.geometry(f"+{x}+{y}")
         self.wait_window(self)
         return self.selection
 

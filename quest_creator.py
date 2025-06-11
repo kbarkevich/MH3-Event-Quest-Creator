@@ -1144,8 +1144,8 @@ def RebuildTabs(data, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab
     notebook.tab(6, state="normal" if data['quest_info']['flags'][3][4].get() else "hidden")
     return [lambda checkbox:notebook.tab(6, state="normal" if checkbox.get() else "hidden"), callback2]
 
-def LoadBin(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
-    questdata = LoadFromQuestBinary(notebook)
+def LoadBin(win, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
+    questdata = LoadFromQuestBinary(win)
     if questdata is not None:
         data = questdata
         arenaCallbacks = RebuildTabs(data, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
@@ -1170,7 +1170,7 @@ def resource(path):
         return "resources/"+path
 
 
-VERSION = 0.6
+VERSION = "0.6.1"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
@@ -1231,7 +1231,7 @@ if __name__ == '__main__':
     arenaCallbacks.append(arenacallback2)
 
     def BinLoader():
-        newData, newArenaCallbacks = LoadBin(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+        newData, newArenaCallbacks = LoadBin(win, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
         if newData is not None:
             dataholder[0] = newData
             arenaCallbacks.clear()

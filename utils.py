@@ -218,25 +218,22 @@ class ScrolledCanvas():
         self.monsters = data['small_monsters'][LOCATION_SIZE[data['quest_info']['location'].get()]*waveIdx + self.areaIdx]
 
         self.canv = Canvas(self.root, bg=color, relief=SUNKEN)
-        self.canv.config(width=300, height=200)                
-
-        ##---------- scrollregion has to be larger than canvas size
-        ##           otherwise it just stays in the visible canvas
-        self.canv.config(scrollregion=(0,0,300, 1000))         
-        self.canv.config(highlightthickness=0)                 
+        self.canv.config(width=300, height=200)
+        self.canv.config(highlightthickness=0)
 
         ybar = Scrollbar(self.root)
-        ybar.config(command=self.canv.yview)                   
+        ybar.config(command=self.canv.yview)
         ## connect the two widgets together
-        self.canv.config(yscrollcommand=ybar.set)              
-        ybar.pack(side=RIGHT, fill=Y)                     
-        self.canv.pack(side=LEFT, expand=YES, fill=BOTH)       
+        self.canv.config(yscrollcommand=ybar.set)
+        ybar.pack(side=RIGHT, fill=Y)
+        self.canv.pack(side=LEFT, expand=YES, fill=BOTH)
         self.draw()
 
     def draw(self):
         self.canv.delete('all')
         bg_color=True
         ctr=0
+        self.canv.config(scrollregion=(0,0,300, 95*len(self.monsters) + 45))
         for monster in self.monsters:
             clr="lightgrey"
             if bg_color:
