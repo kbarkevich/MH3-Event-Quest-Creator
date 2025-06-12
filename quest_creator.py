@@ -272,14 +272,14 @@ def LargeMonsters(tab, data):
 
     summon = data['quest_info']['summon']
     bossInvaderFrame = ttk.Frame(tab, padding=2)
-    ttk.Label(bossInvaderFrame, text="Invader", font=("Arial", 12, "bold")).grid(column=0, row=0, sticky='w')
+    ttk.Label(bossInvaderFrame, text="Invader", font=("Arial", 12, "bold")).grid(column=0, row=0, columnspan=(3), sticky='w')
     ttk.Label(bossInvaderFrame, text="%:").grid(column=0, row=1, sticky='w')
-    NumEntry(bossInvaderFrame, limit=0x64, variable=summon[0]).grid(column=0, row=2, pady=(0, 20))
-    ttk.Label(bossInvaderFrame, text="Unk 1:").grid(column=1, row=1, sticky='sw')
-    Dropdown(bossInvaderFrame, INVADER_CHANCE, summon[1]).grid(column=1, row=2, pady=(0, 20))
-    ttk.Label(bossInvaderFrame, text="Unk 2:").grid(column=2, row=1, sticky='sw')
-    NumEntry(bossInvaderFrame, limit=0xFF, variable=summon[2]).grid(column=2, row=2, pady=(0, 20))
-    Dropdown(bossInvaderFrame, InvaderType, summon[3], criteria=lambda a: [x[:-3].replace("_"," ") for x in a if x[:1]!="_"]).grid(column=3, row=2, pady=(0, 20), columnspan=2, sticky=W+E)
+    NumEntry(bossInvaderFrame, limit=0x64, width=3, variable=summon[0]).grid(column=0, row=2, pady=(0, 20))
+    ttk.Label(bossInvaderFrame, text="Unk1:").grid(column=1, row=1, sticky='sw')
+    Dropdown(bossInvaderFrame, INVADER_CHANCE, summon[1], width=5).grid(column=1, row=2, pady=(0, 20))
+    ttk.Label(bossInvaderFrame, text="Unk2:").grid(column=2, row=1, columnspan=(2), sticky='sw')
+    NumEntry(bossInvaderFrame, limit=0xFF, variable=summon[2], width=3).grid(column=2, row=2, pady=(0, 20))
+    Dropdown(bossInvaderFrame, get_invader_list(), summon[3], width=69).grid(column=3, row=2, pady=(0, 20), columnspan=2, sticky=W+E)
 
     boss1Frame.pack(side='top', anchor='n')
     boss2Frame.pack(side='top', anchor='n')
