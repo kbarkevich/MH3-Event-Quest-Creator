@@ -128,7 +128,7 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
 
     ttk.Label(basicSettingsFrame, text="Starting Position:").grid(column=0, row=4, padx=10, sticky='w')
     Dropdown(basicSettingsFrame, StartingPositionType, variable=data['quest_info']['starting_position']).grid(column=0,row=5, padx=10, pady=(0,10))
-    UrlLabel(basicSettingsFrame, "https://imgur.com/a/QPXdMLK/", text="Supply Set:").grid(column=1, row=4, padx=10, sticky='w')
+    UrlLabel(basicSettingsFrame, "https://imgur.com/a/QPXdMLK/", hover="Click to see pictures of the online supply sets!", text="Supply Set:").grid(column=1, row=4, padx=10, sticky='w')
     Dropdown(basicSettingsFrame, list(range(255)), variable=data['quest_info']['supply_set_number']).grid(column=1,row=5, padx=10, pady=(0,10))
     ttk.Label(basicSettingsFrame, text="Delivery Type:").grid(column=2, row=4, padx=10, sticky='w')
     Entry(basicSettingsFrame, state='readonly').grid(column=2, row=5, padx=10, pady=(0,10))

@@ -202,13 +202,32 @@ class Dropdown(ttk.Combobox):
 
 
 class UrlLabel(Label):
-    def __init__(self, master, url, **kwargs):
+    def __init__(self, master, url, hover=None, **kwargs):
         super().__init__(master, cursor='question_arrow', **kwargs)
         self.url = url
+        self.hover = hover
         self.bind("<Button-1>", lambda _: self.open_url())
+        if hover:
+            def enter(event):
+                    self.showTooltip()
+            def leave(event):
+                self.hideTooltip()
+            self.bind('<Enter>', enter)
+            self.bind('<Leave>', leave)
 
     def open_url(self):
         webbrowser.open_new_tab(self.url)
+
+    def showTooltip(self):
+        self.tooltipwindow = Toplevel(self)
+        self.tooltipwindow.wm_overrideredirect(1) # window without border and no normal means of closing
+        self.tooltipwindow.wm_geometry("+{}+{}".format(self.winfo_rootx()+20, self.winfo_rooty()+20))
+        label = Label(self.tooltipwindow, text = self.hover, background = "#ffffe0", relief = 'solid', borderwidth = 1).pack()
+
+    def hideTooltip(self):
+        self.tooltipwindow = self.tooltipwindow
+        self.tooltipwindow.destroy()
+        self.tooltipwindow = None
 
 
 class ToolTipLabel(ttk.Label):
