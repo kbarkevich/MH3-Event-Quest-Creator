@@ -273,11 +273,12 @@ def LargeMonsters(tab, data):
     summon = data['quest_info']['summon']
     bossInvaderFrame = ttk.Frame(tab, padding=2)
     ttk.Label(bossInvaderFrame, text="Invader", font=("Arial", 12, "bold")).grid(column=0, row=0, columnspan=(3), sticky='w')
-    ttk.Label(bossInvaderFrame, text="%:").grid(column=0, row=1, sticky='w')
+    ToolTipLabel(bossInvaderFrame, hover="This value is the percentage chance for an invader to be set to enter the quest at all.\nThis is rolled once when the quest is initiated, and then never again.", text="%1:").grid(column=0, row=1, sticky='w')
+
     NumEntry(bossInvaderFrame, limit=0x64, width=3, variable=summon[0]).grid(column=0, row=2, pady=(0, 20))
-    ttk.Label(bossInvaderFrame, text="Unk1:").grid(column=1, row=1, sticky='sw')
+    ToolTipLabel(bossInvaderFrame, hover="This value is the percentage chance that the determined invader (if applicable given\nthe previous value) will spawn at each 200-second interval once the quest has begun.", text="%2:").grid(column=1, row=1, sticky='sw')
     Dropdown(bossInvaderFrame, INVADER_CHANCE, summon[1], width=5).grid(column=1, row=2, pady=(0, 20))
-    ttk.Label(bossInvaderFrame, text="Unk2:").grid(column=2, row=1, columnspan=(2), sticky='sw')
+    ToolTipLabel(bossInvaderFrame, hover="This value's exact function is unknown. However, it seems as though it should be set to\nthe first free large monster slot. If no large monsters are entered above, set this to 1.\nIf one monster is entered above, set this to 2. Etc.", text="Unk:").grid(column=2, row=1, columnspan=(2), sticky='sw')
     NumEntry(bossInvaderFrame, limit=0xFF, variable=summon[2], width=3).grid(column=2, row=2, pady=(0, 20))
     Dropdown(bossInvaderFrame, get_invader_list(), summon[3], width=69).grid(column=3, row=2, pady=(0, 20), columnspan=2, sticky=W+E)
 
