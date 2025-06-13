@@ -12,35 +12,35 @@ import webbrowser
 def QuestInfo(tab, data):
     questNameFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questNameFrame, text="Quest Name:").pack()
-    ttk.Entry(questNameFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 24), textvariable=data['quest_info']['name']).pack()
+    ttk.Entry(questNameFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['name']).pack()
     questNameFrame.pack(side='top', expand=True)
 
     questSuccessFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questSuccessFrame, text="Success Conditions:").pack()
-    ttk.Entry(questSuccessFrame, width=60, textvariable=data['quest_info']['success_message'][0]).pack()
-    ttk.Entry(questSuccessFrame, width=60, textvariable=data['quest_info']['success_message'][1]).pack()
+    ttk.Entry(questSuccessFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['success_message'][0]).pack()
+    ttk.Entry(questSuccessFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['success_message'][1]).pack()
     questSuccessFrame.pack(side='top', expand=True)
 
     questFailFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questFailFrame, text="Fail Conditions:").pack()
-    ent1 = ttk.Entry(questFailFrame, width=60, textvariable=data['quest_info']['failure_message'][0]).pack()
-    ent2 = ttk.Entry(questFailFrame, width=60, textvariable=data['quest_info']['failure_message'][1]).pack()
+    ent1 = ttk.Entry(questFailFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['failure_message'][0]).pack()
+    ent2 = ttk.Entry(questFailFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['failure_message'][1]).pack()
     questFailFrame.pack(side='top', expand=True)
 
     questClientFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questClientFrame, text="Client:").pack()
-    ttk.Entry(questClientFrame, width=60, textvariable=data['quest_info']['client']).pack()
+    ttk.Entry(questClientFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['client']).pack()
     questClientFrame.pack(side='top', expand=True)
 
     questDescriptionFrame = ttk.Frame(tab, padding=2, width=40, height=40)
     ttk.Label(questDescriptionFrame, text="Quest Description:").pack()
-    ttk.Entry(questDescriptionFrame, width=70, textvariable=data['quest_info']['details'][0]).pack()
-    ttk.Entry(questDescriptionFrame, width=70, textvariable=data['quest_info']['details'][1]).pack()
-    ttk.Entry(questDescriptionFrame, width=70, textvariable=data['quest_info']['details'][2]).pack()
-    ttk.Entry(questDescriptionFrame, width=70, textvariable=data['quest_info']['details'][3]).pack()
-    ttk.Entry(questDescriptionFrame, width=70, textvariable=data['quest_info']['details'][4]).pack()
-    ttk.Entry(questDescriptionFrame, width=70, textvariable=data['quest_info']['details'][5]).pack()
-    ttk.Entry(questDescriptionFrame, width=70, textvariable=data['quest_info']['details'][6]).pack()
+    ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][0]).pack()
+    ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][1]).pack()
+    ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][2]).pack()
+    ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][3]).pack()
+    ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][4]).pack()
+    ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][5]).pack()
+    ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][6]).pack()
     questDescriptionFrame.pack(side='bottom', expand=True)
 
 
@@ -313,8 +313,8 @@ def Objectives(tab, data):
 
     mainDescriptionFrame = ttk.Frame(mainTab, padding=2)
     ttk.Label(mainDescriptionFrame, text="Objective Description:").pack(expand=True)
-    ttk.Entry(mainDescriptionFrame, width=60, textvariable=data['quest_info']['description'][0]).pack(expand=True)
-    ttk.Entry(mainDescriptionFrame, width=60, textvariable=data['quest_info']['description'][1]).pack(expand=True)
+    ttk.Entry(mainDescriptionFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 39), textvariable=data['quest_info']['description'][0]).pack(expand=True)
+    ttk.Entry(mainDescriptionFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['description'][1]).pack(expand=True)
     mainDescriptionFrame.pack(expand=True)
 
     mainMonetaryFrame = ttk.Frame(mainTab, padding=2)
@@ -411,7 +411,7 @@ def Objectives(tab, data):
 
     sub1DescriptionFrame = ttk.Frame(sub1Tab, padding=2)
     ttk.Label(sub1DescriptionFrame, text="Subquest 1 Description:").pack()
-    ttk.Entry(sub1DescriptionFrame, width=60, textvariable=sub1['description']).pack()
+    ttk.Entry(sub1DescriptionFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=sub1['description']).pack()
     sub1DescriptionFrame.pack(expand=True)
 
     sub1MonetaryFrame = ttk.Frame(sub1Tab, padding=2)
@@ -508,7 +508,7 @@ def Objectives(tab, data):
 
     sub2DescriptionFrame = ttk.Frame(sub2Tab, padding=2)
     ttk.Label(sub2DescriptionFrame, text="Subquest 2 Description:").pack()
-    ttk.Entry(sub2DescriptionFrame, width=60, textvariable=sub2['description']).pack()
+    ttk.Entry(sub2DescriptionFrame, width=60, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=sub2['description']).pack()
     sub2DescriptionFrame.pack(expand=True)
 
     sub2MonetaryFrame = ttk.Frame(sub2Tab, padding=2)
@@ -1172,7 +1172,7 @@ def resource(path):
         return "resources/"+path
 
 
-VERSION = 0.7
+VERSION = "0.7.1"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
