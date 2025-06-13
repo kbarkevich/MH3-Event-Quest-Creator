@@ -15,6 +15,12 @@ def Prefill(entry, text):
     return entry
 
 
+def pad(s, size, p=b'\0'):
+    data = bytearray(s + p * max(0, size-len(s)))
+    data[-1] = 0
+    return data
+
+
 class NumEntry(Entry):
     def __init__(self, master, limit=None, variable=None, decimal=True, allowNeg=False, **kwargs):
         self.decimal = decimal

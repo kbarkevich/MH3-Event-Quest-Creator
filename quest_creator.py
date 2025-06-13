@@ -1154,6 +1154,9 @@ def LoadBin(win, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, ta
         return data, arenaCallbacks
     return None, None
 
+def SaveBin(win, data):
+    SaveBinFile(win, data)
+
 def LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7):
     questdata = LoadQuestFile()
     if questdata is not None:
@@ -1172,7 +1175,7 @@ def resource(path):
         return "resources/"+path
 
 
-VERSION = "0.7.1"
+VERSION = "0.7.2"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
@@ -1239,6 +1242,8 @@ if __name__ == '__main__':
             arenaCallbacks.clear()
             for cb in newArenaCallbacks:
                 arenaCallbacks.append(cb)
+    def BinSaver():
+        SaveBin(win, dataholder[0])
     def Loader():
         newData, newArenaCallbacks = LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
         if newData is not None:
@@ -1251,9 +1256,10 @@ if __name__ == '__main__':
 
     frm = Frame(win, width=100)
     frm.pack()
-    ttk.Button(frm, text='Load Binary', command=BinLoader).pack(side='left')
     ttk.Button(frm, text='Load Json', command=Loader).pack(side='left')
     ttk.Button(frm, text='Save', command=Saver).pack(side='left')
+    ttk.Button(frm, text='Load Game Binary', command=BinLoader).pack(side='left')
+    ttk.Button(frm, text='Overwrite Game Binary (danger)', command=BinSaver).pack(side='left')
     ttk.Button(frm, text='Close', command=exit).pack(side='right')
 
     win.mainloop()

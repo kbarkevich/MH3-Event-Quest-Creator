@@ -1,14 +1,740 @@
 from tkinter import *
 from ids import *
 from equipment_ids import *
-from utils import Dropdown
+from utils import Dropdown, pad
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 import json
 import math
+import struct
 
 
 ITEMS_SIZE = 24
 GUNNER_SIZE = 8
+
+
+def make_binary_event_quest(quest_data):
+    def generate_flags(byte1, byte2, byte3, byte4):
+        res = 0x00000000
+
+        curr = 0x00
+        for i in range(8):
+            curr += byte1[i] * 2**i
+        res += curr * 16**6
+
+        curr = 0x00
+        for i in range(8):
+            curr += byte2[i] * 2**i
+        res += curr * 16**4
+
+        curr = 0x00
+        for i in range(8):
+            curr += byte3[i] * 2**i
+        res += curr * 16**2
+
+        curr = 0x00
+        for i in range(8):
+            curr += byte4[i] * 2**i
+        res += curr * 16**0
+
+        return res
+    
+    def make_monster_quest_type(monster_type, starting_area, boss_id, spawn_count, level,
+                            min, size, max):
+        data = b""
+        # - id: monster_type
+        # type: u1
+        # enum: Monster
+        data += struct.pack(">B", monster_type)
+
+        # - id: boss_id
+        # type: u2
+        data += struct.pack(">B", starting_area)
+        data += struct.pack(">B", boss_id)
+
+        # - id: spawn_count
+        # type: u1
+        data += struct.pack(">B", spawn_count)
+
+        # - id: level
+        # type: u1
+        data += struct.pack(">B", level)
+
+        # - id: min
+        # type: u1
+        data += struct.pack(">B", min)
+
+        # - id: size
+        # type: u1
+        data += struct.pack(">B", size)
+
+        # - id: max
+        # type: u1
+        data += struct.pack(">B", max)
+
+        return data
+
+
+    def make_quest_properties_type(type, objective_type, objective_count):
+        data = b""
+        # - id: type
+        # type: u4
+        data += struct.pack(">I", type)
+
+        # - id: objective_type
+        # type: u2
+        data += struct.pack(">h", objective_type)
+
+        # - id: objective_count
+        # type: u2
+        data += struct.pack(">h", objective_count)
+
+        return data
+
+
+    def make_reward_type(item, amount, percent):
+        data = b""
+        # - id: item
+        # type: u2
+        # enum: item_type
+        data += struct.pack(">h", item)
+
+        # - id: amount
+        # type: u1
+        data += struct.pack(">B", amount)
+
+        # - id: percent
+        # type: u1
+        data += struct.pack(">B", percent)
+
+        return data
+
+
+    def generate_rewards(rewards):
+        data = b""
+        i = -1
+        for i, reward in enumerate(rewards):
+            data += make_reward_type(reward[0], reward[1], reward[2])
+            if i == 10:
+                break
+        data += b'\0' * (4 * (10-i))
+        return data
+
+
+    def or_zeros(data, str_idx, length):
+        return (data[str_idx] if str_idx in data else 0)#(b'\0' * length))
+    """
+    'quest_info': {
+        'quest_id': quest_id,
+        'name': name,
+        'client': client,
+        'description': description,
+        'details': details,
+        # Usually "Complete the Main Quest."
+        'success_message': success_message,
+        'flags': flags,
+        'penalty_per_cart': penalty_per_cart,
+        'quest_fee': quest_fee,
+        'time_limit': time_limit,
+        'main_monster_1': main_monster1,
+        'main_monster_2': main_monster2,
+        'location': location,
+        'quest_rank': quest_rank,
+        'hrp_restriction': hrp_restriction,
+        'resources': resources,
+        'supply_set_number': supply_set_number,
+        'starting_position': starting_position,
+        'general_enemy_level': general_enemy_level,
+        'summon': summon,
+        'wave_1_transition_type': wave_1_transition_type,
+        'wave_1_transition_target': wave_1_transition_target,
+        'wave_1_transition_quantity': wave_1_transition_quantity,
+        'wave_2_transition_type': wave_2_transition_type,
+        'wave_2_transition_target': wave_2_transition_target,
+        'wave_2_transition_quantity': wave_2_transition_quantity,
+        'smallmonster_data_file': smallmonster_data (or None),
+    },
+    """
+    quest_info = quest_data['quest_info']
+
+    """
+    'large_monsters': {
+        'monster_1': {
+            'type': monsterType1,
+            'boss_id': monsterType1_bossid,
+            'enabled': monsterType1_enabled,
+            'level': monsterType1_level,  # 0x01 through 0x3c
+            'size': monsterType1_size,
+            # 0: fixed, 1: spread of 5, 2: spread of 3
+            'hp_spread': monsterType1_min,
+            # Controls the spread of size but details unknown
+            'size_spread': monsterType1_max
+        },
+        'monster_2': {
+            'type': monsterType2,
+            'boss_id': monsterType2_bossid,
+            'enabled': monsterType2_enabled,
+            'level': monsterType2_level,  # 0x01 through 0x3c
+            'size': monsterType2_size,
+            # 0: fixed, 1: spread of 5, 2: spread of 3
+            'hp_spread': monsterType2_min,
+            # Controls the spread of size but details unknown
+            'size_spread': monsterType2_max
+        },
+        'monster_3': {
+            'type': monsterType3,
+            'boss_id': monsterType3_bossid,
+            'enabled': monsterType3_enabled,
+            'level': monsterType3_level,  # 0x01 through 0x3c
+            'size': monsterType3_size,
+            # 0: fixed, 1: spread of 5, 2: spread of 3
+            'hp_spread': monsterType3_min,
+            # Controls the spread of size but details unknown
+            'size_spread': monsterType3_max
+        }
+    },
+    """
+    large_monsters = quest_data['large_monsters']
+    monster_1 = large_monsters['monster_1']
+    monster_2 = large_monsters['monster_2']
+    monster_3 = large_monsters['monster_3']
+
+    """
+    'objective_details': {
+        'main_quest': {
+            'type': mainquest_type,
+            'objective_type': mainquest_objectivetype,
+            'objective_num': mainquest_objectivenum,
+            'zenny_reward': main_reward,
+            'hrp_reward': hunter_rank_points,
+            'rewards_row_1': mainquest_rewards1,
+            'rewards_row_2': mainquest_rewards2,
+        }
+        'subquest_1': {
+            'description': subquest1_description,
+            'type': subquest1_type,
+            'objective_type': subquest1_objectivetype,
+            'objective_num': subquest1_objectivenum,
+            'zenny_reward': sub_quest_1_reward,
+            'hrp_reward': subquest1_hrp,
+            'rewards_row_1': sq1_rewards,
+        }
+        'subquest_2': {
+            'description': subquest2_description,
+            'type': subquest2_type,
+            'objective_type': subquest2_objectivetype,
+            'objective_num': subquest2_objectivenum,
+            'zenny_reward': sub_quest_2_reward,
+            'hrp_reward': subquest2_hrp,
+            'rewards_row_1': sq2_rewards,
+        }
+    },
+    """
+    objective_details = quest_data['objective_details']
+    main_quest = objective_details['main_quest']
+    subquest_1 = objective_details['subquest_1']
+    subquest_2 = objective_details['subquest_2']
+
+    """
+    'unknown': {
+        'unk_12': unk_12,
+        'unk_4': unk_4,
+        'unk_5': unk_5,
+        'unk_6': unk_6,
+        'unk_7': unk_7,
+        'unk_9': unk_9,
+        'unk_10': unk_10,
+        'unk_11': unk_11,
+    }
+    """
+    unknown = quest_data['unknown']
+
+    # TOOO: Remove encode("ascii") and use bytes instead
+    data = b""
+
+    # - id: name
+    # type: str
+    # size: 44
+    # offset: 0x0000
+    data += pad(quest_info['name'].encode("ascii"), 40)  # Size 0x28
+    data += struct.pack(">I", 0x00000000)
+
+    # - id: quest_id
+    # type: u2
+    # offset: 0x002C
+    data += struct.pack(">H", quest_info['quest_id'])
+
+    # - id: description
+    # type: str
+    # size: 92
+    # offset: 0x002E
+    data += pad(quest_info['description'].encode("ascii"), 80)
+    data += b'\0' * 0xC  # Padding
+
+    # - id: quest_rank
+    # type: u1
+    # enum: QuestRankType
+    # offset: 0x008A
+    data += struct.pack(">B", quest_info['quest_rank'])
+
+    # - id: location
+    # type: u1
+    # enum: LocationType
+    # offset: 0x008B
+    data += struct.pack(">B", quest_info['location'])  # Offset 0x8C
+
+    # - id: sub_quest_1_title
+    # type: str
+    # size: 41
+    # offset: 0x008C
+    data += pad(
+        objective_details['subquest_1']['description'].encode("ascii"),
+        0x29
+    )
+
+    # - id: sub_quest_2_title
+    # type: str
+    # size: 41
+    # offset: 0x00B5
+    data += pad(
+        objective_details['subquest_2']['description'].encode("ascii"),
+        0x29
+    )
+
+    # - id: sucess_message
+    # type: str
+    # size: 92
+    # offset: 0x00DE
+    data += pad(quest_info['success_message'].encode("ascii"), 0x5C)
+
+    # - id: time_limit
+    # type: u2
+    # offset: 0x013A
+    data += struct.pack(">h", quest_info['time_limit'])
+
+    # - id: failure_message
+    # type: str
+    # size: 92
+    # Presently hardcoded
+    # offset: 0x013C
+    data += (pad(quest_info['failure_message'].encode("ascii"), 0x5C) if 'failure_message' in quest_info else pad(b"Reward hits 0, or time\nexpires.", 0x5C))
+
+    # - id: hunter_rank_point_restriction
+    # type: u2
+    # offset: 0x0198
+    data += struct.pack(">h", quest_info['hrp_restriction'])
+
+    # - id: client
+    # type: str
+    # size: 40
+    # offset: 0x019A
+    data += pad(quest_info['client'].encode("ascii"), 0x28)
+
+    # - id: unkInt0
+    # size: u4
+    # offset: 0x1C2
+    data += struct.pack(">I", or_zeros(unknown, 'unkInt0', 4))
+
+    # - id: unkShort0
+    # size: u2
+    # offset: 0x1C6
+    data += struct.pack(">H", or_zeros(unknown, 'unkShort0', 2))
+
+    # - id: unkByte0
+    # size: u1
+    # offset: 0x1C8
+    data += struct.pack(">B", or_zeros(unknown, 'unkByte0', 1))
+
+    # - id: details
+    # type: str
+    # size: 256
+    # offset: 0x01C9
+    data += pad(quest_info['details'].encode("ascii"), 0x100)  # b'\0' * 0x100
+
+    # - id: unk1
+    # size: 61
+    # offset: 0x02C9
+    data += b'\0' * 0x3D
+
+    # - id: minion_unsure
+    # size: 3
+    # offset: 0x0306
+    #data += b'\0' * 0x03
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes0_0', 1))
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes0_1', 1))
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes0_2', 1))
+
+    # - id: quest_flags_unsure
+    # size: 3
+    # offset: 0x0309
+    #data += b'\0' * 0x03
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes1_0', 1))
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes1_1', 1))
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes1_2', 1))
+
+    # - id: monster_1
+    # type: u1
+    # enum: Monster
+    # Offset 0x30C ("Main monsters" 1)
+    data += struct.pack(">B", quest_info['main_monster_1'])
+
+    # - id: monster_2
+    # type: u1
+    # enum: Monster
+    # Offset 0x30D ("Main monsters" 2)
+    data += struct.pack(">B", quest_info['main_monster_2'])
+
+    # - id: unk3
+    # size: 2
+    # offset: 0x030E
+    #data += b'\0' * 0x02  # Padding
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes2_0', 1))
+    data += struct.pack(">B", or_zeros(unknown, 'unkBytes2_1', 1))
+
+    # - id: flags
+    # type: u4
+    # offset: 0x0310
+    data += struct.pack(">I", generate_flags(*(quest_info['flags'])))  # Offset 0x310
+
+    # - id: monsters
+    # type: monster_quest_type
+    # repeat: expr
+    # repeat-expr: 3
+    # # offset: 0x0314
+    if monster_1['type'] != 0:
+        data += make_monster_quest_type(
+            monster_type=monster_1['type'],
+            starting_area=monster_1['starting_area'],
+            boss_id=monster_1['boss_id'],
+            spawn_count=monster_1['spawn_count'],
+            level=monster_1['level'],
+            min=monster_1['hp_spread'],
+            size=monster_1['size'],
+            max=monster_1['size_spread']
+        )  # size: 0x08
+    else:
+        data += b'\0' * 0x08
+
+    # offset: 0x031C
+    if monster_2['type'] != 0:
+        data += make_monster_quest_type(
+            monster_type=monster_2['type'],
+            starting_area=monster_2['starting_area'],
+            boss_id=monster_2['boss_id'],
+            spawn_count=monster_2['spawn_count'],
+            level=monster_2['level'],
+            min=monster_2['hp_spread'],
+            size=monster_2['size'],
+            max=monster_2['size_spread']
+        )  # size: 0x08
+    else:
+        data += b'\0' * 0x08
+
+    # offset: 0x0324
+    if monster_3['type'] != 0:
+        data += make_monster_quest_type(
+            monster_type=monster_3['type'],
+            starting_area=monster_3['starting_area'],
+            boss_id=monster_3['boss_id'],
+            spawn_count=monster_3['spawn_count'],
+            level=monster_3['level'],
+            min=monster_3['hp_spread'],
+            size=monster_3['size'],
+            max=monster_3['size_spread']
+        )  # size: 0x08
+    else:
+        data += b'\0' * 0x08
+
+    # SUMMON / (INVADER?)
+    # - id: unk5
+    # type: u4
+    # offset: 0x032C
+    data += struct.pack(">I", quest_info['summon'])
+
+    # - id: quests_properties
+    # type: quest_properties_type
+    # repeat: expr
+    # repeat-expr: 3
+
+    # "Hunt 8 jaggia:"
+    # mainquest_type = 0x00008101,
+    # mainquest_objectivetype=0x000b,
+    # mainquest_objectivecount=0x0008
+
+    # "Hunt 12 jaggi:"
+    # mainquest_type = 0x00000101,
+    # mainquest_objectivetype=0x000a,
+    # mainquest_objectivecount=0x000c
+
+    # "Hunt a Great Jaggi:"
+    # mainquest_type = 0x00000001,
+    # mainquest_objectivetype=0x000c,
+    # mainquest_objectivecount=0x0001
+
+    # "Wound Great Jaggi's Head:"
+    # quest_type = 0x00000204,
+    # quest_objectivetype=0x000c,
+    # quest_objectivecount=0x0001
+
+    # "Stun Great Jaggi:"
+    # quest_type = 0x00001000,
+    # quest_objectivetype=0x000c,
+    # quest_objectivecount=0x0003
+
+    # offset: 0x0330
+    data += make_quest_properties_type(
+        main_quest['type'],
+        main_quest['objective_type'],
+        main_quest['objective_num']
+    )
+
+    # offset: 0x0338
+    if subquest_1['type'] is not None:
+        data += make_quest_properties_type(
+            subquest_1['type'],
+            subquest_1['objective_type'],
+            subquest_1['objective_num']
+        )
+    else:
+        data += b"\0" * 0x08
+
+    # offset: 0x0340
+    if subquest_2['type'] is not None:
+        data += make_quest_properties_type(
+            subquest_2['type'],
+            subquest_2['objective_type'],
+            subquest_2['objective_num']
+        )
+    else:
+        data += b"\0" * 0x08
+
+    # - id: contract_fee
+    # type: u4
+    # offset: 0x0348
+    data += struct.pack(">I", quest_info['quest_fee'])
+
+    # - id: main_objective_reward
+    # type: u4
+    # offset: 0x034C
+    data += struct.pack(">I", main_quest['zenny_reward'])
+
+    # - id: sub_objective_a_reward
+    # type: u4
+    # offset: 0x0350
+    data += struct.pack(">I", subquest_1['zenny_reward'])
+
+    # - id: sub_objective_b_reward
+    # type: u4
+    # offset: 0x0354
+    data += struct.pack(">I", subquest_2['zenny_reward'])
+
+    # - id: death_reduction
+    # type: u4
+    # offset: 0x0358
+    data += struct.pack(">I", quest_info['penalty_per_cart'])
+
+    # - id: hunter_rank_points
+    # type: u4
+    # offset: 0x035C
+    data += struct.pack(">I", main_quest['hrp_reward'])
+
+    # - id: unk7
+    # type: u4
+    # 0x0000000f for the great jaggi quest/(all quests?)
+    # offset: 0x0360
+    data += struct.pack(">I", unknown['unkUintAlways15'] if 'unkUintAlways15' in unknown else 0x0000000f)#0x0000000f)
+
+    # - id: unk8
+    # type: u1
+    # offset: 0x0364
+    #data += b'\0' * 0x01
+
+    # - id: gather_rank (wrong)
+    # type: u1
+    # offset: 0x0365
+    #data += b'\0' * 0x01
+
+    # - id: unk9
+    # type: u1
+    # offset: 0x0366
+    #data += b'\0' * 0x01
+
+    # - id: unk10
+    # type: u1
+    # offset: 0x0367
+    #data += struct.pack(">B", subquest_1['hrp_reward'])
+    data += struct.pack(">I", subquest_1['hrp_reward'])
+
+    # - id: supply_set (wrong)
+    # type: u4
+    # offset: 0x0368
+    data += struct.pack(">I", subquest_2['hrp_reward'])
+
+    # - id: Unknown 4
+    # type: u1
+    # offset: 0x036C
+    data += struct.pack(">B", unknown['unk_4'])
+
+    # - id: supply_type (0x00: low rank, 0x01: high rank, 0x02: arena)
+    # type: u1
+    # offset: 0x036D
+    data += struct.pack(">B", quest_info['resources'])
+
+    # - id: unk11
+    # size: 2
+    # type: u1
+    # offset: 0x036E
+    data += struct.pack(">B", unknown['unk_5'])
+    # type: u1
+    # offset: 0x036F
+    data += struct.pack(">B", unknown['unk_6'])
+
+    # - id: unkShort1
+    # type: u2
+    # 0x00000011 for the great jaggi quest
+    # offset: 0x0370
+    data += struct.pack(">H", or_zeros(unknown, 'unkShort1', 2))
+
+    # - id: supply_set_number
+    # type: u2
+    # 0x00000011 for the great jaggi quest
+    # offset: 0x0372
+    data += struct.pack(">H", quest_info['supply_set_number'])
+
+    # - id: unkShort2
+    # type: u2
+    # offset: 0x0374
+    data += struct.pack(">H", or_zeros(unknown, 'unkShort2', 2))
+
+    # - id: unk_7
+    # type: u2
+    # offset: 0x0376
+    data += struct.pack(">H", unknown['unk_7'])
+
+    # - id: unkByte1
+    # type: u1
+    # offset: 0x0378
+    data += struct.pack(">B", or_zeros(unknown, 'unkByte1', 1))
+
+    # - id: unkByte2
+    # type: u1
+    # offset: 0x0379
+    data += struct.pack(">B", or_zeros(unknown, 'unkByte2', 1))
+
+    # - id: type_flag (STARTING POSITION, 0x0000: basecamp,
+    #                  0x0001:random, 0x0002: shrine)
+    # type: u2
+    # offset: 0x037A
+    data += struct.pack(">h", quest_info['starting_position'])
+
+    # - id: unkByte3
+    # offset: 0x037C
+    data += struct.pack(">B", or_zeros(unknown, 'unkByte3', 1))
+
+    # - id: unkByte4
+    # offset: 0x037D
+    data += struct.pack(">B", or_zeros(unknown, 'unkByte4', 1))
+
+    # - id: small_monster_data_location
+    # type: u2
+    # offset: 0x037E
+    data += struct.pack(">h", 0x04b8)
+
+    # - id: unkByte7
+    # offset: 0x0380
+    data += struct.pack(">B", or_zeros(unknown, 'unkByte7', 1))
+
+    # - id: unkByte8
+    # offset: 0x0381
+    data += struct.pack(">B", or_zeros(unknown, 'unkByte8', 1))
+
+    # - id: general_enemy_level
+    # type: u2
+    # offset: 0x0382
+    data += struct.pack(">h", quest_info['general_enemy_level'])
+
+    # - id: wave_1_transition_type
+    # type: u2
+    # offset: 0x0384
+    data += struct.pack(">h", quest_info['wave_1_transition_type'])
+
+    # - id: wave_1_transition_target
+    # type: u2
+    # offset: 0x0386
+    data += struct.pack(">h", quest_info['wave_1_transition_target'])
+
+    # - id: wave_1_transition_quantity
+    # type: u2
+    # offset: 0x0388
+    data += struct.pack(">h", quest_info['wave_1_transition_quantity'])
+
+    # - id: wave_2_transition_type
+    # type: u2
+    # offset: 0x038A
+    data += struct.pack(">h", quest_info['wave_2_transition_type'])
+
+    # - id: wave_2_transition_target
+    # type: u2
+    # offset: 0x038C
+    data += struct.pack(">h", quest_info['wave_2_transition_target'])
+
+    # - id: wave_2_transition_quantity
+    # type: u2
+    # offset: 0x038E
+    data += struct.pack(">h", quest_info['wave_2_transition_quantity'])
+
+
+    # Unknown 12 (0x00000002 for large monster hunting quests,
+    #             0x00000003 for small monster & gathering quests,
+    #             0x00000005 for Jhen & Alatreon)
+    # offset: 0x0390
+    data += struct.pack(">I", unknown['unk_12'])
+    # offset: 0x0394
+    data += make_quest_properties_type(main_quest['type'],
+                                       main_quest['objective_type'],
+                                       main_quest['objective_num'])
+
+    # - id: main_objective_rewards
+    # type: reward_type
+    # repeat: expr
+    # repeat-expr: 11
+    # offset: 0x039C
+    data += generate_rewards(main_quest['rewards_row_1'])
+
+    # - id: main_objective_additional_rewards
+    # type: reward_type
+    # repeat: expr
+    # repeat-expr: 11
+    # offset: 0x03C8
+    data += generate_rewards(main_quest['rewards_row_2'])
+
+    # SUBQUEST 1 REWARDS
+    # offset: 0x03F4
+    if subquest_1['type'] is not None:
+        data += make_quest_properties_type(subquest_1['type'],
+                                           subquest_1['objective_type'],
+                                           subquest_1['objective_num'])
+        data += generate_rewards(subquest_1['rewards_row_1'])
+    else:
+        data += b"\0" * 0x08
+        data += b'\0' * (4 * 11)
+    # offset: 0x0428
+    data += b'\0' * (4 * 11)
+
+    # SUBQUEST 2 REWARDS
+    # offset: 0x0454
+    if subquest_2['type'] is not None:
+        data += make_quest_properties_type(subquest_2['type'],
+                                           subquest_2['objective_type'],
+                                           subquest_2['objective_num'])
+        data += generate_rewards(subquest_2['rewards_row_1'])
+    else:
+        data += b"\0" * 0x08
+        data += b'\0' * (4 * 11)
+    # offset: 0x0488
+    data += b'\0' * (4 * 11)
+
+    assert len(data) == 0x4B4
+    return data
 
 
 class QuestSelectPopup(Toplevel):
@@ -75,6 +801,48 @@ def LoadFromQuestBinary(root):
         if result is None:
             return None
         return ProcessBinary(questBytes[result])
+    return None
+
+
+def SaveBinFile(root, data):
+    binary_data = make_binary_event_quest(DepopulateDataDict(data))
+    ff = askopenfilename(title="Save Quest Json", filetypes=[("Allowed Types", "*.bin",)])
+    if ff:
+        questIdxs = list()
+        questBytes = list()
+        questNames = list()
+        with open(ff, 'rb') as f:
+            byte = f.read(1)
+            bts = bytes()#list()
+            while byte != b"":
+                # Do stuff with byte.
+                bts += byte
+                byte = f.read(1)
+
+            currQuestIdxIdx = 0x00000008#bts[8:12]
+            currQuestIdx = int.from_bytes(bts[currQuestIdxIdx:currQuestIdxIdx+4], 'big')
+            
+            #print(currQuestIdx)
+            while currQuestIdx != 0:
+                questIdxs.append(currQuestIdx)
+                currQuestLen = int.from_bytes(bts[currQuestIdxIdx+4:currQuestIdxIdx+8], 'big')
+
+                currQuestBytes = bts[currQuestIdx:currQuestIdx+currQuestLen]
+                toOverwrite = currQuestBytes[:0x4B4]
+                questBytes.append(currQuestBytes)
+                questNames.append(currQuestBytes[:44].strip(b'\00').decode("ascii"))
+
+                currQuestIdxIdx += 8
+                currQuestIdx = int.from_bytes(bts[currQuestIdxIdx:currQuestIdxIdx+4], 'big')
+
+        popup = QuestSelectPopup(root, questNames)
+        result = popup.show()
+        if result is None:
+            return None
+        with open(ff, 'r+b') as f:
+            f.seek(questIdxs[result])
+            f.write(binary_data)
+        return None#ProcessBinary(questBytes[result])
     return None
 
 
