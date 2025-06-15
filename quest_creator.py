@@ -1175,7 +1175,7 @@ def resource(path):
         return "resources/"+path
 
 
-VERSION = "0.7.2"
+VERSION = "0.7.3"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
