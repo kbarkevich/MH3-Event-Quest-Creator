@@ -2,6 +2,7 @@ from tkinter import *
 from ids import *
 from equipment_ids import *
 from utils import Dropdown, pad
+from os import path
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 import json
 import math
@@ -860,7 +861,7 @@ def LoadQuestFile():
     if ff:
         with open(ff, 'r') as f:
             result = json.load(f)
-            return PopulateDataDict(result)
+            return PopulateDataDict(result, ff[:ff.rfind('/')+1])
     return None
 
 
@@ -2022,7 +2023,7 @@ def DepopulateDataDict(data):
     return out
 
 
-def PopulateDataDict(data):
+def PopulateDataDict(data, fpath=None):
     def split_multiline_str(inp, lines):
         cur = [StringVar(value=x) for x in inp.split('\n')]
         return cur + [StringVar(value="") for g in range(lines-len(cur))]
@@ -2082,7 +2083,7 @@ def PopulateDataDict(data):
                     'rot_x': IntVar(value=data['small_monsters'][j][k]['rot_x']),'rot_y': IntVar(value=data['small_monsters'][j][k]['rot_y']),'rot_z': IntVar(value=data['small_monsters'][j][k]['rot_z']),
                 } for k in range(len(data['small_monsters'][j]))
             ] for j in range(len(data['small_monsters']))
-        ] if 'small_monsters' in data else [[] for _ in range(LOCATION_SIZE[data['quest_info']['location']])],
+        ] if 'small_monsters' in data else load_small_monster_datafile(fpath, data['quest_info']['smallmonster_data_file'], data['quest_info']['location'], data['quest_info']['wave_1_transition_type'], data['quest_info']['wave_2_transition_type']) if 'smallmonster_data_file' in data['quest_info'] else [[] for _ in range(LOCATION_SIZE[data['quest_info']['location']])],
         'quest_info': {
             'quest_id': IntVar(value=data['quest_info']['quest_id']),
             'name': StringVar(value=data['quest_info']['name']),
@@ -2217,6 +2218,128 @@ def PopulateDataDict(data):
             format_arena_equipment_slot(data['arena_equipment'][3])
         ]
     return out
+
+
+def load_small_monster_datafile(fpath, filename, location, wave_1_transition_type, wave_2_transition_type):
+    if not path.exists(fpath+filename):
+        return None
+    with open(fpath+filename, 'r') as f:
+        data = f.read()
+    bin = bytes.fromhex(data.replace(" ", "").replace("\n", ""))[16:]
+
+    num_areas = LOCATION_SIZE[location]#int((int.from_bytes(prepreamble_2, 'big') - int.from_bytes(prepreamble_1, 'big')) / 8)
+    #print(num_areas)
+    #exit()
+    idxs = list()
+    monlens = list()
+    offset = 0xC
+    exhausted = False
+
+    while not exhausted:
+        idx = bin[:4]
+        bin=bin[4:]
+        monlen = bin[:4]
+        bin=bin[4:]
+        idxs.append(int.from_bytes(idx, 'big'))
+        monlens.append(monlen)
+        offset += 8
+        if ((wave_1_transition_type == 0) and (int((offset-0xC) / 8) == (1*num_areas))) \
+            or ((wave_2_transition_type == 0) and (int((offset-0xC) / 8) == (2*num_areas))) \
+            or int((offset-0xC) / 8) == (3*num_areas):
+            exhausted = True
+        if int(offset-0xC / 8) > 400:
+            exit()
+
+    small_monsters = []
+
+    import struct
+    #print(idxs)
+    #print(offset)
+    #print()
+
+    def rth(num):
+        return round(num*100)/100
+
+    attempted_offset = offset
+
+    for i in range(len(monlens)):
+        loaded_offset = idxs[i]
+        if offset < loaded_offset:
+            bin = bin[loaded_offset-offset:]
+            offset = loaded_offset
+        area_monsters = []
+        
+        num_small_mons = int(int.from_bytes(monlens[i], 'big') / 0x30)
+        for j in range(num_small_mons):
+            if int.from_bytes(bin[:4], 'big') == 0x00:
+                continue
+            offset += 0x30
+            small_mon_binary = bin[:0x30]
+            bin = bin[0x30:]
+
+            m_type = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+            if m_type == 0x00:
+                continue
+
+
+            m_whoknows = int.from_bytes(small_mon_binary[:3], 'big')
+
+            small_mon_binary = small_mon_binary[3:]
+
+            m_quantity = struct.unpack('>b', small_mon_binary[:1])[0]
+            small_mon_binary = small_mon_binary[1:]
+
+            m_unk2 = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_room = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_unk1 = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_variant = int.from_bytes(small_mon_binary[:1], 'big')
+            small_mon_binary = small_mon_binary[1:]
+            
+            m_whoknowsagain = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+
+            m_pos_x = rth(struct.unpack('>f', small_mon_binary[:4])[0])
+            small_mon_binary = small_mon_binary[4:]
+            
+            m_pos_y = rth(struct.unpack('>f', small_mon_binary[:4])[0])
+            small_mon_binary = small_mon_binary[4:]
+
+            m_pos_z = rth(struct.unpack('>f', small_mon_binary[:4])[0])
+            small_mon_binary = small_mon_binary[4:]
+
+            m_rot_x = int.from_bytes(small_mon_binary[:4], 'big', signed=True)
+            small_mon_binary = small_mon_binary[4:]
+
+            m_rot_y = int.from_bytes(small_mon_binary[:4], 'big', signed=True)
+            small_mon_binary = small_mon_binary[4:]
+
+            m_rot_z = int.from_bytes(small_mon_binary[:4], 'big', signed=True)
+            small_mon_binary = small_mon_binary[4:]
+
+            m_whoknows3 = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+
+            m_whoknows4 = int.from_bytes(small_mon_binary[:4], 'big')
+            small_mon_binary = small_mon_binary[4:]
+
+            area_monsters.append({
+                'type': IntVar(value=m_type),'unk1': IntVar(value=m_unk1),'unk2': IntVar(value=m_unk2),
+                'variant': IntVar(value=m_variant),'room': IntVar(value=m_room),'quantity': IntVar(value=m_quantity),
+                'pos_x': DoubleVar(value=m_pos_x),'pos_y': DoubleVar(value=m_pos_y),'pos_z': DoubleVar(value=m_pos_z),
+                'rot_x': IntVar(value=m_rot_x),'rot_y': IntVar(value=m_rot_y),'rot_z': IntVar(value=m_rot_z),
+            })
+        small_monsters.append(area_monsters)
+        #print(i, " ", len(area_monsters))
+
+    #print(small_monsters)
+    return small_monsters
 
 
 def InitializeArenaEquipment(data):
