@@ -11,6 +11,13 @@ class WaveType(Enum):
 WaveType = WaveType()
 
 
+class DeliveryType(Enum):
+    Default = 0
+    Timed_Third_Row = 1
+    Paw_Pass_Ticket = 2
+DeliveryType = DeliveryType()
+
+
 class InvaderType(Enum):
     Nothing_00 = 0
     Lv_14_Great_Jaggi_01 = 1

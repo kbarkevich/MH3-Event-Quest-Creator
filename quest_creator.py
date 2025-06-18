@@ -131,7 +131,8 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     UrlLabel(basicSettingsFrame, "https://imgur.com/a/QPXdMLK/", hover="Click to see pictures of the online supply sets!", text="Supply Set:").grid(column=1, row=4, padx=10, sticky='w')
     Dropdown(basicSettingsFrame, list(range(255)), variable=data['quest_info']['supply_set_number']).grid(column=1,row=5, padx=10, pady=(0,10))
     ttk.Label(basicSettingsFrame, text="Delivery Type:").grid(column=2, row=4, padx=10, sticky='w')
-    Entry(basicSettingsFrame, state='readonly').grid(column=2, row=5, padx=10, pady=(0,10))
+    #Entry(basicSettingsFrame, state='readonly').grid(column=2, row=5, padx=10, pady=(0,10))
+    Dropdown(basicSettingsFrame, DeliveryType, variable=data['unknown']['unkShort2'], criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"]).grid(column=2, row=5, padx=10, pady=(0,10))
 
     ttk.Label(basicSettingsFrame, text="Resources:").grid(column=0, row=6, padx=10, sticky='w')
     Dropdown(basicSettingsFrame, ResourcesType, data['quest_info']['resources']).grid(column=0,row=7, padx=10, pady=(0,10))
@@ -835,8 +836,8 @@ def Unknowns(tab, data):
     unk_box_8 = ttk.Frame(tab)
     ttk.Label(unk_box_8, text="unkShort1").grid(column=0, row=0)
     NumEntry(unk_box_8, limit=0xFFFF, width=10, variable=data['unknown']['unkShort1']).grid(column=0, row=1)
-    ttk.Label(unk_box_8, text="unkShort1").grid(column=1, row=0)
-    NumEntry(unk_box_8, limit=0xFFFF, width=10, variable=data['unknown']['unkShort1']).grid(column=1, row=1)
+    #ttk.Label(unk_box_8, text="unkShort2").grid(column=1, row=0)
+    #NumEntry(unk_box_8, limit=0xFFFF, width=10, variable=data['unknown']['unkShort2']).grid(column=1, row=1)
 
     unk_box_8.pack()
 
@@ -1175,7 +1176,7 @@ def resource(path):
         return "resources/"+path
 
 
-VERSION = "0.7.3"
+VERSION = 0.8
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
