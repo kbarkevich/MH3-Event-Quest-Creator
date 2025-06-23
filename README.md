@@ -27,6 +27,12 @@ You may also use this software to export your quest to an offline/online quest s
 
 Additionally, this export-to-binary function will _not_ save over the quest's Small Monster data. Therefore, it is highly recommended that if you choose to overwrite the quest files within your binary, you only overwrite quests with quests that take place on the same map.
 
+## How do I play/test quests that I make?
+
+The .json format that this software exports quests to is designed to be compatible with the MH3SP server software. The most up-to-date version that is capable of loading these .json files may be found [here](https://github.com/kbarkevich/MH3SP/tree/event-quest-rotation-full). This server must be self-hosted by you. The difference between self-hosting this version and the old self-hostable version is that, instead of running the `master_server.py` file once, it must be run _twice_, once to start the Login server and again to start the Game server. Two `.bat` files have been created to make this easier: `RUN DEBUG LOGINSERVER.bat` and `RUN DEBUG GAMESERVER.bat` respectively. You should edit these files to point to your local directories where applicable.
+
+Once your local server is running, you may save your event quest `.json` files to the `event/` directory. Then you may edit `event/quest_rotation.json` to add the path to your quest (do not have more than 10 quests listed at the same time). The quest should now appear for you in-game as an event quest (or arena quest, if applicable) when you log into your local server.
+
 ## Unknowns
 
 The unknown fields under the **Unknowns** tab are as described -- values in the quest data for which we have no little-to-no knowledge of their purpose. If you would like to experiment and help is figure out what (if anything) these fields do, it would be very helpful! More knowledge of how the quest data works may lead to ever more interesting quests!
