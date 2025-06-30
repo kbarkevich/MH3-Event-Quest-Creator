@@ -777,8 +777,8 @@ def Unknowns(tab, data):
     Dropdown(unk_box_1, TutorialType, data['unknown']['unk_5']).grid(column=1, row=1)
     ttk.Label(unk_box_1, text="Unknown 6: One Byte:").grid(column=0, row=2)
     NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_6']).grid(column=0, row=3)
-    ttk.Label(unk_box_1, text="Unknown 7: Four Bytes:").grid(column=1, row=2)
-    NumEntry(unk_box_1, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unk_7']).grid(column=1, row=3)
+    ttk.Label(unk_box_1, text="Unknown 7: Two Bytes:").grid(column=1, row=2)
+    NumEntry(unk_box_1, limit=0xFFFF, width=25, variable=data['unknown']['unk_7']).grid(column=1, row=3)
 
     unk_box_2 = ttk.Frame(tab)
     ttk.Label(unk_box_2, text="Unknown 12: Four Bytes").pack()
