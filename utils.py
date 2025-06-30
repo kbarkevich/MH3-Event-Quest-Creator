@@ -135,12 +135,19 @@ class AutocompleteDropdown(AutocompleteCombobox):
             self.width = 20 - 3
         else:
             self.width = width - 3
-        super().__init__(master, width=self.width, **kwargs)
+        super().__init__(master, width=self.width, validate='focusout',
+            validatecommand=(master.register(lambda new_value: self.is_in_options(new_value)), '%P'), **kwargs)
         self.set_completion_list(options, callback=self.callback)
         self.config(values=options)
         self.current(self.variable.get())
         self.onSelected = onSelected
         self.bind("<<ComboboxSelected>>", self.callback)
+
+    def is_in_options(self, value):
+        result = value in self['values']
+        if not result:
+            self.current(self.variable.get())
+        return result
 
     def callback(self, *args):
         self.variable.set(self.current())

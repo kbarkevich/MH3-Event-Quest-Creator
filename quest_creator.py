@@ -337,28 +337,6 @@ def Objectives(tab, data):
     varMain17 = main['type'][0][6]
     varMain18 = main['type'][0][7]
 
-    mainTargetFrame = ttk.Frame(mainTab, padding=2)
-    targetDropdown = AutocompleteDropdown(mainTargetFrame, Monster if varMain11.get() or varMain13.get() else ItemsType if varMain12.get() else list(range(0x100)), variable=main['objective_type'])
-
-    def update_target_dropdown():
-        if varMain11.get() or varMain13.get():
-            targetDropdown.update_dropdown(Monster)
-        elif varMain12.get():
-            targetDropdown.update_dropdown(ItemsType)
-        else:
-            targetDropdown.update_dropdown(list(range(0x100)))
-
-    ttk.Checkbutton(mainFlagsFrame1, text="Monster", variable=varMain11, command=update_target_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame1, text="Item", variable=varMain12, command=update_target_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame1, text="Target", variable=varMain13, command=update_target_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame1, text="Unknown4", variable=varMain14).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame1, text="Unknown5", variable=varMain15).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame1, text="Unknown6", variable=varMain16).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame1, text="Unknown7", variable=varMain17).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame1, text="Capture", variable=varMain18).pack(side='top', anchor=N+W)
-    mainFlagsFrame1.grid(column=0, row=1, sticky='w')
-
-    mainFlagsFrame2 = ttk.Frame(mainFlagsFrame, padding=2)
     varMain21 = main['type'][1][0]
     varMain22 = main['type'][1][1]
     varMain23 = main['type'][1][2]
@@ -367,12 +345,55 @@ def Objectives(tab, data):
     varMain26 = main['type'][1][5]
     varMain27 = main['type'][1][6]
     varMain28 = main['type'][1][7]
-    ttk.Checkbutton(mainFlagsFrame2, text="Unknown1", variable=varMain21).pack(side='top', anchor=N+W)
+
+    mainTargetFrame = ttk.Frame(mainTab, padding=2)
+    targetDropdown = AutocompleteDropdown(mainTargetFrame,
+        Monster if varMain11.get() or varMain13.get() or varMain25.get() \
+        else ItemsType if varMain12.get() \
+        else EnvironmentInteractType if varMain26.get() \
+        else list(range(0x100)),
+        variable=main['objective_type'], width=30,
+        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])
+    valueDropdown = AutocompleteDropdown(mainTargetFrame,
+        BindType if varMain25.get() \
+        else list(range(0xFFFF)),
+        variable=main['objective_num'], width=30,
+        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])#NumEntry(mainTargetFrame, limit=0xFF, variable=main['objective_num'])
+
+    def update_target_dropdown():
+        # Update target dropdown
+        if varMain11.get() or varMain13.get() or varMain25.get():
+            targetDropdown.update_dropdown(Monster)
+        elif varMain12.get():
+            targetDropdown.update_dropdown(ItemsType)
+        elif varMain26.get():
+            targetDropdown.update_dropdown(EnvironmentInteractType)
+        else:
+            targetDropdown.update_dropdown(list(range(0x100)))
+        # Update value dropdown
+        if varMain25.get():
+            valueDropdown.update_dropdown(BindType)
+        else:
+            valueDropdown.update_dropdown(list(range(0xFFFF)))
+            
+
+    ttk.Checkbutton(mainFlagsFrame1, text="Monster", variable=varMain11, command=update_target_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame1, text="Item", variable=varMain12, command=update_target_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame1, text="Target", variable=varMain13, command=update_target_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame1, text="Unknown4", variable=varMain14).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame1, text="Check On Timeout(?)", variable=varMain15).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame1, text="Unknown6", variable=varMain16).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame1, text="Unknown7", variable=varMain17).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame1, text="Capture", variable=varMain18).pack(side='top', anchor=N+W)
+    mainFlagsFrame1.grid(column=0, row=1, sticky='w')
+
+    mainFlagsFrame2 = ttk.Frame(mainFlagsFrame, padding=2)
+    ttk.Checkbutton(mainFlagsFrame2, text="Must Slay(?)", variable=varMain21).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Enemy Part", variable=varMain22).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Hit Points", variable=varMain23).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Unknown4", variable=varMain24).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame2, text="Unknown5", variable=varMain25).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame2, text="Unknown6", variable=varMain26).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame2, text="Bind Monster", variable=varMain25, command=update_target_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame2, text="Environment Interaction", variable=varMain26, command=update_target_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Unknown7", variable=varMain27).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Unknown8", variable=varMain28).pack(side='top', anchor=N+W)
     mainFlagsFrame2.grid(column=1, row=1, sticky='w')
@@ -401,7 +422,7 @@ def Objectives(tab, data):
     ttk.Label(mainTargetFrame, text="Target:").grid(column=0, row=0, sticky='w')
     targetDropdown.grid(column=0, row=1, pady=(0,10))
     ttk.Label(mainTargetFrame, text="Value:").grid(column=1, row=0, sticky='w')
-    NumEntry(mainTargetFrame, limit=0xFF, variable=main['objective_num']).grid(column=1, row=1, pady=(0,10))
+    valueDropdown.grid(column=1, row=1, pady=(0,10))
     mainTargetFrame.pack(expand=True)
 
     ttk.Button(mainTab, text='Item Rewards', command=lambda:CreateRewards(data, 0)).pack(expand=True)
@@ -434,28 +455,6 @@ def Objectives(tab, data):
     varSub117 = sub1['type'][0][6]
     varSub118 = sub1['type'][0][7]
 
-    sub1TargetFrame = ttk.Frame(sub1Tab, padding=2)
-    sub1Dropdown = AutocompleteDropdown(sub1TargetFrame, Monster if varSub111.get() or varSub113.get() else ItemsType if varSub112.get() else list(range(0x100)), variable=sub1['objective_type'])
-
-    def update_sub1_dropdown():
-        if varSub111.get() or varSub113.get():
-            sub1Dropdown.update_dropdown(Monster)
-        elif varSub112.get():
-            sub1Dropdown.update_dropdown(ItemsType)
-        else:
-            sub1Dropdown.update_dropdown(list(range(0x100)))
-
-    ttk.Checkbutton(sub1FlagsFrame1, text="Monster", variable=varSub111, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Item", variable=varSub112, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Target", variable=varSub113, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Unknown4", variable=varSub114).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Unknown5", variable=varSub115).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Unknown6", variable=varSub116).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Unknown7", variable=varSub117).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame1, text="Capture", variable=varSub118).pack(side='top', anchor=N+W)
-    sub1FlagsFrame1.grid(column=0, row=1, sticky='w')
-
-    sub1FlagsFrame2 = ttk.Frame(sub1FlagsFrame, padding=2)
     varSub121 = sub1['type'][1][0]
     varSub122 = sub1['type'][1][1]
     varSub123 = sub1['type'][1][2]
@@ -464,12 +463,52 @@ def Objectives(tab, data):
     varSub126 = sub1['type'][1][5]
     varSub127 = sub1['type'][1][6]
     varSub128 = sub1['type'][1][7]
-    ttk.Checkbutton(sub1FlagsFrame2, text="Unknown1", variable=varSub121).pack(side='top', anchor=N+W)
+
+    sub1TargetFrame = ttk.Frame(sub1Tab, padding=2)
+    sub1Dropdown = AutocompleteDropdown(sub1TargetFrame,
+        Monster if varSub111.get() or varSub113.get() or varSub125.get() \
+        else ItemsType if varSub112.get() \
+        else EnvironmentInteractType if varSub126.get() \
+        else list(range(0x100)),
+        variable=sub1['objective_type'], width=30)
+    sub1ValueDropdown = AutocompleteDropdown(sub1TargetFrame,
+        BindType if varSub125.get() \
+        else list(range(0xFFFF)),
+        variable=sub1['objective_num'], width=30,
+        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])#NumEntry(sub1TargetFrame, limit=0xFF, variable=sub1['objective_num'])
+
+    def update_sub1_dropdown():
+        if varSub111.get() or varSub113.get() or varSub125.get():
+            sub1Dropdown.update_dropdown(Monster)
+        elif varSub112.get():
+            sub1Dropdown.update_dropdown(ItemsType)
+        elif varSub126.get():
+            sub1Dropdown.update_dropdown(EnvironmentInteractType)
+        else:
+            sub1Dropdown.update_dropdown(list(range(0x100)))
+        # Update value dropdown
+        if varSub125.get():
+            sub1ValueDropdown.update_dropdown(BindType)
+        else:
+            sub1ValueDropdown.update_dropdown(list(range(0xFFFF)))
+
+    ttk.Checkbutton(sub1FlagsFrame1, text="Monster", variable=varSub111, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Item", variable=varSub112, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Target", variable=varSub113, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Unknown4", variable=varSub114).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Check on Timeout(?)", variable=varSub115).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Unknown6", variable=varSub116).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Unknown7", variable=varSub117).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame1, text="Capture", variable=varSub118).pack(side='top', anchor=N+W)
+    sub1FlagsFrame1.grid(column=0, row=1, sticky='w')
+
+    sub1FlagsFrame2 = ttk.Frame(sub1FlagsFrame, padding=2)
+    ttk.Checkbutton(sub1FlagsFrame2, text="Must Slay(?)", variable=varSub121).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame2, text="Enemy Part", variable=varSub122).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame2, text="Hit Points", variable=varSub123).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame2, text="Unknown4", variable=varSub124).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame2, text="Unknown5", variable=varSub125).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub1FlagsFrame2, text="Unknown6", variable=varSub126).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame2, text="Bind Monster", variable=varSub125, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub1FlagsFrame2, text="Environment Interaction", variable=varSub126, command=update_sub1_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame2, text="Unknown7", variable=varSub127).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub1FlagsFrame2, text="Unknown8", variable=varSub128).pack(side='top', anchor=N+W)
     sub1FlagsFrame2.grid(column=1, row=1, sticky='w')
@@ -498,7 +537,7 @@ def Objectives(tab, data):
     ttk.Label(sub1TargetFrame, text="Target:").grid(column=0, row=0, sticky='w')
     sub1Dropdown.grid(column=0, row=1, pady=(0,10))
     ttk.Label(sub1TargetFrame, text="Value:").grid(column=1, row=0, sticky='w')
-    NumEntry(sub1TargetFrame, limit=0xFF, variable=sub1['objective_num']).grid(column=1, row=1, pady=(0,10))
+    sub1ValueDropdown.grid(column=1, row=1, pady=(0,10))
     sub1TargetFrame.pack(expand=True)
 
     ttk.Button(sub1Tab, text='Item Rewards', command=lambda:CreateRewards(data, 1)).pack(expand=True)
@@ -531,28 +570,6 @@ def Objectives(tab, data):
     varSub217 = sub2['type'][0][6]
     varSub218 = sub2['type'][0][7]
 
-    sub2TargetFrame = ttk.Frame(sub2Tab, padding=2)
-    sub2Dropdown = AutocompleteDropdown(sub2TargetFrame, Monster if varSub211.get() or varSub213.get() else ItemsType if varSub212.get() else list(range(0x100)), variable=sub2['objective_type'])
-
-    def update_sub2_dropdown():
-        if varSub211.get() or varSub213.get():
-            sub2Dropdown.update_dropdown(Monster)
-        elif varSub212.get():
-            sub2Dropdown.update_dropdown(ItemsType)
-        else:
-            sub2Dropdown.update_dropdown(list(range(0x100)))
-
-    ttk.Checkbutton(sub2FlagsFrame1, text="Monster", variable=varSub211, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Item", variable=varSub212, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Target", variable=varSub213, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Unknown4", variable=varSub214).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Unknown5", variable=varSub215).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Unknown6", variable=varSub216).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Unknown7", variable=varSub217).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame1, text="Capture", variable=varSub218).pack(side='top', anchor=N+W)
-    sub2FlagsFrame1.grid(column=0, row=1, sticky='w')
-
-    sub2FlagsFrame2 = ttk.Frame(sub2FlagsFrame, padding=2)
     varSub221 = sub2['type'][1][0]
     varSub222 = sub2['type'][1][1]
     varSub223 = sub2['type'][1][2]
@@ -561,12 +578,52 @@ def Objectives(tab, data):
     varSub226 = sub2['type'][1][5]
     varSub227 = sub2['type'][1][6]
     varSub228 = sub2['type'][1][7]
-    ttk.Checkbutton(sub2FlagsFrame2, text="Unknown1", variable=varSub221).pack(side='top', anchor=N+W)
+
+    sub2TargetFrame = ttk.Frame(sub2Tab, padding=2)
+    sub2Dropdown = AutocompleteDropdown(sub2TargetFrame,
+        Monster if varSub211.get() or varSub213.get() or varSub225.get() \
+        else ItemsType if varSub212.get() \
+        else EnvironmentInteractType if varSub226.get() \
+        else list(range(0x100)),
+        variable=sub2['objective_type'], width=30)
+    sub2ValueDropdown = AutocompleteDropdown(sub2TargetFrame,
+        BindType if varSub225.get() \
+        else list(range(0xFFFF)),
+        variable=sub2['objective_num'], width=30,
+        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])#NumEntry(sub2TargetFrame, limit=0xFF, variable=sub2['objective_num'])
+
+    def update_sub2_dropdown():
+        if varSub211.get() or varSub213.get() or varSub225.get():
+            sub2Dropdown.update_dropdown(Monster)
+        elif varSub212.get():
+            sub2Dropdown.update_dropdown(ItemsType)
+        elif varSub226.get():
+            sub2Dropdown.update_dropdown(EnvironmentInteractType)
+        else:
+            sub2Dropdown.update_dropdown(list(range(0x100)))
+        # Update value dropdown
+        if varSub225.get():
+            sub2ValueDropdown.update_dropdown(BindType)
+        else:
+            sub2ValueDropdown.update_dropdown(list(range(0xFFFF)))
+
+    ttk.Checkbutton(sub2FlagsFrame1, text="Monster", variable=varSub211, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Item", variable=varSub212, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Target", variable=varSub213, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Unknown4", variable=varSub214).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Check on Timeout(?)", variable=varSub215).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Unknown6", variable=varSub216).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Unknown7", variable=varSub217).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame1, text="Capture", variable=varSub218).pack(side='top', anchor=N+W)
+    sub2FlagsFrame1.grid(column=0, row=1, sticky='w')
+
+    sub2FlagsFrame2 = ttk.Frame(sub2FlagsFrame, padding=2)
+    ttk.Checkbutton(sub2FlagsFrame2, text="Must Slay(?)", variable=varSub221).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame2, text="Enemy Part", variable=varSub222).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame2, text="Hit Points", variable=varSub223).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame2, text="Unknown4", variable=varSub224).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame2, text="Unknown5", variable=varSub225).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(sub2FlagsFrame2, text="Unknown6", variable=varSub226).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame2, text="Bind Monster", variable=varSub225, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(sub2FlagsFrame2, text="Environment Interaction", variable=varSub226, command=update_sub2_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame2, text="Unknown7", variable=varSub227).pack(side='top', anchor=N+W)
     ttk.Checkbutton(sub2FlagsFrame2, text="Unknown8", variable=varSub228).pack(side='top', anchor=N+W)
     sub2FlagsFrame2.grid(column=1, row=1, sticky='w')
@@ -595,7 +652,7 @@ def Objectives(tab, data):
     ttk.Label(sub2TargetFrame, text="Target:").grid(column=0, row=0, sticky='w')
     sub2Dropdown.grid(column=0, row=1, pady=(0,10))
     ttk.Label(sub2TargetFrame, text="Value:").grid(column=1, row=0, sticky='w')
-    NumEntry(sub2TargetFrame, limit=0xFF, variable=sub2['objective_num']).grid(column=1, row=1, pady=(0,10))
+    sub2ValueDropdown.grid(column=1, row=1, pady=(0,10))
     sub2TargetFrame.pack(expand=True)
 
     ttk.Button(sub2Tab, text='Item Rewards', command=lambda:CreateRewards(data, 2)).pack(expand=True)

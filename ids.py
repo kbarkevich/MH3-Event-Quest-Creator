@@ -11,6 +11,30 @@ class WaveType(Enum):
 WaveType = WaveType()
 
 
+class BindType(Enum):
+    Unknown_0 = 0
+    Pitfall_Trap = 1
+    Fish_Out = 2
+    Stun = 3
+    Unknown_4 = 4
+    Sonic_Bomb_Mid_Dig = 5
+    Unknown_6 = 6
+    Unknown_7 = 7
+    Unknown_8 = 8
+    Unknown_9 = 9
+    Unknown_10 = 10
+BindType = BindType()
+
+
+class EnvironmentInteractType(Enum):
+    Unknown_0 = 0
+    Ceadeus_Environment = 1
+    Two_Desert_Anthills = 2
+    Tundra_Cave_Torches = 3
+    Ship_Integrity = 4
+EnvironmentInteractType = EnvironmentInteractType()
+
+
 class DeliveryType(Enum):
     Default = 0
     Timed_Third_Row = 1
