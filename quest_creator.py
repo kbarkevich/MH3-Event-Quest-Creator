@@ -353,9 +353,11 @@ def Objectives(tab, data):
         else EnvironmentInteractType if varMain26.get() \
         else list(range(0x100)),
         variable=main['objective_type'], width=30,
-        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])
+        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"],
+        onSelected=lambda: update_target_dropdown())
     valueDropdown = AutocompleteDropdown(mainTargetFrame,
-        BindType if varMain25.get() \
+        get_monster_enum_from_id(targetDropdown.current()) if varMain22.get() and varMain13.get() \
+        else BindType if varMain25.get() \
         else list(range(0xFFFF)),
         variable=main['objective_num'], width=30,
         criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])#NumEntry(mainTargetFrame, limit=0xFF, variable=main['objective_num'])
@@ -371,7 +373,9 @@ def Objectives(tab, data):
         else:
             targetDropdown.update_dropdown(list(range(0x100)))
         # Update value dropdown
-        if varMain25.get():
+        if varMain22.get() and varMain13.get():
+            valueDropdown.update_dropdown(get_monster_enum_from_id(targetDropdown.current()))
+        elif varMain25.get():
             valueDropdown.update_dropdown(BindType)
         else:
             valueDropdown.update_dropdown(list(range(0xFFFF)))
@@ -389,7 +393,7 @@ def Objectives(tab, data):
 
     mainFlagsFrame2 = ttk.Frame(mainFlagsFrame, padding=2)
     ttk.Checkbutton(mainFlagsFrame2, text="Must Slay(?)", variable=varMain21).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame2, text="Enemy Part", variable=varMain22).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame2, text="Enemy Part", variable=varMain22, command=update_target_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Hit Points", variable=varMain23).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Unknown4", variable=varMain24).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Bind Monster", variable=varMain25, command=update_target_dropdown).pack(side='top', anchor=N+W)
@@ -470,9 +474,12 @@ def Objectives(tab, data):
         else ItemsType if varSub112.get() \
         else EnvironmentInteractType if varSub126.get() \
         else list(range(0x100)),
-        variable=sub1['objective_type'], width=30)
+        variable=sub1['objective_type'], width=30,
+        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"],
+        onSelected=lambda: update_sub1_dropdown())
     sub1ValueDropdown = AutocompleteDropdown(sub1TargetFrame,
-        BindType if varSub125.get() \
+        get_monster_enum_from_id(sub1Dropdown.current()) if varSub122.get() and varSub113.get() \
+        else BindType if varSub125.get() \
         else list(range(0xFFFF)),
         variable=sub1['objective_num'], width=30,
         criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])#NumEntry(sub1TargetFrame, limit=0xFF, variable=sub1['objective_num'])
@@ -487,7 +494,9 @@ def Objectives(tab, data):
         else:
             sub1Dropdown.update_dropdown(list(range(0x100)))
         # Update value dropdown
-        if varSub125.get():
+        if varSub122.get() and varSub113.get():
+            sub1ValueDropdown.update_dropdown(get_monster_enum_from_id(sub1Dropdown.current()))
+        elif varSub125.get():
             sub1ValueDropdown.update_dropdown(BindType)
         else:
             sub1ValueDropdown.update_dropdown(list(range(0xFFFF)))
@@ -585,9 +594,12 @@ def Objectives(tab, data):
         else ItemsType if varSub212.get() \
         else EnvironmentInteractType if varSub226.get() \
         else list(range(0x100)),
-        variable=sub2['objective_type'], width=30)
+        variable=sub2['objective_type'], width=30,
+        criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"],
+        onSelected=lambda: update_sub2_dropdown())
     sub2ValueDropdown = AutocompleteDropdown(sub2TargetFrame,
-        BindType if varSub225.get() \
+        get_monster_enum_from_id(sub2Dropdown.current()) if varSub222.get() and varSub213.get() \
+        else BindType if varSub225.get() \
         else list(range(0xFFFF)),
         variable=sub2['objective_num'], width=30,
         criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])#NumEntry(sub2TargetFrame, limit=0xFF, variable=sub2['objective_num'])
@@ -602,7 +614,9 @@ def Objectives(tab, data):
         else:
             sub2Dropdown.update_dropdown(list(range(0x100)))
         # Update value dropdown
-        if varSub225.get():
+        if varSub222.get() and varSub213.get():
+            sub2ValueDropdown.update_dropdown(get_monster_enum_from_id(sub2Dropdown.current()))
+        elif varSub225.get():
             sub2ValueDropdown.update_dropdown(BindType)
         else:
             sub2ValueDropdown.update_dropdown(list(range(0xFFFF)))

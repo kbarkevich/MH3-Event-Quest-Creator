@@ -3,6 +3,211 @@ class Enum(object):
         return getattr(self, idx)
 
 
+class RathianBreakType(Enum):
+    Unknown_0 = 0
+    Tail = 1
+    Head = 2
+    Both_Wings = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+RathianBreakType = RathianBreakType()
+
+class RathalosBreakType(Enum):
+    Unknown_0 = 0
+    Tail = 1
+    Head = 2
+    Both_Wings = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+RathalosBreakType = RathalosBreakType()
+
+class QurupecoBreakType(Enum):
+    Unknown_0 = 0
+    Head = 1
+    Flint = 2
+    Unknown_3 = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+QurupecoBreakType = QurupecoBreakType()
+
+class GigginoxBreakType(Enum):
+    Unknown_0 = 0
+    Head_and_Belly = 1
+    Tail = 2
+    Unknown_3 = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+GigginoxBreakType = GigginoxBreakType()
+
+class BariothBreakType(Enum):
+    Unknown_0 = 0
+    One_Wing = 1
+    Head = 2
+    Unknown_3 = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+BariothBreakType = BariothBreakType()
+
+class DiablosBreakType(Enum):
+    Unknown_0 = 0
+    Tail = 1
+    Both_Horns = 2
+    Unknown_3 = 3
+DiablosBreakType = DiablosBreakType()
+
+class DeviljhoBreakType(Enum):
+    Unknown_0 = 0
+    Unknown_1 = 1
+    Unknown_2 = 2
+    Unknown_3 = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+DeviljhoBreakType = DeviljhoBreakType()
+
+class BarrothBreakType(Enum):
+    Unknown_0 = 0
+    Head = 1
+    Tail = 2
+    Arm_Armor = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+    Unknown_6 = 6
+    Unknown_7 = 7
+    Unknown_8 = 8
+BarrothBreakType = BarrothBreakType()
+
+class UragaanBreakType(Enum):
+    Unknown_0 = 0
+    Jaw = 1
+    Unknown_2 = 2
+    Tail_Sever = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+    Unknown_6 = 6
+UragaanBreakType = UragaanBreakType()
+
+class GreatJaggiBreakType(Enum):
+    Unknown_0 = 0
+    Head = 1
+GreatJaggiBreakType = GreatJaggiBreakType()
+
+class GreatBaggiBreakType(Enum):
+    Unknown_0 = 0
+    Head = 1
+GreatBaggiBreakType = GreatBaggiBreakType()
+
+class LagiacrusBreakType(Enum):
+    Unknown_0 = 0
+    Back = 1
+    Tail = 2
+    Chest = 3
+    Unknown_4 = 4
+    Head = 5
+    Unknown_6 = 6
+LagiacrusBreakType = LagiacrusBreakType()
+
+class RoyalLudrothBreakType(Enum):
+    Unknown_0 = 0
+    Mane = 1
+    Head = 2
+    Tail = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+RoyalLudrothBreakType = RoyalLudrothBreakType()
+
+class GobulBreakType(Enum):
+    Unknown_0 = 0
+    Lantern = 1
+    Tail = 2
+    Unknown_3 = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+GobulBreakType = GobulBreakType()
+
+class AgnaktorBreakType(Enum):
+    Unknown_0 = 0
+    Head = 1
+    Tail = 2
+    Chest = 3
+    Unknown_4 = 4
+    Back = 5
+    Unknown_6 = 6
+    Unknown_7 = 7
+AgnaktorBreakType = AgnaktorBreakType()
+
+class CeadeusBreakType(Enum):
+    Unknown_0 = 0
+    Unknown_1 = 1
+    Unknown_2 = 2
+    Horn = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+    Unknown_6 = 6
+CeadeusBreakType = CeadeusBreakType()
+
+class AlatreonBreakType(Enum):
+    Unknown_0 = 0
+    Unknown_1 = 1
+    Unknown_2 = 2
+    Unknown_3 = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+    Unknown_6 = 6
+AlatreonBreakType = AlatreonBreakType()
+
+class JhenMohranBreakType(Enum):
+    Unknown_0 = 0
+    Unknown_1 = 1
+    Unknown_2 = 2
+    Unknown_3 = 3
+    Unknown_4 = 4
+    Unknown_5 = 5
+    Unknown_6 = 6
+    Unknown_7 = 7
+    Unknown_8 = 8
+JhenMohranBreakType = JhenMohranBreakType()
+
+def get_monster_enum_from_id(monster_id):
+    if monster_id == Monster.rathian:
+        return RathianBreakType
+    elif monster_id == Monster.rathalos:
+        return RathalosBreakType
+    elif monster_id == Monster.qurupeco:
+        return QurupecoBreakType
+    elif monster_id == Monster.gigginox:
+        return GigginoxBreakType
+    elif monster_id == Monster.barioth:
+        return BariothBreakType
+    elif monster_id == Monster.diablos:
+        return DiablosBreakType
+    elif monster_id == Monster.deviljho:
+        return DeviljhoBreakType
+    elif monster_id == Monster.barroth:
+        return BarrothBreakType
+    elif monster_id == Monster.uragaan:
+        return UragaanBreakType
+    elif monster_id == Monster.great_jaggi:
+        return GreatJaggiBreakType
+    elif monster_id == Monster.great_baggi:
+        return GreatBaggiBreakType
+    elif monster_id == Monster.lagiacrus:
+        return LagiacrusBreakType
+    elif monster_id == Monster.royal_ludroth:
+        return RoyalLudrothBreakType
+    elif monster_id == Monster.gobul:
+        return GobulBreakType
+    elif monster_id == Monster.agnaktor:
+        return AgnaktorBreakType
+    elif monster_id == Monster.ceadeus:
+        return CeadeusBreakType
+    elif monster_id == Monster.alatreon:
+        return AlatreonBreakType
+    elif monster_id == Monster.jhen_mohran:
+        return JhenMohranBreakType
+    else:
+        return list(range(0xFFFF))
+
+
 class WaveType(Enum):
     none = 0
     monster = 1
