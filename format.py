@@ -741,6 +741,7 @@ def make_binary_event_quest(quest_data):
 class QuestSelectPopup(Toplevel):
     def __init__(self, parent, suggestions):
         super().__init__(parent)
+        self.grab_set()
         self.parent = parent
         self.listbox = Dropdown(self, suggestions, height=10, width=50)
         self.listbox.pack(pady=15)
@@ -751,6 +752,15 @@ class QuestSelectPopup(Toplevel):
         self.resizable(False, False)
 
         self.selection = None
+
+        self.bind("<Button>", self.on_click)
+
+    def on_click(self, event):
+        if (event.x < 0 or
+            event.x > event.widget.winfo_width() or
+            event.y < 0 or
+            event.y > event.widget.winfo_height()):
+                self.parent.bell()
 
     def select(self):
         self.selection = self.listbox.variable.get()#curselection()
