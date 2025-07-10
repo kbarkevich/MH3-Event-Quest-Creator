@@ -256,7 +256,7 @@ def make_binary_event_quest(quest_data):
     # type: str
     # size: 44
     # offset: 0x0000
-    data += pad(quest_info['name'].encode("ascii"), 40)  # Size 0x28
+    data += pad(quest_info['name'].encode("utf-8"), 40)#.encode("ascii"), 40)  # Size 0x28
     data += struct.pack(">I", 0x00000000)
 
     # - id: quest_id
@@ -268,7 +268,7 @@ def make_binary_event_quest(quest_data):
     # type: str
     # size: 92
     # offset: 0x002E
-    data += pad(quest_info['description'].encode("ascii"), 80)
+    data += pad(quest_info['description'].encode("utf-8"), 40)#.encode("ascii"), 80)
     data += b'\0' * 0xC  # Padding
 
     # - id: quest_rank
@@ -288,7 +288,7 @@ def make_binary_event_quest(quest_data):
     # size: 41
     # offset: 0x008C
     data += pad(
-        objective_details['subquest_1']['description'].encode("ascii"),
+        objective_details['subquest_1']['description'].encode("utf-8"),#.encode("ascii"),
         0x29
     )
 
@@ -297,7 +297,7 @@ def make_binary_event_quest(quest_data):
     # size: 41
     # offset: 0x00B5
     data += pad(
-        objective_details['subquest_2']['description'].encode("ascii"),
+        objective_details['subquest_2']['description'].encode("utf-8"),#.encode("ascii"),
         0x29
     )
 
@@ -305,7 +305,7 @@ def make_binary_event_quest(quest_data):
     # type: str
     # size: 92
     # offset: 0x00DE
-    data += pad(quest_info['success_message'].encode("ascii"), 0x5C)
+    data += pad(quest_info['success_message'].encode("utf-8"), 0x5C)#.encode("ascii"), 0x5C)
 
     # - id: time_limit
     # type: u2
@@ -317,7 +317,7 @@ def make_binary_event_quest(quest_data):
     # size: 92
     # Presently hardcoded
     # offset: 0x013C
-    data += (pad(quest_info['failure_message'].encode("ascii"), 0x5C) if 'failure_message' in quest_info else pad(b"Reward hits 0, or time\nexpires.", 0x5C))
+    data += (pad(quest_info['failure_message'].encode("utf-8"), 0x5C) if 'failure_message' in quest_info else pad(b"Reward hits 0, or time\nexpires.", 0x5C))#.encode("ascii"), 0x5C) if 'failure_message' in quest_info else pad(b"Reward hits 0, or time\nexpires.", 0x5C))
 
     # - id: hunter_rank_point_restriction
     # type: u2
@@ -328,7 +328,7 @@ def make_binary_event_quest(quest_data):
     # type: str
     # size: 40
     # offset: 0x019A
-    data += pad(quest_info['client'].encode("ascii"), 0x28)
+    data += pad(quest_info['client'].encode("utf-8"), 0x28)#.encode("ascii"), 0x28)
 
     # - id: unkInt0
     # size: u4
@@ -349,7 +349,7 @@ def make_binary_event_quest(quest_data):
     # type: str
     # size: 256
     # offset: 0x01C9
-    data += pad(quest_info['details'].encode("ascii"), 0x100)  # b'\0' * 0x100
+    data += pad(quest_info['details'].encode("utf-8"), 0x100)#.encode("ascii"), 0x100)  # b'\0' * 0x100
 
     # - id: unk1
     # size: 61
@@ -801,7 +801,7 @@ def LoadFromQuestBinary(root):
 
                 currQuestBytes = bts[currQuestIdx:currQuestIdx+currQuestLen]
                 questBytes.append(currQuestBytes)
-                questNames.append(currQuestBytes[:44].strip(b'\00').decode("ascii"))
+                questNames.append(currQuestBytes[:44].strip(b'\00').decode("utf-8"))#.decode("ascii"))
 
                 currQuestIdxIdx += 8
                 currQuestIdx = int.from_bytes(bts[currQuestIdxIdx:currQuestIdxIdx+4], 'big')
@@ -841,7 +841,7 @@ def SaveBinFile(root, data):
                 currQuestBytes = bts[currQuestIdx:currQuestIdx+currQuestLen]
                 toOverwrite = currQuestBytes[:0x4B4]
                 questBytes.append(currQuestBytes)
-                questNames.append(currQuestBytes[:44].strip(b'\00').decode("ascii"))
+                questNames.append(currQuestBytes[:44].strip(b'\00').decode("utf-8"))#.decode("ascii"))
 
                 currQuestIdxIdx += 8
                 currQuestIdx = int.from_bytes(bts[currQuestIdxIdx:currQuestIdxIdx+4], 'big')
@@ -1639,10 +1639,10 @@ def ProcessBinary(bin):
     """
 
     def get_str_from_bytes(bin_str):
-        return bin_str.strip(b'\00').decode("ascii")
+        return bin_str.strip(b'\00').decode("utf-8")#.decode("ascii")
 
     def get_multiline_str_from_bytes(bin_str, lines):
-        decoded = bin_str.strip(b'\00').decode("ascii").split(b'\x0A'.decode("ascii"))
+        decoded = bin_str.strip(b'\00').decode("utf-8").split(b'\x0A'.decode("utf-8"))#.decode("ascii").split(b'\x0A'.decode("ascii"))
         if len(decoded) > lines:
             decoded = decoded[:lines]
         elif len(decoded) < lines:
