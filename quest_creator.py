@@ -181,8 +181,7 @@ def LargeMonsters(tab, data):
     ttk.Label(boss1Frame, text="HP Spread:").grid(column=2, row=2, sticky='w')
     updater3 = Dropdown(boss1Frame, ["Fixed", "+/- <=2 Levels", "+/- <=1 Level"], boss1['hp_spread'])
     updater3.grid(column=2, row=3)
-    ttk.Label(boss1Frame, text="Size Spread:").grid(column=3, row=2, sticky='w')
-    NumEntry(boss1Frame, limit=0xFF, variable=boss1['size_spread']).grid(column=3, row=3)
+    ttk.Button(boss1Frame, text='Select Size Distribution', command=lambda:CreateSizeSelector(boss1['size_spread'])).grid(column=3, row=2, rowspan=2, sticky=S)
     boss1_label = ttk.Label(boss1Frame, text="------")
     boss1_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
     def update_boss_info_display(boss, label):
@@ -235,8 +234,7 @@ def LargeMonsters(tab, data):
     ttk.Label(boss2Frame, text="HP Spread:").grid(column=2, row=2, sticky='w')
     updater3 = Dropdown(boss2Frame, ["Fixed", "+/- <=2 Levels", "+/- <=1 Level"], boss2['hp_spread'])
     updater3.grid(column=2, row=3)
-    ttk.Label(boss2Frame, text="Size Spread:").grid(column=3, row=2, sticky='w')
-    NumEntry(boss2Frame, limit=0xFF, variable=boss2['size_spread']).grid(column=3, row=3)
+    ttk.Button(boss2Frame, text='Select Size Distribution', command=lambda:CreateSizeSelector(boss2['size_spread'])).grid(column=3, row=2, rowspan=2, sticky=S)
     boss2_label = ttk.Label(boss2Frame, text="------")
     boss2_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
     updater1.onSelected = lambda:update_boss_info_display(boss2, boss2_label)
@@ -262,8 +260,7 @@ def LargeMonsters(tab, data):
     ttk.Label(boss3Frame, text="HP Spread:").grid(column=2, row=2, sticky='w')
     updater3 = Dropdown(boss3Frame, ["Fixed", "+/- <=2 Levels", "+/- <=1 Level"], boss3['hp_spread'])
     updater3.grid(column=2, row=3)
-    ttk.Label(boss3Frame, text="Size Spread:").grid(column=3, row=2, sticky='w')
-    NumEntry(boss3Frame, limit=0xFF, variable=boss3['size_spread']).grid(column=3, row=3)
+    ttk.Button(boss3Frame, text='Select Size Distribution', command=lambda:CreateSizeSelector(boss3['size_spread'])).grid(column=3, row=2, rowspan=2, sticky=S)
     boss3_label = ttk.Label(boss3Frame, text="------")
     boss3_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
     updater1.onSelected = lambda:update_boss_info_display(boss3, boss3_label)
@@ -1199,6 +1196,47 @@ def CreateRewards(data, objective=0):
     t.geometry(f"+{x}+{y}")
 
 
+def CreateSizeSelector(size, color='brown'):
+    t = Toplevel(win)
+    t.wm_title("Monster Size")
+    t.geometry('500x500')
+
+    t.resizable(False, False)
+    tstyle = ttk.Style(t)
+    tstyle.theme_use('clam')
+
+    item_width=21
+    other_width=4
+    page_padding = 10
+
+    canvas = Canvas(t, bg=color, relief=SUNKEN)
+    canvas.config(highlightthickness=0)
+
+    ybar = Scrollbar(t)
+    ybar.config(command=canvas.yview)
+    ## connect the two widgets together
+    canvas.config(yscrollcommand=ybar.set)
+    ybar.pack(side=RIGHT, fill=Y)
+    canvas.pack(side=LEFT, expand=YES, fill=BOTH)
+    
+    for num in range(14):
+        tempFrame = ttk.Frame(t, padding=2)
+        if graphImages[num] is None:
+            Radiobutton(tempFrame, text=str(num), variable=size, value=num).pack(anchor=W)
+            canvas.create_window(8,3+(40*num),anchor=NW, window=tempFrame)
+        else:
+            radBut = Radiobutton(tempFrame, image=graphImages[num], indicatoron=0, highlightthickness=10, background='red', activebackground='green', selectcolor='green', variable=size, value=num, anchor="nw")
+            radBut.image = graphImages[num]
+            radBut.pack(anchor=W)
+            canvas.create_window(8,3+(40*3)+(410*(num-3)),anchor=NW, window=tempFrame)
+    canvas.config(scrollregion=(0,0,300, 40*3 + 410*11 + 20))
+
+    t.wait_visibility()
+    x = win.winfo_x() + win.winfo_width()//2 - t.winfo_width()//2
+    y = win.winfo_y() + win.winfo_height()//2 - t.winfo_height()//2
+    t.geometry(f"+{x}+{y}")
+
+
 def RebuildTab(tab, data, Builder):
     for widget in tab.winfo_children():
         widget.destroy()
@@ -1239,6 +1277,17 @@ def LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4,
 def SaveQuest(data):
     SaveQuestFile(data)
 
+def PregenerateImages():
+    for i in range(14):
+        if i >= 3:
+            resourcePath = resource("size_distributions/sizeDistribution"+str(i)+".png")
+            img = PhotoImage(file=resourcePath)
+            img = img.zoom(25)
+            img = img.subsample(32)
+            graphImages.append(img)
+        else:
+            graphImages.append(None)
+
 def resource(path):
     if hasattr(sys, "_MEIPASS"):
         return os.path.join(sys._MEIPASS, path)
@@ -1246,7 +1295,10 @@ def resource(path):
         return "resources/"+path
 
 
-VERSION = "0.10"
+graphImages = []
+
+
+VERSION = "0.11"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
@@ -1256,6 +1308,9 @@ if __name__ == '__main__':
     win.resizable(False, False)
     style = ttk.Style(win)
     style.theme_use('clam')
+
+    # Pregenerate images the GUI will use
+    PregenerateImages()
 
     dataholder = []
     dataholder.append(InitializeDataDict())
