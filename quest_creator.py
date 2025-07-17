@@ -702,7 +702,7 @@ def SmallMonsters(tab, data):
 
         i = 0
         for areaTab in areaTabs:
-            ScrolledCanvas(areaTab, data, wave, i, color='grey')
+            ScrolledCanvas(areaTab, data, wave, i, mapImages, areaImages, color='grey')
             i += 1
         wave += 1
 
@@ -1287,6 +1287,20 @@ def PregenerateImages():
             graphImages.append(img)
         else:
             graphImages.append(None)
+    mapId = 1
+    for imgname in areaImages.keys():
+        resourcePath = resource("maps/"+imgname[:-1]+".png")
+        img = PhotoImage(file=resourcePath)
+        img = img.zoom(1)
+        img = img.subsample(2)
+        mapImages.append(img)
+        for i in range(LOCATION_SIZE[mapId]):
+            resource2Path = resource("maps/"+imgname[:-1]+"/"+str(i)+".png")
+            img2 = PhotoImage(file=resource2Path)
+            img2 = img2.zoom(1)
+            img2 = img2.subsample(2)
+            areaImages[imgname].append(img2)
+        mapId += 1
 
 def resource(path):
     if hasattr(sys, "_MEIPASS"):
@@ -1296,9 +1310,24 @@ def resource(path):
 
 
 graphImages = []
+mapImages = [None]
+areaImages = {
+    'DesertedIsland1': [],
+    'SandyPlains1': [],
+    'FloodedForest1': [],
+    'Tundra1': [],
+    'Volcano1': [],
+    'GreatDesert1': [],
+    'UnderwaterRuins1': [],
+    'LandArena1': [],
+    'LandArena2': [],
+    'WaterArena1': [],
+    'SacredLand1': [],
+    'WaterArena2': []
+}
 
 
-VERSION = "0.11"
+VERSION = "0.12"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
@@ -1309,83 +1338,100 @@ if __name__ == '__main__':
     style = ttk.Style(win)
     style.theme_use('clam')
 
-    # Pregenerate images the GUI will use
-    PregenerateImages()
+    # Display splash screen
+    splash = ttk.Frame(win)
+    resourcePath = resource("splash.png")
+    img = PhotoImage(file=resourcePath)
+    Label(splash, image=img, justify="center").pack(fill="both", expand=True)
+    splash.pack()
 
-    dataholder = []
-    dataholder.append(InitializeDataDict())
+    def initialize():
+        print("starting image generation")
+        # Pregenerate images the GUI will use
+        PregenerateImages()
+        print("done with image generation")
 
-    # Create a notebook that holds the tabs
-    notebook = ttk.Notebook(win)
+        # Initialize the sample quest data
+        dataholder = []
+        dataholder.append(InitializeDataDict())
 
-    # Create tab frames
-    tab1 = ttk.Frame(notebook) # Quest Info
-    tab2 = ttk.Frame(notebook) # Quest Settings
-    tab3 = ttk.Frame(notebook) # Large Monsters
-    tab4 = ttk.Frame(notebook) # Objectives
-    tab5 = ttk.Frame(notebook) # Small Monsters
-    tab6 = ttk.Frame(notebook) # Unknowns
-    tab7 = ttk.Frame(notebook) # Arena
+        # Clear splash screen
+        for widget in win.winfo_children():
+            widget.destroy()
 
-    # Add the tab frames to the notebook
-    notebook.add(tab1, text="Quest Info")
-    notebook.add(tab2, text="Quest Settings")
-    notebook.add(tab3, text="Large Monsters")
-    notebook.add(tab4, text="Objectives")
-    notebook.add(tab5, text="Minions")
-    notebook.add(tab6, text="Unknowns")
-    notebook.add(tab7, text="Arena", state="normal" if dataholder[0]['quest_info']['flags'][3][4].get() else "hidden")
+        # Create a notebook that holds the tabs
+        notebook = ttk.Notebook(win)
 
-    notebook.pack(expand=1, fill='both')
+        # Create tab frames
+        tab1 = ttk.Frame(notebook) # Quest Info
+        tab2 = ttk.Frame(notebook) # Quest Settings
+        tab3 = ttk.Frame(notebook) # Large Monsters
+        tab4 = ttk.Frame(notebook) # Objectives
+        tab5 = ttk.Frame(notebook) # Small Monsters
+        tab6 = ttk.Frame(notebook) # Unknowns
+        tab7 = ttk.Frame(notebook) # Arena
 
-    arenaCallbacks = [
-        lambda checkbox:notebook.tab(6, state="normal" if checkbox.get() else "hidden")
-    ]
-    def on_arena_toggle(checkbox):
-        for cb in arenaCallbacks:
-            cb(checkbox)
-    def on_area_change():
-        ClearSmallMonsters(dataholder[0])
-        RebuildTab(tab5, dataholder[0], SmallMonsters)
-        #RebuildTabs(dataholder[0], notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
-        #for cb in areachangeCallbacks:
-        #    cb()
+        # Add the tab frames to the notebook
+        notebook.add(tab1, text="Quest Info")
+        notebook.add(tab2, text="Quest Settings")
+        notebook.add(tab3, text="Large Monsters")
+        notebook.add(tab4, text="Objectives")
+        notebook.add(tab5, text="Minions")
+        notebook.add(tab6, text="Unknowns")
+        notebook.add(tab7, text="Arena", state="normal" if dataholder[0]['quest_info']['flags'][3][4].get() else "hidden")
 
-    QuestInfo(tab1, dataholder[0])
-    QuestSettings(tab2, dataholder[0], onAreaChange=on_area_change, onArenaToggle=on_arena_toggle)
-    arenacallback2 = LargeMonsters(tab3, dataholder[0])
-    Objectives(tab4, dataholder[0])
-    SmallMonsters(tab5, dataholder[0])
-    Unknowns(tab6, dataholder[0])
-    Arena(tab7, dataholder[0])
+        notebook.pack(expand=1, fill='both')
 
-    arenaCallbacks.append(arenacallback2)
+        arenaCallbacks = [
+            lambda checkbox:notebook.tab(6, state="normal" if checkbox.get() else "hidden")
+        ]
+        def on_arena_toggle(checkbox):
+            for cb in arenaCallbacks:
+                cb(checkbox)
+        def on_area_change():
+            ClearSmallMonsters(dataholder[0])
+            RebuildTab(tab5, dataholder[0], SmallMonsters)
+            #RebuildTabs(dataholder[0], notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+            #for cb in areachangeCallbacks:
+            #    cb()
 
-    def BinLoader():
-        newData, newArenaCallbacks = LoadBin(win, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
-        if newData is not None:
-            dataholder[0] = newData
-            arenaCallbacks.clear()
-            for cb in newArenaCallbacks:
-                arenaCallbacks.append(cb)
-    def BinSaver():
-        SaveBin(win, dataholder[0])
-    def Loader():
-        newData, newArenaCallbacks = LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
-        if newData is not None:
-            dataholder[0] = newData
-            arenaCallbacks.clear()
-            for cb in newArenaCallbacks:
-                arenaCallbacks.append(cb)
-    def Saver():
-        SaveQuest(dataholder[0])
+        QuestInfo(tab1, dataholder[0])
+        QuestSettings(tab2, dataholder[0], onAreaChange=on_area_change, onArenaToggle=on_arena_toggle)
+        arenacallback2 = LargeMonsters(tab3, dataholder[0])
+        Objectives(tab4, dataholder[0])
+        SmallMonsters(tab5, dataholder[0])
+        Unknowns(tab6, dataholder[0])
+        Arena(tab7, dataholder[0])
 
-    frm = Frame(win, width=100)
-    frm.pack()
-    ttk.Button(frm, text='Load Json', command=Loader).pack(side='left')
-    ttk.Button(frm, text='Save', command=Saver).pack(side='left')
-    ttk.Button(frm, text='Load Game Binary', command=BinLoader).pack(side='left')
-    ttk.Button(frm, text='Overwrite Game Binary (danger)', command=BinSaver).pack(side='left')
-    ttk.Button(frm, text='Close', command=exit).pack(side='right')
+        arenaCallbacks.append(arenacallback2)
 
+        def BinLoader():
+            newData, newArenaCallbacks = LoadBin(win, notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+            if newData is not None:
+                dataholder[0] = newData
+                arenaCallbacks.clear()
+                for cb in newArenaCallbacks:
+                    arenaCallbacks.append(cb)
+        def BinSaver():
+            SaveBin(win, dataholder[0])
+        def Loader():
+            newData, newArenaCallbacks = LoadQuest(notebook, on_area_change, on_arena_toggle, tab1, tab2, tab3, tab4, tab5, tab6, tab7)
+            if newData is not None:
+                dataholder[0] = newData
+                arenaCallbacks.clear()
+                for cb in newArenaCallbacks:
+                    arenaCallbacks.append(cb)
+        def Saver():
+            SaveQuest(dataholder[0])
+
+        frm = Frame(win, width=100)
+        frm.pack()
+        ttk.Button(frm, text='Load Json', command=Loader).pack(side='left')
+        ttk.Button(frm, text='Save', command=Saver).pack(side='left')
+        ttk.Button(frm, text='Load Game Binary', command=BinLoader).pack(side='left')
+        ttk.Button(frm, text='Overwrite Game Binary (danger)', command=BinSaver).pack(side='left')
+        ttk.Button(frm, text='Close', command=exit).pack(side='right')
+
+    win.after(1, initialize)
+    print("entering main loop")
     win.mainloop()

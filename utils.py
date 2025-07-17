@@ -267,20 +267,23 @@ class ToolTipLabel(ttk.Label):
 
 
 class ScrolledCanvas():
-    def __init__(self, root, data, waveIdx, areaIdx, color='brown'):
+    def __init__(self, root, data, waveIdx, areaIdx, mapImages, areaImages, color='brown'):
         self.root = root
         self.areaIdx = areaIdx
         self.monsters = data['small_monsters'][LOCATION_SIZE[data['quest_info']['location'].get()]*waveIdx + self.areaIdx]
+        self.location = data['quest_info']['location'].get()
+        self.mapImages = mapImages
+        self.areaImages = areaImages
 
         self.canv = Canvas(self.root, bg=color, relief=SUNKEN)
         self.canv.config(width=300, height=200)
         self.canv.config(highlightthickness=0)
 
-        ybar = Scrollbar(self.root)
-        ybar.config(command=self.canv.yview)
+        self.ybar = Scrollbar(self.root)
+        self.ybar.config(command=self.canv.yview)
         ## connect the two widgets together
-        self.canv.config(yscrollcommand=ybar.set)
-        ybar.pack(side=RIGHT, fill=Y)
+        self.canv.config(yscrollcommand=self.ybar.set)
+        self.ybar.pack(side=RIGHT, fill=Y)
         self.canv.pack(side=LEFT, expand=YES, fill=BOTH)
         self.draw()
 
@@ -288,7 +291,20 @@ class ScrolledCanvas():
         self.canv.delete('all')
         bg_color=True
         ctr=0
-        self.canv.config(scrollregion=(0,0,300, 95*len(self.monsters) + 45))
+
+        # make map image cell
+        frm = ttk.Frame(self.root, padding=2)
+        if self.mapImages[self.location] is not None:
+            self.canv.create_image(250, 100, anchor="center", image=self.mapImages[self.location])
+            # TODO: Uncomment this once the per-map area IDs are fixed
+            #self.canv.create_image(250, 100, anchor="center", image=list(self.areaImages.values())[self.location-1][self.areaIdx])
+            img_buffer = 205
+        else:
+            img_buffer = 0
+        
+        self.canv.config(scrollregion=(0,0,300, 95*len(self.monsters) + 45 + img_buffer))
+
+        # make monster cells
         for monster in self.monsters:
             clr="lightgrey"
             if bg_color:
@@ -297,7 +313,6 @@ class ScrolledCanvas():
             frm = ttk.Frame(self.root, padding=2)#,width=960, height=100,
                         #bd=2, relief=SUNKEN)
 
-            #Label(frm, text="", bg=clr).grid(column=0, row=0, sticky='ew')
             Button(frm, text='Delete', bg=clr, command=lambda x=ctr:self.delete_entry(x)).grid(column=0, row=0, sticky='ew')
             Label(frm, text="Unk. 1", bg=clr).grid(column=1, row=0, sticky='ew')
             Label(frm, text="Unk. 2:", bg=clr).grid(column=2, row=0, sticky='ew')
@@ -322,12 +337,12 @@ class ScrolledCanvas():
             NumEntry(frm, limit=0xFFFFFFFF, width=13, allowNeg=True, variable=monster['rot_x']).grid(column=3, row=3)
             NumEntry(frm, limit=0xFFFFFFFF, width=13, allowNeg=True, variable=monster['rot_y']).grid(column=4, row=3)
             NumEntry(frm, limit=0xFFFFFFFF, width=13, allowNeg=True, variable=monster['rot_z']).grid(column=5, row=3)
-            self.canv.create_window(8,3+(95*ctr),anchor=NW, window=frm)
+            self.canv.create_window(8,3+(95*ctr)+img_buffer,anchor=NW, window=frm)
             ctr += 1
 
         frm = ttk.Frame(self.root, padding=2)
         Button(frm, text='ADD MONSTER', bg="white"if bg_color else"lightgrey", width=13+13+13+13+13+4, command=self.add_entry).grid(column=0, row=0, sticky='ew')
-        self.canv.create_window(8,3+(95*ctr),anchor=NW, window=frm)
+        self.canv.create_window(8,3+(95*ctr)+img_buffer,anchor=NW, window=frm)
         
     def add_entry(self):
         self.monsters.append({
