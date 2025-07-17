@@ -296,8 +296,7 @@ class ScrolledCanvas():
         frm = ttk.Frame(self.root, padding=2)
         if self.mapImages[self.location] is not None:
             self.canv.create_image(250, 100, anchor="center", image=self.mapImages[self.location])
-            # TODO: Uncomment this once the per-map area IDs are fixed
-            #self.canv.create_image(250, 100, anchor="center", image=list(self.areaImages.values())[self.location-1][self.areaIdx])
+            self.canv.create_image(250, 100, anchor="center", image=list(self.areaImages.values())[self.location-1][self.areaIdx])
             img_buffer = 205
         else:
             img_buffer = 0
