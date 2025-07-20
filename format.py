@@ -268,7 +268,7 @@ def make_binary_event_quest(quest_data):
     # type: str
     # size: 92
     # offset: 0x002E
-    data += pad(quest_info['description'].encode("utf-8"), 40)#.encode("ascii"), 80)
+    data += pad(quest_info['description'].encode("utf-8"), 80)#.encode("ascii"), 80)
     data += b'\0' * 0xC  # Padding
 
     # - id: quest_rank

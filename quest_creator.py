@@ -1327,12 +1327,12 @@ areaImages = {
 }
 
 
-VERSION = "0.12.1"
+VERSION = "0.12.3"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
     win.iconphoto(False, PhotoImage(file=resource('Lagiacrus.png')))
-    win.title("SpyRo's Monster Hunter Tri [NA/EU] Event Quest Creator <Beta "+str(VERSION)+">")
+    win.title("SpyRo's Monster Hunter Tri[NA/EU] Event Quest Creator <Beta "+str(VERSION)+">")
     win.geometry('540x540')
     win.resizable(False, False)
     style = ttk.Style(win)
@@ -1346,10 +1346,8 @@ if __name__ == '__main__':
     splash.pack()
 
     def initialize():
-        print("starting image generation")
         # Pregenerate images the GUI will use
         PregenerateImages()
-        print("done with image generation")
 
         # Initialize the sample quest data
         dataholder = []
@@ -1433,5 +1431,4 @@ if __name__ == '__main__':
         ttk.Button(frm, text='Close', command=exit).pack(side='right')
 
     win.after(1, initialize)
-    print("entering main loop")
     win.mainloop()
