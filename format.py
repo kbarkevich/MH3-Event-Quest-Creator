@@ -857,8 +857,9 @@ def SaveBinFile(root, data):
     return None
 
 
-def SaveQuestFile(data):
-    ff = asksaveasfilename(title="Save Quest Json", filetypes=[("Allowed Types", "*.json",)], defaultextension=".json")
+def SaveQuestFile(data, ff=None):
+    if ff is None:
+        ff = asksaveasfilename(title="Save Quest Json", filetypes=[("Allowed Types", "*.json",)], defaultextension=".json")
     if ff:
         with open(ff, "w") as outfile:
             json.dump(DepopulateDataDict(data), outfile, indent=4)

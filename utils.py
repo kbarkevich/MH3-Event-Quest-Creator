@@ -31,8 +31,12 @@ class NumEntry(Entry):
             self.variable = IntVar() if self.decimal else DoubleVar()
         super().__init__(master, validate="key", validatecommand=(master.register(self.check), '%P', limit), **kwargs)
         Prefill(self, str(self.variable.get()))
+        self.bind("<FocusOut>", self.focus_out)
 
     def check(self, P, limit):
+        if len(P) == 0:
+            self.variable.set(0)
+            return True
         if self.decimal:
             if self.allowNeg:
                 try:
@@ -57,6 +61,10 @@ class NumEntry(Entry):
                 self.variable.set(val)
                 return True
             return False
+
+    def focus_out(self, event):
+        if len(self.get()) == 0:
+            self.insert(0,str(self.variable.get()))
 
 
 class AutocompleteCombobox(ttk.Combobox):
