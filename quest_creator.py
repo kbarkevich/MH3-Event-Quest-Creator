@@ -157,7 +157,7 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     ttk.Checkbutton(menuFlagsFrame, text="Arena", variable=var45, command=lambda x=var45:onArenaToggle(x)if onArenaToggle is not None else None).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="Unknown2", variable=var46).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="End@Main(?)", variable=var47).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(menuFlagsFrame, text="Unknown3", variable=var48).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(menuFlagsFrame, text="AllowSubEnd", variable=var48).pack(side='top', anchor=N+W)
     menuFlagsFrame.pack(side='right', expand=True)
 
 
@@ -396,7 +396,7 @@ def Objectives(tab, data):
     ttk.Checkbutton(mainFlagsFrame2, text="Bind Monster", variable=varMain25, command=update_target_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Environment Interaction", variable=varMain26, command=update_target_dropdown).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame2, text="Unknown7", variable=varMain27).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame2, text="Unknown8", variable=varMain28).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame2, text="Count Down Minions", variable=varMain28).pack(side='top', anchor=N+W)
     mainFlagsFrame2.grid(column=1, row=1, sticky='w')
 
     mainFlagsFrame3 = ttk.Frame(mainFlagsFrame, padding=2)
@@ -408,8 +408,8 @@ def Objectives(tab, data):
     varMain36 = main['type'][2][5]
     varMain37 = main['type'][2][6]
     varMain38 = main['type'][2][7]
-    ttk.Checkbutton(mainFlagsFrame3, text="Unknown1", variable=varMain31).pack(side='top', anchor=N+W)
-    ttk.Checkbutton(mainFlagsFrame3, text="Unknown2", variable=varMain32).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame3, text="Count Down Bugs", variable=varMain31).pack(side='top', anchor=N+W)
+    ttk.Checkbutton(mainFlagsFrame3, text="Count Down Bosses(?)", variable=varMain32).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame3, text="Unknown3", variable=varMain33).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame3, text="Unknown4", variable=varMain34).pack(side='top', anchor=N+W)
     ttk.Checkbutton(mainFlagsFrame3, text="Unknown5", variable=varMain35).pack(side='top', anchor=N+W)
@@ -1327,7 +1327,7 @@ areaImages = {
 }
 
 
-VERSION = "0.12.4"
+VERSION = "0.12.5"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
