@@ -274,6 +274,29 @@ class ToolTipLabel(ttk.Label):
         self.tooltipwindow = None
 
 
+class ToolTipCheckbutton(ttk.Checkbutton):
+    def __init__(self, master, hover, **kwargs):
+        super().__init__(master, cursor='question_arrow', **kwargs)
+        self.hover = hover
+        def enter(event):
+            self.showTooltip()
+        def leave(event):
+            self.hideTooltip()
+        self.bind('<Enter>', enter)
+        self.bind('<Leave>', leave)
+
+    def showTooltip(self):
+        self.tooltipwindow = Toplevel(self)
+        self.tooltipwindow.wm_overrideredirect(1) # window without border and no normal means of closing
+        self.tooltipwindow.wm_geometry("+{}+{}".format(self.winfo_rootx()+20, self.winfo_rooty()+20))
+        label = Label(self.tooltipwindow, text = self.hover, background = "#ffffe0", relief = 'solid', borderwidth = 1).pack()
+
+    def hideTooltip(self):
+        self.tooltipwindow = self.tooltipwindow
+        self.tooltipwindow.destroy()
+        self.tooltipwindow = None
+
+
 class ScrolledCanvas():
     def __init__(self, root, data, waveIdx, areaIdx, mapImages, areaImages, color='brown'):
         self.root = root
