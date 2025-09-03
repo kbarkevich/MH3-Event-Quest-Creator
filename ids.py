@@ -1484,7 +1484,7 @@ class TutorialType(Enum):
     tutorial110 = 10
     tutorial111 = 11
     tutorial112 = 12
-    tutorial112 = 13
+    tutorial113 = 13
 TutorialType = TutorialType()
 
 
