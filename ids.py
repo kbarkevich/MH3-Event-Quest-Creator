@@ -101,7 +101,7 @@ class LagiacrusBreakType(Enum):
     Back = 1
     Tail = 2
     Chest = 3
-    Unknown_4 = 4
+    Claws = 4
     Head = 5
     Unknown_6 = 6
 LagiacrusBreakType = LagiacrusBreakType()
@@ -222,7 +222,7 @@ class BindType(Enum):
     Fish_Out = 2
     Stun = 3
     Unknown_4 = 4
-    Sonic_Bomb_Mid_Dig = 5
+    Sonic_Bomb_Interrupt = 5
     Unknown_6 = 6
     Unknown_7 = 7
     Unknown_8 = 8

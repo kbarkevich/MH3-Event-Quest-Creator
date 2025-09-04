@@ -1364,7 +1364,7 @@ areaImages = {
 }
 
 
-VERSION = "0.12.6"
+VERSION = "0.13"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
