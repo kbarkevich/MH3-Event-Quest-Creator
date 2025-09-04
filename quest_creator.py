@@ -9,9 +9,44 @@ from utils import *
 import webbrowser
 
 
+def Credits():
+    t = Toplevel(win)
+    t.wm_title("Credits")
+    t.geometry('225x250')
+    t.resizable(False, False)
+    tstyle = ttk.Style(t)
+    tstyle.theme_use('clam')
+
+    topFrame = ttk.Frame(t, padding=10, width=40, height=40)
+
+
+    developmentFrame = ttk.Frame(topFrame, padding=10, width=40, height=40)
+    ttk.Label(developmentFrame, text="- Development -").pack()
+    ttk.Label(developmentFrame, text="Ze SpyRo").pack()
+    reverseEngineeringFrame = ttk.Frame(topFrame, padding=10, width=40, height=40)
+    ttk.Label(reverseEngineeringFrame, text="- Reverse Engineering -").pack()
+    ttk.Label(reverseEngineeringFrame, text="InusualZ").pack()
+    ttk.Label(reverseEngineeringFrame, text="Sepalani").pack()
+    ttk.Label(reverseEngineeringFrame, text="Ze SpyRo").pack()
+    testingAnalysisFrame = ttk.Frame(topFrame, padding=10, width=40, height=40)
+    ttk.Label(testingAnalysisFrame, text="- Testing & Analysis -").pack()
+    ttk.Label(testingAnalysisFrame, text="Mark \"held_in_ausbildung\"").pack()
+    
+    topFrame.pack(fill='both', expand=True, padx=10, pady=10)
+    
+    developmentFrame.pack()
+    reverseEngineeringFrame.pack()
+    testingAnalysisFrame.pack()
+
+    t.wait_visibility()
+    x = win.winfo_x() + win.winfo_width()//2 - t.winfo_width()//2
+    y = win.winfo_y() + win.winfo_height()//2 - t.winfo_height()//2
+    t.geometry(f"+{x}+{y}")
+
+
 def QuestInfo(tab, data):
     questNameFrame = ttk.Frame(tab, padding=2, width=40, height=40)
-    ttk.Label(questNameFrame, text="Quest Name:").pack()
+    ttk.Label(questNameFrame, text="Quest Name:").pack(side='top')
     ttk.Entry(questNameFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 40), textvariable=data['quest_info']['name']).pack()
     questNameFrame.pack(side='top', expand=True)
 
@@ -41,7 +76,9 @@ def QuestInfo(tab, data):
     ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][4]).pack()
     ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][5]).pack()
     ttk.Entry(questDescriptionFrame, width=70, validate="key", validatecommand=(tab.register(CharacterLimit), '%P', 33), textvariable=data['quest_info']['details'][6]).pack()
-    questDescriptionFrame.pack(side='bottom', expand=True)
+    questDescriptionFrame.pack(side='top', expand=True)
+    creditsButton = ttk.Button(tab, text='Credits', command=Credits, width=6)
+    creditsButton.pack(side='bottom')
 
 
 def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
