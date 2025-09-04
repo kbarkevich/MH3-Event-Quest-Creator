@@ -43,7 +43,7 @@ class BariothBreakType(Enum):
     Unknown_0 = 0
     One_Wing = 1
     Head = 2
-    Unknown_3 = 3
+    Tail = 3
     Unknown_4 = 4
     Unknown_5 = 5
 BariothBreakType = BariothBreakType()
@@ -57,8 +57,8 @@ DiablosBreakType = DiablosBreakType()
 
 class DeviljhoBreakType(Enum):
     Unknown_0 = 0
-    Unknown_1 = 1
-    Unknown_2 = 2
+    Tail = 1
+    Face_Maim = 2
     Unknown_3 = 3
     Unknown_4 = 4
     Unknown_5 = 5
@@ -79,7 +79,7 @@ BarrothBreakType = BarrothBreakType()
 class UragaanBreakType(Enum):
     Unknown_0 = 0
     Jaw = 1
-    Unknown_2 = 2
+    Tail_Break = 2
     Tail_Sever = 3
     Unknown_4 = 4
     Unknown_5 = 5
@@ -129,7 +129,7 @@ class AgnaktorBreakType(Enum):
     Head = 1
     Tail = 2
     Chest = 3
-    Unknown_4 = 4
+    All_Four_Claws = 4
     Back = 5
     Unknown_6 = 6
     Unknown_7 = 7
