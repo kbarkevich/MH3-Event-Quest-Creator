@@ -1504,6 +1504,51 @@ class TutorialType(Enum):
 TutorialType = TutorialType()
 
 
+class CutsceneType(Enum):
+    none = 0
+    unknown_scene1 = 1
+    harvest_shroom = 2
+    unknown_scene3 = 3
+    unknown_scene4 = 4
+    unknown_scene5 = 5
+    unknown_scene6 = 6
+    unknown_scene7 = 7
+    unknown_scene8 = 8
+    unknown_scene9 = 9
+    unknown_scene10 = 10
+    unknown_scene11 = 11
+    unknown_scene12 = 12
+    unknown_scene13 = 13
+    unknown_scene14 = 14
+    unknown_scene15 = 15
+    unknown_scene16 = 16
+    unknown_scene17 = 17
+    unknown_scene18 = 18
+    unknown_scene19 = 19
+    unknown_scene20 = 20
+    guts_for_dinner = 21
+    trial_sea_dragon = 22
+    fell_the_lagiacrus = 23
+    no_love_ludroth = 24
+    big_game_hunting = 25
+    shakalaka_savior = 26
+    playing_with_fire = 27
+    save_our_boat = 28
+    leading_the_charge = 29
+    accident_investig = 30
+    leader_of_icepack = 31
+    dragon_lady = 32
+    the_creeping_venom = 33
+    wrath_of_rathalos = 34
+    a_bards_tale = 35
+    the_horned_dragon = 36
+    the_volcanos_fury = 37
+    denizen_molten_deep = 38
+    unknown_scene39 = 39
+    unknown_scene40 = 40
+CutsceneType = CutsceneType()
+
+
 class LocationType(Enum):
     QUEST_LOCATION_NONE = 0
     QUEST_LOCATION_D_ISLAND = 1

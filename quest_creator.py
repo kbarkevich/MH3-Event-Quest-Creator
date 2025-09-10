@@ -178,6 +178,8 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
 
     ttk.Label(basicSettingsFrame, text="Tutorial:").grid(column=0, row=8, padx=10, sticky='w')
     Dropdown(basicSettingsFrame, TutorialType, data['unknown']['unk_5']).grid(column=0, row=9, padx=10, pady=(0,10))
+    ttk.Label(basicSettingsFrame, text="Cutscene:").grid(column=1, row=8, padx=10, sticky='w')
+    Dropdown(basicSettingsFrame, CutsceneType, data['unknown']['unk_6'], criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"]).grid(column=1, row=9, padx=10, pady=(0,10))
 
 
     menuFlagsFrame = ttk.Frame(tab, padding=2)
@@ -968,8 +970,6 @@ def Unknowns(tab, data):
     unk_box_1 = ttk.Frame(tab)
     ttk.Label(unk_box_1, text="Unknown 4: One Byte:").grid(column=0, row=0, columnspan=2)
     NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_4']).grid(column=0, row=1, columnspan=2)
-    ttk.Label(unk_box_1, text="Unknown 6: One Byte:").grid(column=0, row=2)
-    NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_6']).grid(column=0, row=3)
     ttk.Label(unk_box_1, text="Unknown 7: Two Bytes:").grid(column=1, row=2)
     NumEntry(unk_box_1, limit=0xFFFF, width=25, variable=data['unknown']['unk_7']).grid(column=1, row=3)
 
