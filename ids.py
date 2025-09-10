@@ -208,6 +208,16 @@ def get_monster_enum_from_id(monster_id):
         return list(range(0xFFFF))
 
 
+class BossMemAllocType(Enum):
+    none = 0
+    Two_Regular_Bosses_and_One_Small_Boss = 1
+    Two_Regular_Bosses = 2
+    One_Regular_Boss = 3
+    No_Bosses = 4
+    One_Elder_Dragon_Boss = 5
+BossMemAllocType = BossMemAllocType()
+
+
 class WaveType(Enum):
     none = 0
     monster = 1

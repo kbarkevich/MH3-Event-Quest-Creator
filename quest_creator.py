@@ -199,9 +199,13 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
 
 
 def LargeMonsters(tab, data):
+    PADDING_BETWEEN_SECTIONS = 10
     boss1 = data['large_monsters']['monster_1']
+    bossMemAllocFrame = ttk.Frame(tab, padding=2)
+    ttk.Label(bossMemAllocFrame, text="Boss Type Memory Allocation").grid(column=0, row=0, pady=(PADDING_BETWEEN_SECTIONS+5, 0), sticky='w')
+    Dropdown(bossMemAllocFrame, BossMemAllocType, data['unknown']['unk_12'], width=40, criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"]).grid(column=1, row=0, sticky=S)
     boss1Frame = ttk.Frame(tab, padding=2)
-    ttk.Label(boss1Frame, text="Boss 1", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(20, 0), sticky='w')
+    ttk.Label(boss1Frame, text="Boss 1", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(PADDING_BETWEEN_SECTIONS+5, 0), sticky='w')
     updater1 = Dropdown(boss1Frame, Monster, boss1['type'], criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])
     updater1.grid(column=0, row=1, sticky='sw')
     ttk.Label(boss1Frame, text="Boss ID(?)").grid(column=1, row=0, sticky='sw')
@@ -254,7 +258,7 @@ def LargeMonsters(tab, data):
 
     boss2 = data['large_monsters']['monster_2']
     boss2Frame = ttk.Frame(tab, padding=2)
-    ttk.Label(boss2Frame, text="Boss 2", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(20, 0), sticky='w')
+    ttk.Label(boss2Frame, text="Boss 2", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(PADDING_BETWEEN_SECTIONS, 0), sticky='w')
     updater1 = Dropdown(boss2Frame, Monster, boss2['type'], criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])
     updater1.grid(column=0, row=1, sticky='sw')
     ttk.Label(boss2Frame, text="Boss ID(?)").grid(column=1, row=0, sticky='sw')
@@ -280,7 +284,7 @@ def LargeMonsters(tab, data):
 
     boss3 = data['large_monsters']['monster_3']
     boss3Frame = ttk.Frame(tab, padding=2)
-    ttk.Label(boss3Frame, text="Boss 3", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(20, 0), sticky='w')
+    ttk.Label(boss3Frame, text="Boss 3", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(PADDING_BETWEEN_SECTIONS, 0), sticky='w')
     updater1 = Dropdown(boss3Frame, Monster, boss3['type'], criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])
     updater1.grid(column=0, row=1, sticky='sw')
     ttk.Label(boss3Frame, text="Boss ID(?)").grid(column=1, row=0, sticky='sw')
@@ -316,6 +320,7 @@ def LargeMonsters(tab, data):
     NumEntry(bossInvaderFrame, limit=0xFF, variable=summon[2], width=3).grid(column=2, row=2, pady=(0, 20))
     Dropdown(bossInvaderFrame, get_invader_list(), summon[3], width=69).grid(column=3, row=2, pady=(0, 20), columnspan=2, sticky=W+E)
 
+    bossMemAllocFrame.pack(side='top', anchor='n')
     boss1Frame.pack(side='top', anchor='n')
     boss2Frame.pack(side='top', anchor='n')
     boss3Frame.pack(side='top', anchor='n')
@@ -878,20 +883,13 @@ def Unknowns(tab, data):
     ttk.Label(unk_box_1, text="Unknown 4: One Byte:").grid(column=0, row=0)
     NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_4']).grid(column=0, row=1)
     ttk.Label(unk_box_1, text="Tutorial:").grid(column=1, row=0)
-    #NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_5']).grid(column=1, row=1)
     Dropdown(unk_box_1, TutorialType, data['unknown']['unk_5']).grid(column=1, row=1)
     ttk.Label(unk_box_1, text="Unknown 6: One Byte:").grid(column=0, row=2)
     NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_6']).grid(column=0, row=3)
     ttk.Label(unk_box_1, text="Unknown 7: Two Bytes:").grid(column=1, row=2)
     NumEntry(unk_box_1, limit=0xFFFF, width=25, variable=data['unknown']['unk_7']).grid(column=1, row=3)
 
-    unk_box_2 = ttk.Frame(tab)
-    ttk.Label(unk_box_2, text="Unknown 12: Four Bytes").pack()
-    ttk.Label(unk_box_2, text="(1 for hunter killer, 2 for large mon quest, 3 for small/delivery, 5 for jhen/ala/ceadeus):").pack()
-    NumEntry(unk_box_2, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unk_12']).pack()
-
     unk_box_1.pack()
-    unk_box_2.pack()
 
     unk_box_3 = ttk.Frame(tab)
     ttk.Label(unk_box_3, text="unkInt0").grid(column=0, row=0)
@@ -940,8 +938,6 @@ def Unknowns(tab, data):
     unk_box_8 = ttk.Frame(tab)
     ttk.Label(unk_box_8, text="unkShort1").grid(column=0, row=0)
     NumEntry(unk_box_8, limit=0xFFFF, width=10, variable=data['unknown']['unkShort1']).grid(column=0, row=1)
-    #ttk.Label(unk_box_8, text="unkShort2").grid(column=1, row=0)
-    #NumEntry(unk_box_8, limit=0xFFFF, width=10, variable=data['unknown']['unkShort2']).grid(column=1, row=1)
 
     unk_box_8.pack()
 
