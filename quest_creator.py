@@ -199,7 +199,7 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     ttk.Checkbutton(menuFlagsFrame, text="Arena Mode", variable=var45, command=lambda x=var45:onArenaToggle(x)if onArenaToggle is not None else None).pack(side='top', anchor=N+W)
     ttk.Checkbutton(menuFlagsFrame, text="UNK SET 1", variable=var46).pack(side='top', anchor=N+W)
     ToolTipCheckbutton(menuFlagsFrame, "This flag causes the Quest to be completed after the Main Objective is cleared.", text="One Objective", variable=var47).pack(side='top', anchor=N+W)
-    ToolTipCheckbutton(menuFlagsFrame, "This flag enables the \"End via Subquest\" dialogue at the basecamp's bed.", text="End via Sub", variable=var48).pack(side='top', anchor=N+W)
+    ToolTipCheckbutton(menuFlagsFrame, "This flag enables the \"End via Subquest\" dialogue at the basecamp's\nbed and allows the Subquest objective counters to be visible.", text="Subquests", variable=var48).pack(side='top', anchor=N+W)
     menuFlagsFrame.pack(side='right', anchor='n', expand=True)
 
 
@@ -1014,7 +1014,7 @@ def Unknowns(tab, data):
     unk_box_6.pack()
 
     unk_box_7 = ttk.Frame(tab)
-    ttk.Label(unk_box_7, text="unkUint (Always 15...)").grid(column=0, row=0)
+    ttk.Label(unk_box_7, text="unkUint (Always 15 for online Quests)").grid(column=0, row=0)
     NumEntry(unk_box_7, limit=0xFFFFFFFF, width=25, variable=data['unknown']['unkUintAlways15']).grid(column=0, row=1)
 
     unk_box_7.pack()
