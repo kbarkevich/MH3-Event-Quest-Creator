@@ -247,14 +247,19 @@ class UrlLabel(Label):
 
     def hideTooltip(self):
         self.tooltipwindow = self.tooltipwindow
-        self.tooltipwindow.destroy()
+        try:
+            self.tooltipwindow.destroy()
+        except:
+            pass
         self.tooltipwindow = None
 
 
 class ToolTipLabel(ttk.Label):
-    def __init__(self, master, hover, **kwargs):
+    def __init__(self, master, hover, xoffset=20, yoffset=20, **kwargs):
         super().__init__(master, cursor='question_arrow', **kwargs)
         self.hover = hover
+        self.xoffset = xoffset
+        self.yoffset = yoffset
         def enter(event):
             self.showTooltip()
         def leave(event):
@@ -265,12 +270,15 @@ class ToolTipLabel(ttk.Label):
     def showTooltip(self):
         self.tooltipwindow = Toplevel(self)
         self.tooltipwindow.wm_overrideredirect(1) # window without border and no normal means of closing
-        self.tooltipwindow.wm_geometry("+{}+{}".format(self.winfo_rootx()+20, self.winfo_rooty()+20))
+        self.tooltipwindow.wm_geometry("+{}+{}".format(self.winfo_rootx()+self.xoffset, self.winfo_rooty()+self.yoffset))
         label = Label(self.tooltipwindow, text = self.hover, background = "#ffffe0", relief = 'solid', borderwidth = 1).pack()
 
     def hideTooltip(self):
         self.tooltipwindow = self.tooltipwindow
-        self.tooltipwindow.destroy()
+        try:
+            self.tooltipwindow.destroy()
+        except:
+            pass
         self.tooltipwindow = None
 
 
@@ -293,7 +301,10 @@ class ToolTipCheckbutton(ttk.Checkbutton):
 
     def hideTooltip(self):
         self.tooltipwindow = self.tooltipwindow
-        self.tooltipwindow.destroy()
+        try:
+            self.tooltipwindow.destroy()
+        except:
+            pass
         self.tooltipwindow = None
 
 

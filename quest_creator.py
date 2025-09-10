@@ -203,10 +203,93 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
 
 def LargeMonsters(tab, data):
     PADDING_BETWEEN_SECTIONS = 10
-    boss1 = data['large_monsters']['monster_1']
+    def toggle_warning():
+        is_invader = False
+        non_small_invader = False
+        elder_dragons = [
+            Monster.ceadeus, Monster.alatreon, Monster.jhen_mohran
+        ]
+        large_bosses = [
+            Monster.rathian, Monster.rathalos, Monster.qurupeco,
+            Monster.gigginox, Monster.barioth, Monster.diablos,
+            Monster.deviljho, Monster.barroth, Monster.uragaan,
+            Monster.lagiacrus, Monster.royal_ludroth, Monster.gobul,
+            Monster.agnaktor
+        ]
+        small_bosses = [
+            Monster.great_jaggi, Monster.great_baggi
+        ]
+        in_elder_dragons = []
+        in_large_bosses = []
+        in_small_bosses = []
+        if data['quest_info']['summon'][3].get() != 0:
+            for monster in INVADER_CONFIGURATIONS["Invader"+str(data['quest_info']['summon'][3].get())]:
+                is_invader = True
+                monsterId = Monster[monster['monsterId'].replace(" ","_")]
+                if monsterId not in small_bosses:
+                    non_small_invader = True
+        for currentMonster in [data['large_monsters']['monster_1']['type'].get(), data['large_monsters']['monster_2']['type'].get(), data['large_monsters']['monster_3']['type'].get()]:
+            if currentMonster in elder_dragons and currentMonster not in in_elder_dragons:
+                in_elder_dragons.append(currentMonster)
+            elif currentMonster in large_bosses and currentMonster not in in_large_bosses:
+                in_large_bosses.append(currentMonster)
+            elif currentMonster in small_bosses and currentMonster not in in_small_bosses:
+                in_small_bosses.append(currentMonster)
+        num_eld_drg = len(in_elder_dragons)
+        num_lrg_bosses = len(in_large_bosses)
+        num_sml_bosses = len(in_small_bosses)
+        if data['unknown']['unk_12'].get() == BossMemAllocType.No_Bosses and \
+            (num_sml_bosses+num_lrg_bosses+num_eld_drg)>0:
+            warning.config(image=WARNING)
+            warning.hover = "THIS QUEST MAY CRASH. No memory\nis allocated for for any bosses."
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.One_Regular_Boss and \
+            (num_eld_drg>0 or (num_sml_bosses+num_lrg_bosses)>1):
+            warning.config(image=WARNING)
+            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated\nfor only one regular (non-elder dragon) boss."
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.Two_Regular_Bosses and \
+            (num_eld_drg>0 or (num_sml_bosses+num_lrg_bosses)>2):
+            warning.config(image=WARNING)
+            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated\nfor only two regular (non-elder dragon) bosses."
+        elif (data['unknown']['unk_12'].get() == BossMemAllocType.Two_Regular_Bosses_and_One_Small_Boss or data['unknown']['unk_12'].get() == BossMemAllocType.none) and \
+            (num_eld_drg>0 or num_lrg_bosses>2):
+            warning.config(image=WARNING)
+            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated for only two regular\n(non-elder dragon) bosses and one small (great jaggi/baggi) boss."
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.One_Elder_Dragon_Boss and \
+            (num_eld_drg>1 or (num_sml_bosses+num_lrg_bosses)>0):
+            warning.config(image=WARNING)
+            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated\nfor only one elder dragon boss."
+
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.No_Bosses:
+            warning.config(image=QUESTION)
+            warning.hover = "Your invader will not spawn due\nto your memory allocation setting."
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.One_Regular_Boss and \
+            ((num_sml_bosses+num_lrg_bosses) == 1) and is_invader:
+            warning.config(image=QUESTION)
+            warning.hover = "Your invader might not spawn due\nto your memory allocation setting."
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.Two_Regular_Bosses and \
+            ((num_sml_bosses+num_lrg_bosses)==2) and is_invader:
+            warning.config(image=QUESTION)
+            warning.hover = "Your invader might not spawn due\nto your memory allocation setting."
+        elif (data['unknown']['unk_12'].get() == BossMemAllocType.Two_Regular_Bosses_and_One_Small_Boss or data['unknown']['unk_12'].get() == BossMemAllocType.none) and \
+            is_invader and ((num_lrg_bosses+num_sml_bosses)==3) or ((num_lrg_bosses==2) and non_small_invader):
+            warning.config(image=QUESTION)
+            warning.hover = "Your invader might not spawn due\nto your memory allocation setting."
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.One_Elder_Dragon_Boss:
+            warning.config(image=QUESTION)
+            warning.hover = "Your invader will not spawn due\nto your memory allocation setting."
+        else:
+            warning.config(image='')
+
     bossMemAllocFrame = ttk.Frame(tab, padding=2)
     ttk.Label(bossMemAllocFrame, text="Boss Type Memory Allocation").grid(column=0, row=0, pady=(PADDING_BETWEEN_SECTIONS+5, 0), sticky='w')
-    Dropdown(bossMemAllocFrame, BossMemAllocType, data['unknown']['unk_12'], width=40, criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"]).grid(column=1, row=0, sticky=S)
+    updater0 = Dropdown(bossMemAllocFrame, BossMemAllocType, data['unknown']['unk_12'], width=40, criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])
+    updater0.grid(column=1, row=0, sticky=S)
+    updater0.onSelected = lambda:toggle_warning()
+    warning = ToolTipLabel(bossMemAllocFrame, hover="Hello :)", xoffset=35, yoffset=35, image = WARNING)
+    warning.grid(column=2, row=0, sticky=E)
+    toggle_warning()
+
+    boss1 = data['large_monsters']['monster_1']
     boss1Frame = ttk.Frame(tab, padding=2)
     ttk.Label(boss1Frame, text="Boss 1", font=("Arial", 12, "bold")).grid(column=0, row=0, pady=(PADDING_BETWEEN_SECTIONS+5, 0), sticky='w')
     updater1 = Dropdown(boss1Frame, Monster, boss1['type'], criteria=lambda a: [x.replace("_"," ") for x in a if x[:1]!="_"])
@@ -255,7 +338,7 @@ def LargeMonsters(tab, data):
             else:
                 info_str = "(base "+str(int(base_hp))+(" * arena 0.55"if arena_mode else "") + " * level multiplier) HP: "
                 label.config(text = info_str + str(int(base_hp * level_mult * arena_mult)))
-    updater1.onSelected = lambda:update_boss_info_display(boss1, boss1_label)
+    updater1.onSelected = lambda:(toggle_warning() or update_boss_info_display(boss1, boss1_label))
     updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss1, boss1_label))
     updater3.onSelected = lambda:update_boss_info_display(boss1, boss1_label)
 
@@ -281,7 +364,7 @@ def LargeMonsters(tab, data):
     ttk.Button(boss2Frame, text='Select Size Distribution', command=lambda:CreateSizeSelector(boss2['size_spread'])).grid(column=3, row=2, rowspan=2, sticky=S)
     boss2_label = ttk.Label(boss2Frame, text="------")
     boss2_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
-    updater1.onSelected = lambda:update_boss_info_display(boss2, boss2_label)
+    updater1.onSelected = lambda:(toggle_warning() or update_boss_info_display(boss2, boss2_label))
     updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss2, boss2_label))
     updater3.onSelected = lambda:update_boss_info_display(boss2, boss2_label)
 
@@ -307,7 +390,7 @@ def LargeMonsters(tab, data):
     ttk.Button(boss3Frame, text='Select Size Distribution', command=lambda:CreateSizeSelector(boss3['size_spread'])).grid(column=3, row=2, rowspan=2, sticky=S)
     boss3_label = ttk.Label(boss3Frame, text="------")
     boss3_label.grid(column=0, row=4, columnspan=4, sticky=E+W)
-    updater1.onSelected = lambda:update_boss_info_display(boss3, boss3_label)
+    updater1.onSelected = lambda:(toggle_warning() or update_boss_info_display(boss3, boss3_label))
     updater2.bind('<KeyRelease>', lambda _:update_boss_info_display(boss3, boss3_label))
     updater3.onSelected = lambda:update_boss_info_display(boss3, boss3_label)
 
@@ -321,7 +404,7 @@ def LargeMonsters(tab, data):
     Dropdown(bossInvaderFrame, INVADER_CHANCE, summon[1], width=5).grid(column=1, row=2, pady=(0, 20))
     ToolTipLabel(bossInvaderFrame, hover="This value's exact function is unknown. However, it seems as though it should be set to\nthe first free large monster slot. If no large monsters are entered above, set this to 1.\nIf one monster is entered above, set this to 2. Etc.", text="Unk:").grid(column=2, row=1, columnspan=(2), sticky='sw')
     NumEntry(bossInvaderFrame, limit=0xFF, variable=summon[2], width=3).grid(column=2, row=2, pady=(0, 20))
-    Dropdown(bossInvaderFrame, get_invader_list(), summon[3], width=69).grid(column=3, row=2, pady=(0, 20), columnspan=2, sticky=W+E)
+    Dropdown(bossInvaderFrame, get_invader_list(), summon[3], onSelected=lambda:toggle_warning(), width=69).grid(column=3, row=2, pady=(0, 20), columnspan=2, sticky=W+E)
 
     bossMemAllocFrame.pack(side='top', anchor='n')
     boss1Frame.pack(side='top', anchor='n')
@@ -1361,7 +1444,7 @@ areaImages = {
 }
 
 
-VERSION = "0.13.1"
+VERSION = "0.13.2"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")

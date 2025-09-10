@@ -1,3 +1,9 @@
+WARNING = "::tk::icons::warning"
+ERROR = "::tk::icons::error"
+INFO = "::tk::icons::information"
+QUESTION = "::tk::icons::question"
+
+
 class Enum(object):
     def __getitem__(self, idx):
         return getattr(self, idx)
@@ -1086,12 +1092,12 @@ INVADER_CONFIGURATIONS = {
                         'field12_0x16': 0x44C,
                 },
         ],
-        'invader34': [],
-        'invader35': [],
-        'invader36': [],
-        'invader37': [],
-        'invader38': [],
-        'invader39': [],
+        'Invader34': [],
+        'Invader35': [],
+        'Invader36': [],
+        'Invader37': [],
+        'Invader38': [],
+        'Invader39': [],
         'Invader40': [
                 {
                         'monsterId': 'great jaggi',
