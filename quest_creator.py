@@ -175,10 +175,13 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     ttk.Label(basicSettingsFrame, text="Quest Requirement:").grid(column=1, row=6, columnspan=2, padx=10, sticky=W)
     Dropdown(basicSettingsFrame, QuestRestrictionType, data['quest_info']['hrp_restriction']).grid(column=1, row=7, padx=10, pady=(0,10), columnspan=2, sticky=W+E)
     basicSettingsFrame.pack(side='left', anchor='n', expand=True)
-    
+
+    ttk.Label(basicSettingsFrame, text="Tutorial:").grid(column=0, row=8, padx=10, sticky='w')
+    Dropdown(basicSettingsFrame, TutorialType, data['unknown']['unk_5']).grid(column=0, row=9, padx=10, pady=(0,10))
+
 
     menuFlagsFrame = ttk.Frame(tab, padding=2)
-    ttk.Label(menuFlagsFrame, text="Menu Flags").pack(side='top', anchor=N)
+    ttk.Label(menuFlagsFrame, text="Menu Flags").pack(side='top', pady=(12,0), anchor=N)
     var41 = flags[3][0]
     var42 = flags[3][1]
     var43 = flags[3][2]
@@ -195,7 +198,7 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
     ttk.Checkbutton(menuFlagsFrame, text="UNK SET 1", variable=var46).pack(side='top', anchor=N+W)
     ToolTipCheckbutton(menuFlagsFrame, "This flag causes the Quest to be completed after the Main Objective is cleared.", text="One Objective", variable=var47).pack(side='top', anchor=N+W)
     ToolTipCheckbutton(menuFlagsFrame, "This flag enables the \"End via Subquest\" dialogue at the basecamp's bed.", text="End via Sub", variable=var48).pack(side='top', anchor=N+W)
-    menuFlagsFrame.pack(side='right', expand=True)
+    menuFlagsFrame.pack(side='right', anchor='n', expand=True)
 
 
 def LargeMonsters(tab, data):
@@ -880,10 +883,8 @@ def Unknowns(tab, data):
     'unkByte8': IntVar(value=0x00),  # 0x0381
     """
     unk_box_1 = ttk.Frame(tab)
-    ttk.Label(unk_box_1, text="Unknown 4: One Byte:").grid(column=0, row=0)
-    NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_4']).grid(column=0, row=1)
-    ttk.Label(unk_box_1, text="Tutorial:").grid(column=1, row=0)
-    Dropdown(unk_box_1, TutorialType, data['unknown']['unk_5']).grid(column=1, row=1)
+    ttk.Label(unk_box_1, text="Unknown 4: One Byte:").grid(column=0, row=0, columnspan=2)
+    NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_4']).grid(column=0, row=1, columnspan=2)
     ttk.Label(unk_box_1, text="Unknown 6: One Byte:").grid(column=0, row=2)
     NumEntry(unk_box_1, limit=0xFF, width=25, variable=data['unknown']['unk_6']).grid(column=0, row=3)
     ttk.Label(unk_box_1, text="Unknown 7: Two Bytes:").grid(column=1, row=2)
@@ -1360,7 +1361,7 @@ areaImages = {
 }
 
 
-VERSION = "0.13"
+VERSION = "0.13.1"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
