@@ -205,7 +205,7 @@ def QuestSettings(tab, data, onAreaChange=None, onArenaToggle=None):
 
 def LargeMonsters(tab, data):
     PADDING_BETWEEN_SECTIONS = 10
-    def toggle_warning():
+    def toggle_warning(*args):
         is_invader = False
         non_small_invader = False
         elder_dragons = [
@@ -244,18 +244,18 @@ def LargeMonsters(tab, data):
             (num_sml_bosses+num_lrg_bosses+num_eld_drg)>0:
             warning.config(image=WARNING)
             warning.hover = "THIS QUEST MAY CRASH. No memory\nis allocated for for any bosses."
-        elif data['unknown']['unk_12'].get() == BossMemAllocType.One_Regular_Boss and \
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.One_Regular_Boss and not data['quest_info']['flags'][0][2].get() and\
             (num_eld_drg>0 or (num_sml_bosses+num_lrg_bosses)>1):
             warning.config(image=WARNING)
-            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated\nfor only one regular (non-elder dragon) boss."
-        elif data['unknown']['unk_12'].get() == BossMemAllocType.Two_Regular_Bosses and \
+            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated for only\none regular (non-elder dragon) boss at once."
+        elif data['unknown']['unk_12'].get() == BossMemAllocType.Two_Regular_Bosses and not data['quest_info']['flags'][0][2].get() and \
             (num_eld_drg>0 or (num_sml_bosses+num_lrg_bosses)>2):
             warning.config(image=WARNING)
-            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated\nfor only two regular (non-elder dragon) bosses."
+            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated for only\ntwo regular (non-elder dragon) bosses at once."
         elif (data['unknown']['unk_12'].get() == BossMemAllocType.Two_Regular_Bosses_and_One_Small_Boss or data['unknown']['unk_12'].get() == BossMemAllocType.none) and \
-            (num_eld_drg>0 or num_lrg_bosses>2):
+            not data['quest_info']['flags'][0][2].get() and (num_eld_drg>0 or num_lrg_bosses>2):
             warning.config(image=WARNING)
-            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated for only two regular\n(non-elder dragon) bosses and one small (great jaggi/baggi) boss."
+            warning.hover = "THIS QUEST MAY CRASH. Memory is allocated for only two regular\n(non-elder dragon) bosses and one small (great jaggi/baggi) boss at once."
         elif data['unknown']['unk_12'].get() == BossMemAllocType.One_Elder_Dragon_Boss and \
             (num_eld_drg>1 or (num_sml_bosses+num_lrg_bosses)>0):
             warning.config(image=WARNING)
@@ -281,6 +281,8 @@ def LargeMonsters(tab, data):
             warning.hover = "Your invader will not spawn due\nto your memory allocation setting."
         else:
             warning.config(image='')
+
+    data['quest_info']['flags'][0][2].trace("w", toggle_warning)
 
     bossMemAllocFrame = ttk.Frame(tab, padding=2)
     ttk.Label(bossMemAllocFrame, text="Boss Type Memory Allocation").grid(column=0, row=0, pady=(PADDING_BETWEEN_SECTIONS+5, 0), sticky='w')
@@ -1444,7 +1446,7 @@ areaImages = {
 }
 
 
-VERSION = "0.13.2"
+VERSION = "0.13.3"
 
 if __name__ == '__main__':
     win = Tk(screenName="MH3 Event Quest Creator")
